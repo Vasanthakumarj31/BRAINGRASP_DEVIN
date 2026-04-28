@@ -11,12 +11,14 @@ function initGiftFinder() {
 
   let currentStep = 1;
   const totalSteps = steps.length;
+  const answers = {};
   
   document.querySelectorAll('.gift-option').forEach(btn => {
     btn.addEventListener('click', function() {
       const parentStep = this.closest('.gift-finder-step');
       parentStep.querySelectorAll('.gift-option').forEach(b => b.classList.remove('selected'));
       this.classList.add('selected');
+      answers[`step${parentStep.dataset.step}`] = this.dataset.value;
       
       setTimeout(() => {
         parentStep.classList.remove('active');
@@ -49,8 +51,34 @@ function initGiftFinder() {
   }
 
   function showGiftResults() {
-    const shuffled = [...products.trending, ...products.bestsellers].sort(() => 0.5 - Math.random());
-    const recommendations = shuffled.slice(0, 3);
+    const allProducts = [...products.trending, ...products.bestsellers, ...products.newlaunches, ...products.bundles];
+    const ageChoice = answers.step2;
+    const interest = answers.step3;
+    const budget = answers.step4;
+
+    let recommendations = allProducts.filter(product => {
+      const ageMatch = !ageChoice || ageChoice === 'all' || product.ageGroup === ageChoice;
+      const interestMatch = !interest || interest === 'all' ||
+        (interest === 'science' && (product.category || '').toLowerCase().includes('learning')) ||
+        (interest === 'art' && (product.category || '').toLowerCase().includes('arts')) ||
+        (interest === 'puzzles' && (product.category || '').toLowerCase().includes('puzzle')) ||
+        (interest === 'reading' && (product.name || '').toLowerCase().match(/word|book|flash|write/));
+
+      const price = Number(product.price) || 0;
+      const budgetMatch =
+        !budget ||
+        (budget === 'under500' && price < 500) ||
+        (budget === '500-1000' && price >= 500 && price <= 1000) ||
+        (budget === '1000-1500' && price >= 1000 && price <= 1500) ||
+        (budget === 'above1500' && price > 1500);
+      return ageMatch && interestMatch && budgetMatch;
+    });
+
+    if (recommendations.length < 3) {
+      const fallback = allProducts.filter(p => !recommendations.some(r => r.id === p.id));
+      recommendations = [...recommendations, ...fallback];
+    }
+    recommendations = recommendations.slice(0, 4);
     
     resultGrid.innerHTML = recommendations.map(createProductCard).join('');
     document.querySelector('.gift-finder-progress').style.display = 'none';

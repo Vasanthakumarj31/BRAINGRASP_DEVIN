@@ -32,6 +32,15 @@ function saveCart(cart) {
   localStorage.setItem('bg_cart', JSON.stringify(cart));
 }
 
+function escapeHTML(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function addToCart(item) {
   const cart = getCart();
   const existing = cart.find(i => i.id === item.id);
@@ -69,10 +78,61 @@ function getCartCount() {
 }
 
 function updateCartCount() {
-  const countEl = document.getElementById('cartCount');
-  if (countEl) {
-    countEl.textContent = getCartCount();
+  const count = getCartCount();
+  const idEl = document.getElementById('cartCount');
+  if (idEl) idEl.textContent = count;
+  // update any elements using the .cart-count class as well
+  document.querySelectorAll('.cart-count').forEach(el => el.textContent = count);
+  renderCartSidebar();
+}
+
+function renderCartSidebar() {
+  const sidebar = document.getElementById('cartSidebar');
+  if (!sidebar) return;
+
+  const cart = getCart();
+  let cartItems = document.getElementById('cartItems');
+  const emptyState = sidebar.querySelector('.cart-empty');
+  const footer = sidebar.querySelector('.cart-footer');
+  const totalEl =
+    document.getElementById('cartTotal') ||
+    sidebar.querySelector('.cart-total span:last-child');
+
+  if (!cartItems) {
+    cartItems = document.createElement('div');
+    cartItems.id = 'cartItems';
+    cartItems.className = 'cart-items';
+    if (emptyState) {
+      sidebar.insertBefore(cartItems, emptyState);
+    } else if (footer) {
+      sidebar.insertBefore(cartItems, footer);
+    } else {
+      sidebar.appendChild(cartItems);
+    }
   }
+
+  if (cart.length === 0) {
+    cartItems.innerHTML = '';
+    if (emptyState) emptyState.style.display = 'flex';
+    if (totalEl) totalEl.innerHTML = '&#8377;0';
+    return;
+  }
+
+  if (emptyState) emptyState.style.display = 'none';
+
+  cartItems.innerHTML = cart.map(item => `
+    <div class="cart-item">
+      <div>
+        <div class="cart-item-name">${escapeHTML(item.name || 'Product')}</div>
+        <div class="cart-item-meta">&#8377;${item.price} x ${item.quantity}</div>
+      </div>
+      <button class="cart-item-remove" data-id="${item.id}" aria-label="Remove item">
+        <i class="fas fa-trash"></i>
+      </button>
+    </div>
+  `).join('');
+
+  if (totalEl) totalEl.innerHTML = `&#8377;${getCartTotal()}`;
 }
 
 // ── Cart Sync on Login ─────────────────────────────────────────
@@ -322,6 +382,15 @@ document.addEventListener('DOMContentLoaded', () => {
   initCheckoutGuard();
   initLoginPage();
   updateCartCount(); // Initialize cart count on all pages
+  renderCartSidebar();
+
+  // Event delegation for sidebar item remove buttons
+  document.addEventListener('click', (e) => {
+    const removeBtn = e.target.closest('.cart-item-remove');
+    if (!removeBtn) return;
+    const itemId = parseInt(removeBtn.dataset.id, 10);
+    if (!Number.isNaN(itemId)) removeFromCart(itemId);
+  });
 
   const logoutBtn = document.getElementById('logoutBtn');
   if (logoutBtn) logoutBtn.addEventListener('click', logout);

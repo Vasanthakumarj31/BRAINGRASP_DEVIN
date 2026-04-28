@@ -220,3 +220,7 @@ function initShopByCategory() {
   applyFiltersAndSort();
 }
 
+document.addEventListener('productsUpdated', () => {
+  initShopByCategory();
+});
+

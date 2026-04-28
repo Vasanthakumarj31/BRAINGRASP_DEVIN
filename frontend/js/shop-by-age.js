@@ -158,6 +158,10 @@ function initShopByAge() {
   renderShopByAge();
 }
 
+document.addEventListener('productsUpdated', () => {
+  initShopByAge();
+});
+
 // === Discovery Sliders ===
 function initDiscoverySliders() {
   renderProducts('youMayAlsoLikeGrid', products.bestsellers);
