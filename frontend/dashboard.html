@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Account - BrainyGrasp</title>
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+  <!-- Announcement Bar -->
+  <div class="announcement-bar">
+    <div class="announcement-slider">
+      <div class="announcement-slide active">Buy any <strong>2</strong> and get <strong>FLAT 10% OFF</strong> | Use Code: <strong>BRAINY10</strong></div>
+      <div class="announcement-slide">Buy any <strong>3</strong> and get <strong>FLAT 15% OFF</strong> | Use Code: <strong>BRAINY15</strong></div>
+      <div class="announcement-slide">Get a <strong>FREE GIFT</strong> on all orders above <strong>&#8377;1,499</strong></div>
+      <div class="announcement-slide"><strong>FREE SHIPPING</strong> on order value above &#8377;999</div>
+    </div>
+  </div>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="container">
+      <div class="top-bar-links">
+        <a href="faqs.html">FAQs</a>
+        <a href="blogs.html">Blogs</a>
+        <a href="rewards.html"><i class="fas fa-gift"></i> Rewards</a>
+        <a href="about.html">About Us</a>
+        <a href="#help"><i class="fab fa-whatsapp"></i> Need Help?</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Header -->
+  <header class="main-header" id="mainHeader">
+    <div class="container">
+      <div class="header-inner">
+        <!-- Mobile Menu Toggle -->
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+          <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Logo -->
+        <a href="index.html" class="logo">
+          <span class="logo-icon">🧠</span>
+          <span class="logo-text">Brainy<span class="logo-highlight">Grasp</span></span>
+        </a>
+
+        <!-- Navigation -->
+        <nav class="main-nav" id="mainNav">
+          <ul class="nav-list">
+            <li class="nav-item">
+              <a href="shop-by-age.html" class="nav-link">Shop by Age</a>
+            </li>
+            <li class="nav-item has-mega">
+              <a href="shop-by-category.html" class="nav-link">Shop by Category <i class="fas fa-chevron-down"></i></a>
+              <div class="mega-menu category-mega-menu">
+                <div class="category-mega-flex">
+                  <div class="category-mega-icons">
+                    <a href="shop-by-category.html?category=Arts+%26+Crafts" class="cat-mega-item" data-category="Arts & Crafts">
+                      <div class="cat-mega-circle"><img src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=100&h=100&fit=crop" alt="Arts & Crafts"></div>
+                      <span>Arts & Crafts</span>
+                    </a>
+                    <a href="shop-by-category.html?category=Puzzles+%26+Pretend" class="cat-mega-item" data-category="Puzzles & Pretend">
+                      <div class="cat-mega-circle"><img src="https://images.unsplash.com/photo-1566140967404-b8b3932483f5?w=100&h=100&fit=crop" alt="Puzzles"></div>
+                      <span>Puzzles & Pretend Play</span>
+                    </a>
+                    <a href="shop-by-category.html?category=Infant+Toys" class="cat-mega-item" data-category="Infant Toys">
+                      <div class="cat-mega-circle"><img src="https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=100&h=100&fit=crop" alt="Toddlers"></div>
+                      <span>Toddlers & Infants</span>
+                    </a>
+                    <a href="shop-by-category.html?category=Learning+Products" class="cat-mega-item" data-category="Learning Products">
+                      <div class="cat-mega-circle"><img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=100&h=100&fit=crop" alt="Learning"></div>
+                      <span>Learning Products</span>
+                    </a>
+                    <a href="shop-by-category.html?category=Card+%26+Board+Games" class="cat-mega-item" data-category="Card & Board Games">
+                      <div class="cat-mega-circle"><img src="https://images.unsplash.com/photo-1509228627152-72ae9ae6848d?w=100&h=100&fit=crop" alt="Games"></div>
+                      <span>Card & Board Games</span>
+                    </a>
+                    <a href="shop-by-category.html?category=STEM+Toys" class="cat-mega-item" data-category="STEM Toys">
+                      <div class="cat-mega-circle"><img src="https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=100&h=100&fit=crop" alt="STEM"></div>
+                      <span>STEM Toys</span>
+                    </a>
+                  </div>
+                  <div class="category-mega-shop-all">
+                    <a href="shop-by-category.html" class="btn btn-outline-primary">Shop All</a>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li class="nav-item has-mega">
+              <a href="parents-choice.html" class="nav-link">Parents' Choice <i class="fas fa-chevron-down"></i></a>
+              <div class="mega-menu parents-choice-mega">
+                <div class="parents-mega-flex">
+                  <div class="parents-mega-lines">
+                    <a href="shop-by-category.html?category=Foil+Balloons" class="parents-line-item">
+                      <div class="line-circle"><span class="line-text foil">🎈</span></div>
+                      <span class="line-label">Foil Balloons</span>
+                    </a>
+                    <a href="shop-by-category.html?category=Pi%C3%B1atas" class="parents-line-item">
+                      <div class="line-circle"><span class="line-text piece">🎎</span></div>
+                      <span class="line-label">Piñatas</span>
+                    </a>
+                    <a href="shop-by-category.html?category=Party+Suits" class="parents-line-item">
+                      <div class="line-circle"><span class="line-text poke">🎮</span></div>
+                      <span class="line-label">Party Suits</span>
+                    </a>
+                    <a href="shop-by-category.html?category=Sound+Sparks" class="parents-line-item">
+                      <div class="line-circle"><span class="line-text sand">🎇</span></div>
+                      <span class="line-label">Sparks</span>
+                    </a>
+                    <a href="shop-by-category.html?category=Snip+Arts" class="parents-line-item">
+                      <div class="line-circle"><span class="line-text snip">✂️</span></div>
+                      <span class="line-label">Snip Arts</span>
+                    </a>
+                  </div>
+                  <div class="parents-mega-action">
+                    <a href="parents-choice.html" class="btn-outline-orange">View All Collections</a>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li class="nav-item">
+              <a href="gift-finder.html" class="nav-link nav-link-new">Gift Finder</a>
+            </li>
+            <li class="nav-item">
+              <a href="collections.html" class="nav-link">Collections</a>
+            </li>
+            <li class="nav-item">
+              <a href="faqs.html" class="nav-link">FAQs</a>
+            </li>
+          </ul>
+        </nav>
+
+        <!-- Header Actions -->
+        <div class="header-actions">
+          <button class="header-action-btn cart-btn" id="cartBtn">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-count" id="cartCount">0</span>
+          </button>
+          <a id="userBtn" href="login.html" class="header-action-btn user-btn" title="Sign In">
+            <i class="fas fa-user"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="dashboard-container">
+    <div class="container">
+      <div class="dashboard-header">
+        <h1>My Account</h1>
+        <p>Welcome back! Manage your profile and track your orders.</p>
+      </div>
+
+      <div class="dashboard-grid">
+        <!-- Profile Card -->
+        <div class="dashboard-card profile-card">
+          <div class="card-header">
+            <h2><i class="fas fa-user-circle"></i> Profile Information</h2>
+          </div>
+          <div class="card-body">
+            <div class="profile-info" id="profileInfo">
+              <div class="profile-field">
+                <label>Name</label>
+                <span id="userName">Loading...</span>
+              </div>
+              <div class="profile-field">
+                <label>Phone</label>
+                <span id="userPhone">Loading...</span>
+              </div>
+              <div class="profile-field">
+                <label>Email</label>
+                <span id="userEmail">Loading...</span>
+              </div>
+              <div class="profile-field">
+                <label>Member Since</label>
+                <span id="userCreated">Loading...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions Card -->
+        <div class="dashboard-card actions-card">
+          <div class="card-header">
+            <h2><i class="fas fa-bolt"></i> Quick Actions</h2>
+          </div>
+          <div class="card-body">
+            <div class="quick-actions">
+              <a href="index.html" class="quick-action-btn">
+                <i class="fas fa-store"></i>
+                <span>Continue Shopping</span>
+              </a>
+              <a href="#" class="quick-action-btn" id="viewOrdersBtn">
+                <i class="fas fa-box-open"></i>
+                <span>My Orders</span>
+              </a>
+              <a href="#" class="quick-action-btn" id="logoutQuickBtn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Orders Card -->
+        <div class="dashboard-card orders-card">
+          <div class="card-header">
+            <h2><i class="fas fa-shopping-bag"></i> My Orders</h2>
+            <button class="btn-link" id="refreshOrdersBtn">Refresh</button>
+          </div>
+          <div class="card-body">
+            <div class="orders-list" id="ordersList">
+              <div class="orders-loading">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>Loading your orders...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Main Footer -->
+  <footer class="main-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col footer-brand">
+          <a href="index.html" class="footer-logo">
+            <span class="logo-icon">🧠</span>
+            <span class="logo-text">Brainy<span class="logo-highlight">Grasp</span></span>
+          </a>
+          <p>Where Learning Meets Play! Discover unique toys and games for early development.</p>
+          <div class="footer-social">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h3>Shop</h3>
+          <ul>
+            <li><a href="shop-by-age.html">Shop by Age</a></li>
+            <li><a href="shop-by-category.html">Shop by Category</a></li>
+            <li><a href="collections.html">Collections</a></li>
+            <li><a href="parents-choice.html">Parents' Choice</a></li>
+            <li><a href="gift-finder.html">Gift Finder</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h3>Support</h3>
+          <ul>
+            <li><a href="faqs.html">FAQs</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="#">Contact Us</a></li>
+            <li><a href="#">Shipping Policy</a></li>
+            <li><a href="#">Return Policy</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h3>Connect</h3>
+          <ul>
+            <li><a href="blogs.html">Blog</a></li>
+            <li><a href="rewards.html">Rewards</a></li>
+            <li><a href="#">Refer a Friend</a></li>
+            <li><a href="#">Become an Affiliate</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2024 BrainyGrasp. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/auth.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

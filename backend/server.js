@@ -382,4 +382,22 @@ app.get('/api/orders', authenticateToken, async (req, res) => {
   }
 });
 
+app.get('/api/orders/:id', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query(`
+      SELECT o.*, a.full_name, a.line1, a.line2, a.city, a.state, a.pincode, a.phone
+      FROM orders o
+      LEFT JOIN addresses a ON o.address_id=a.id
+      WHERE o.id=$1 AND o.user_id=$2
+    `,[id, req.user.id]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 app.listen(port, () => console.log(`Backend API running on http://localhost:${port}`));
