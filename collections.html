@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BrainyGrasp - Where Learning Meets Play!</title>
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/shop-by-category.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+ 
+  <!-- Announcement Bar -->
+  <div class="announcement-bar">
+    <div class="announcement-slider">
+      <div class="announcement-slide active">Buy any <strong>2</strong> and get <strong>FLAT 10% OFF</strong> | Use Code: <strong>BRAINY10</strong></div>
+      <div class="announcement-slide">Buy any <strong>3</strong> and get <strong>FLAT 15% OFF</strong> | Use Code: <strong>BRAINY15</strong></div>
+      <div class="announcement-slide">Get a <strong>FREE GIFT</strong> on all orders above <strong>&#8377;1,499</strong></div>
+      <div class="announcement-slide"><strong>FREE SHIPPING</strong> on order value above &#8377;999</div>
+    </div>
+  </div>
+ 
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="container">
+      <div class="top-bar-links">
+        <a href="faqs.html">FAQs</a>
+        <a href="blogs.html">Blogs</a>
+        <a href="rewards.html"><i class="fas fa-gift"></i> Rewards</a>
+        <a href="about.html">About Us</a>
+        <a href="#help"><i class="fab fa-whatsapp"></i> Need Help?</a>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- Main Header -->
+  <header class="main-header" id="mainHeader">
+    <div class="container">
+      <div class="header-inner">
+        <!-- Mobile Menu Toggle -->
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+          <i class="fas fa-bars"></i>
+        </button>
+ 
+        <!-- Logo -->
+        <a href="/" class="logo">
+          <span class="logo-icon">🧠</span>
+          <span class="logo-text">Brainy<span class="logo-highlight">Grasp</span></span>
+        </a>
+ 
+        <!-- Navigation -->
+        <nav class="main-nav" id="mainNav">
+          <ul class="nav-list">
+            <li class="nav-item">
+              <a href="shop-by-age.html" class="nav-link">Shop by Age</a>
+            </li>
+            <li class="nav-item has-mega">
+              <a href="shop-by-category.html" class="nav-link">Shop by Category <i class="fas fa-chevron-down"></i></a>
+              <div class="mega-menu category-mega-menu">
+                <div class="category-mega-flex">
+                  <div class="category-mega-icons">
+                    <a href="shop-by-category.html?category=Arts+%26+Crafts" class="cat-mega-item" data-category="Arts & Crafts">
+                      <div class="cat-mega-circle"><img src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=100&h=100&fit=crop" alt="Arts & Crafts"></div>
+                      <span>Arts & Crafts</span>
+                    </a>
+                    <a href="shop-by-category.html?category=Puzzles+%26+Pretend" class="cat-mega-item" data-category="Puzzles & Pretend">
+                      <div class="cat-mega-circle"><img src="https://images.unsplash.com/photo-1566140967404-b8b3932483f5?w=100&h=100&fit=crop" alt="Puzzles"></div>
+                      <span>Puzzles & Pretend Play</span>
+                    </a>
+                    <a href="shop-by-category.html?category=Infant+Toys" class="cat-mega-item" data-category="Infant Toys">
+                      <div class="cat-mega-circle"><img src="https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=100&h=100&fit=crop" alt="Toddlers"></div>
+                      <span>Toddlers & Infants</span>
+                    </a>
+                    <a href="shop-by-category.html?category=Learning+Products" class="cat-mega-item" data-category="Learning Products">
+                      <div class="cat-mega-circle"><img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=100&h=100&fit=crop" alt="Learning"></div>
+                      <span>Learning Products</span>
+                    </a>
+                    <a href="shop-by-category.html?category=Card+%26+Board+Games" class="cat-mega-item" data-category="Card & Board Games">
+                      <div class="cat-mega-circle"><img src="https://images.unsplash.com/photo-1509228627152-72ae9ae6848d?w=100&h=100&fit=crop" alt="Games"></div>
+                      <span>Card & Board Games</span>
+                    </a>
+                    <a href="shop-by-category.html?category=STEM+Toys" class="cat-mega-item" data-category="STEM Toys">
+                      <div class="cat-mega-circle"><img src="https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=100&h=100&fit=crop" alt="STEM"></div>
+                      <span>STEM Toys</span>
+                    </a>
+                  </div>
+                  <div class="category-mega-shop-all">
+                    <a href="shop-by-category.html" class="btn btn-outline-primary">Shop All</a>
+                  </div>
+                </div>
+              </div>
+            </li>
+                        <li class="nav-item has-mega">
+              <a href="parents-choice.html" class="nav-link">Parents' Choice <i class="fas fa-chevron-down"></i></a>
+              <div class="mega-menu parents-choice-mega">
+                <div class="parents-mega-flex">
+                  <div class="parents-mega-lines">
+                    <a href="parents-choice.html#foil" class="parents-line-item">
+                      <div class="line-circle"><span class="line-text foil">Foil<br>Fun</span></div>
+                      <span class="line-label">Foil Fun</span>
+                    </a>
+                    <a href="parents-choice.html#piece" class="parents-line-item">
+                      <div class="line-circle"><span class="line-text piece">Piece<br>& Play</span></div>
+                      <span class="line-label">Piece & Play</span>
+                    </a>
+                    <a href="parents-choice.html#poke" class="parents-line-item">
+                      <div class="line-circle"><span class="line-text poke">Poke-In<br>Art</span></div>
+                      <span class="line-label">Poke-In Art</span>
+                    </a>
+                    <a href="parents-choice.html#sand" class="parents-line-item">
+                      <div class="line-circle"><span class="line-text sand">Sandeezy</span></div>
+                      <span class="line-label">Sandeezy</span>
+                    </a>
+                    <a href="parents-choice.html#snip" class="parents-line-item">
+                      <div class="line-circle"><span class="line-text snip">Snip,<br>Snip!</span></div>
+                      <span class="line-label">Snip, Snip!</span>
+                    </a>
+                  </div>
+                  <div class="parents-mega-action">
+                    <a href="parents-choice.html" class="btn btn-outline-orange">Shop All</a>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li class="nav-item has-mega">
+              <a href="collections.html?collection=gifting" class="nav-link">Gifting <i class="fas fa-chevron-down"></i></a>
+              <div class="mega-menu mega-menu-small">
+                <div class="mega-grid mega-grid-2">
+                  <a href="collections.html?collection=birthday" class="mega-card">
+                    <div class="mega-card-img" style="background: linear-gradient(135deg, #FF6B6B, #FFD93D);">
+                      <span>🎂</span>
+                    </div>
+                    <p>Birthday Gifts</p>
+                  </a>
+                  <a href="collections.html?collection=bundles" class="mega-card">
+                    <div class="mega-card-img" style="background: linear-gradient(135deg, #A18CD1, #FBC2EB);">
+                      <span>🎁</span>
+                    </div>
+                    <p>Gift Bundles</p>
+                  </a>
+                </div>
+                <a href="collections.html?collection=gifting" class="mega-shop-all">Shop All <i class="fas fa-arrow-right"></i></a>
+              </div>
+            </li>
+            <li class="nav-item"><a href="collections.html?collection=bestsellers" class="nav-link nav-link-highlight">Bestsellers</a></li>
+            <li class="nav-item"><a href="collections.html?collection=newlaunches" class="nav-link nav-link-new">New Launches</a></li>
+            <li class="nav-item"><a href="collections.html?collection=bundles" class="nav-link nav-link-sale">Bundles 20% Off</a></li>
+            <li class="nav-item"><a href="collections.html?collection=return" class="nav-link nav-link-sale">Return Gifts 25% Off</a></li>
+          </ul>
+        </nav>
+ 
+        <!-- Header Actions -->
+        <div class="header-actions">
+          <button class="header-action-btn search-btn" id="searchBtn">
+            <i class="fas fa-search"></i>
+          </button>
+          <a href="#" class="header-action-btn whatsapp-btn">
+            <i class="fab fa-whatsapp"></i>
+          </a>
+          <button class="header-action-btn cart-btn" id="cartBtn">
+            <i class="fas fa-shopping-bag"></i>
+            <span class="cart-count">0</span>
+          </button>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- Search Overlay -->
+    <div class="search-overlay" id="searchOverlay">
+      <div class="container">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="What are you looking for?" id="searchInput">
+          <button class="search-close" id="searchClose"><i class="fas fa-times"></i></button>
+        </div>
+      </div>
+    </div>
+  </header>
+ 
+  <!-- Cart Sidebar -->
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <div class="cart-sidebar" id="cartSidebar">
+    <div class="cart-header">
+      <h3><i class="fas fa-shopping-bag"></i> SHOPPING CART</h3>
+      <button class="cart-close" id="cartClose"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="cart-offers">
+      <p>Buy any <strong>2</strong> and get <strong>FLAT 10% OFF</strong> | Use Code: <strong>BRAINY10</strong></p>
+      <p>Buy any <strong>3</strong> and get <strong>FLAT 15% OFF</strong> | Use Code: <strong>BRAINY15</strong></p>
+      <p>Get a <strong>FREE GIFT</strong> on all orders above <strong>&#8377;1,499</strong></p>
+      <p><strong>FREE SHIPPING</strong> on order value above &#8377;999</p>
+    </div>
+    <div class="cart-empty">
+      <i class="fas fa-shopping-bag"></i>
+      <p>No Products in the Cart</p>
+    </div>
+    <div class="cart-footer">
+      <div class="cart-total">
+        <span>TOTAL:</span>
+        <span>&#8377;0</span>
+      </div>
+      <button class="btn-checkout">PROCEED TO CHECKOUT</button>
+      <button class="btn-view-cart">VIEW CART</button>
+    </div>
+  </div>
+ 
+  <!-- Category Showcase Section -->
+  <section class="section category-showcase-section" id="shopByCategory">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title" id="colDynamicTitle">Collections</h2>
+        <p class="section-subtitle" id="colDynamicSubtitle">Explore our curated collections.</p>
+      </div>
+      
+      <!-- Pill Age Filters -->
+      <div class="category-age-pills" id="colAgePills">
+        <button class="age-pill" data-age="0-3">0-3</button>
+        <button class="age-pill" data-age="3+">3+</button>
+        <button class="age-pill" data-age="6+">6+</button>
+        <button class="age-pill" data-age="8+">8+</button>
+      </div>
+
+      <div class="shop-layout" id="categoryShopLayout">
+        <aside class="filter-sidebar" id="colFilterSidebar">
+          <div class="filter-sidebar-header">
+            <h3><i class="fas fa-filter"></i> Filters</h3>
+            <button class="filter-close-btn" id="colFilterCloseBtn"><i class="fas fa-times"></i></button>
+          </div>
+          
+          <div class="filter-group">
+            <h4 class="filter-title">Price</h4>
+            <div class="filter-price-inputs">
+              <div class="price-input">
+                <span>&#8377;</span>
+                <input type="number" id="colPriceMin" placeholder="Min" value="284">
+              </div>
+              <div class="price-input">
+                <span>&#8377;</span>
+                <input type="number" id="colPriceMax" placeholder="Max" value="2147">
+              </div>
+            </div>
+            <button class="btn btn-primary" id="colPriceApply" style="width:100%; margin-top:10px; padding:6px; font-size:14px;">Apply</button>
+          </div>
+
+          <div class="filter-group">
+            <h4 class="filter-title">Categories</h4>
+            <div class="filter-options" id="colFilterCategories">
+              <!-- JS Populated -->
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <h4 class="filter-title">Key Skills</h4>
+            <div class="filter-options" id="colFilterSkills">
+              <!-- JS Populated -->
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <h4 class="filter-title">Themes</h4>
+            <div class="filter-options" id="colFilterThemes">
+              <!-- JS Populated -->
+            </div>
+          </div>
+
+        </aside>
+
+        <div class="shop-main">
+          <div class="shop-top-bar">
+            <button class="mobile-filter-btn" id="colMobileFilterBtn">
+              <i class="fas fa-filter"></i> Filter
+            </button>
+            <div class="shop-results-count" id="colResultsCount">0 Products</div>
+            <div class="shop-sort">
+              <select id="colSortBySelect" class="sort-select">
+                <option value="default">Sort By</option>
+                <option value="bestsellers">Best Sellers</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+                <option value="newest">Launch Date: Newest First</option>
+                <option value="oldest">Launch Date: Oldest First</option>
+              </select>
+            </div>
+          </div>
+          <div class="products-grid shop-page-grid" id="colProductsGrid">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Important Links / SEO Section -->
+  <section class="section important-links-section">
+    <div class="container">
+      <div class="important-links-toggle" id="importantLinksToggle">
+        <h2>Important Links</h2>
+        <i class="fas fa-chevron-up"></i>
+      </div>
+      <div class="important-links-content" id="importantLinksContent">
+        <div class="important-links-group">
+          <h4>Kids Gifts</h4>
+          <div class="important-links-list">
+            <a href="#">Baby Toys</a> |
+            <a href="#">Gift For Infants</a> |
+            <a href="#">Gifts For Kids</a> |
+            <a href="#">Kids Party Return Gifts</a> |
+            <a href="#">Rakhi Gifts For Kids</a> |
+            <a href="#">Gift For Students</a> |
+            <a href="#">Christmas Gifts For Kids</a> |
+            <a href="#">Diwali Gifts for Kids</a> |
+            <a href="#">Birthday Gifts</a>
+          </div>
+        </div>
+        <div class="important-links-group">
+          <h4>Age Appropriate Gifts For Kids</h4>
+          <div class="important-links-list">
+            <a href="#">Gift For 1 Year Baby Girl</a> |
+            <a href="#">Gifts For 1 Year Old Boy</a> |
+            <a href="#">Gift For 2 Year Girl</a> |
+            <a href="#">Gift For 2 Years Boy</a> |
+            <a href="#">Gift For 3 Year Girl</a> |
+            <a href="#">Gifts For 3 Year Old Boy</a> |
+            <a href="#">Gifts For 4 Year Girl</a> |
+            <a href="#">Gifts For 4 Year Old Boy</a> |
+            <a href="#">Gift For 5 Year Girl</a> |
+            <a href="#">Gifts For 5 Year Old Boys</a> |
+            <a href="#">Gift For 6 Year Girl</a> |
+            <a href="#">Gifts For 6 Year Old Boy</a> |
+            <a href="#">Gifts For 7 Year Old Girls</a> |
+            <a href="#">Gifts For 7 Year Old Boys</a>
+          </div>
+        </div>
+        <div class="important-links-group">
+          <h4>Age-Appropriate Educational Toys</h4>
+          <div class="important-links-list">
+            <a href="#">Toys for 1 year old</a> |
+            <a href="#">Toys for 1 year Old Boys</a> |
+            <a href="#">Learning Toys for 3-6 Year Olds</a> |
+            <a href="#">Educational Toys For 6-9 Year Kids</a> |
+            <a href="#">Learning Games for 8+ Year Olds</a>
+          </div>
+        </div>
+        <div class="important-links-group">
+          <h4>Shop By Category</h4>
+          <div class="important-links-list">
+            <a href="#">Foil Art Kit For Kids</a> |
+            <a href="#">Arts And Crafts Kits</a> |
+            <a href="#">STEM Learning Toys</a> |
+            <a href="#">Learning Board Games</a> |
+            <a href="#">Card Games For Kids</a> |
+            <a href="#">Floor Puzzles for Kids</a> |
+            <a href="#">Infant Cloth Books</a> |
+            <a href="#">Activity Mats</a>
+          </div>
+        </div>
+        <div class="important-links-group">
+          <h4>Popular Products</h4>
+          <div class="important-links-list">
+            <a href="#">Brain Builder Puzzle Set</a> |
+            <a href="#">STEM Explorer Kit</a> |
+            <a href="#">Baby Sensory Touch &amp; Feel Book</a> |
+            <a href="#">Sparkle Art Studio</a> |
+            <a href="#">Word Wizard Flash Cards</a> |
+            <a href="#">Ocean Adventures Floor Puzzle</a> |
+            <a href="#">Number Ninjas Math Game</a> |
+            <a href="#">High Contrast Baby Flash Cards</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="section faq-section" id="faqs">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Frequently Asked Questions <span class="title-emoji">❓</span></h2>
+      </div>
+      <div class="faq-list">
+        <div class="faq-item">
+          <button class="faq-question">
+            Are educational games effective for kids' learning?
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          <div class="faq-answer">
+            <p>Yes! Our flashcards, interactive toys, and learning kits are very effective for kids' learning and development. They are designed by educators to maximize engagement and retention.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            What is the right age to start playing with educational toys?
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          <div class="faq-answer">
+            <p>You can introduce educational toys right from the first month! Check out our learning toys for different age groups, then pick one at your discretion.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            Do these educational toys help decrease screen time?
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          <div class="faq-answer">
+            <p>Absolutely! Our kids' learning toys are focused on channelling your child's time and interests constructively, keeping them engaged away from screens.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            Do you have early-learning toys for infants?
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          <div class="faq-answer">
+            <p>Yes, we have a wide range of early-learning toys including high contrast flashcards, sensory mats, soft books, and more - all designed for the youngest learners.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            Are BrainyGrasp toys safe for children?
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          <div class="faq-answer">
+            <p>Safety is our top priority. All our toys are made from non-toxic, environmentally friendly, wear-resistant materials that meet international safety standards.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            Do you have travel-friendly toys?
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          <div class="faq-answer">
+            <p>Yes! We offer many travel-friendly options including activity books, flashcards, and compact game sets that can be easily carried anywhere.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            Does BrainyGrasp have suitable games for both boys and girls?
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          <div class="faq-answer">
+            <p>Yes! Most of our products are designed to be gender-neutral, suitable for all children regardless of gender. We believe every child deserves access to fun, educational play.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+ 
+  <!-- Newsletter Section -->
+  <section class="newsletter-section">
+    <div class="container">
+      <div class="newsletter-inner">
+        <div class="newsletter-content">
+          <h2>Join the BrainyGrasp Family! <span>🌟</span></h2>
+          <p>Sign up for email and get <strong>10% OFF</strong> on your first order! Plus exclusive access to new launches, tips, and special offers.</p>
+        </div>
+        <form class="newsletter-form" onsubmit="event.preventDefault();">
+          <input type="email" placeholder="Enter your email address" required>
+          <button type="submit" class="btn btn-primary">SIGN UP <i class="fas fa-paper-plane"></i></button>
+        </form>
+      </div>
+    </div>
+  </section>
+ 
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col footer-brand">
+          <a href="/" class="footer-logo">
+            <span class="logo-icon">🧠</span>
+            <span class="logo-text">Brainy<span class="logo-highlight">Grasp</span></span>
+          </a>
+          <p>Where learning meets play! Educational toys designed to spark curiosity and build confidence in every child.</p>
+          <div class="footer-social">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+            <a href="#"><i class="fab fa-pinterest"></i></a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Help</h4>
+          <ul>
+            <li><a href="#">Contact Us</a></li>
+            <li><a href="#">Shipping & Delivery</a></li>
+            <li><a href="#">Returns & Replacements</a></li>
+            <li><a href="#">FAQs</a></li>
+            <li><a href="#">Rewards</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Know More</h4>
+          <ul>
+            <li><a href="#">About Us</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Privacy & Security</a></li>
+            <li><a href="#">Terms of Use</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Shop By Category</h4>
+          <ul>
+            <li><a href="#">Arts & Crafts</a></li>
+            <li><a href="#">STEM Toys</a></li>
+            <li><a href="#">Board Games</a></li>
+            <li><a href="#">Puzzles</a></li>
+            <li><a href="#">Learning Kits</a></li>
+            <li><a href="#">Gift Bundles</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Shop By Age</h4>
+          <ul>
+            <li><a href="#">0-3 Years</a></li>
+            <li><a href="#">3+ Years</a></li>
+            <li><a href="#">6+ Years</a></li>
+            <li><a href="#">8+ Years</a></li>
+          </ul>
+          <h4 class="mt-20">Contact</h4>
+          <a href="#" class="footer-whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp Us</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="footer-bottom-inner">
+          <p>&copy; 2026 BrainyGrasp Learning Pvt. Ltd. All rights reserved.</p>
+          <div class="payment-icons">
+            <span>Shop Securely Using</span>
+            <div class="payment-methods">
+              <i class="fab fa-cc-visa"></i>
+              <i class="fab fa-cc-mastercard"></i>
+              <i class="fab fa-cc-amex"></i>
+              <i class="fab fa-google-pay"></i>
+              <i class="fab fa-cc-paypal"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+ 
+  <!-- Product Quick View Modal -->
+  <div class="quickview-overlay" id="quickviewOverlay"></div>
+  <div class="quickview-modal" id="quickviewModal">
+    <button class="quickview-close" id="quickviewClose"><i class="fas fa-times"></i></button>
+    <div class="quickview-content">
+      <div class="quickview-image">
+        <img id="quickviewImg" src="" alt="Product">
+      </div>
+      <div class="quickview-info">
+        <span class="quickview-badge" id="quickviewBadge"></span>
+        <div class="product-age" id="quickviewAge"></div>
+        <h2 class="quickview-name" id="quickviewName"></h2>
+        <div class="quickview-reviews" id="quickviewReviews">
+          <div class="stars">
+            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+          </div>
+          <span class="review-count">566 reviews</span>
+        </div>
+        <div class="product-price">
+          <span class="price-original" id="quickviewOriginal"></span>
+          <span class="price-current" id="quickviewPrice"></span>
+          <span class="price-save" id="quickviewSave"></span>
+        </div>
+        <div class="quickview-description">
+          <p>Educational toy designed by experts to spark curiosity and build confidence. Made from 100% safe, non-toxic materials.</p>
+        </div>
+        
+        <!-- Theme Selector -->
+        <div class="quickview-themes">
+          <label>Select Theme:</label>
+          <div class="theme-grid" id="quickviewThemeGrid">
+            <button class="theme-btn active">
+              <img src="https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=100&h=100&fit=crop" alt="Theme 1">
+              <span>Animals</span>
+            </button>
+            <button class="theme-btn">
+              <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=100&h=100&fit=crop" alt="Theme 2">
+              <span>Space</span>
+            </button>
+            <button class="theme-btn">
+              <img src="https://images.unsplash.com/photo-1566140967404-b8b3932483f5?w=100&h=100&fit=crop" alt="Theme 3">
+              <span>Dinosaurs</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="quickview-actions-row">
+          <div class="quickview-quantity">
+            <label>Quantity:</label>
+            <div class="quantity-selector">
+              <button class="qty-btn qty-minus"><i class="fas fa-minus"></i></button>
+              <input type="number" value="1" min="1" max="10" class="qty-input" id="quickviewQty">
+              <button class="qty-btn qty-plus"><i class="fas fa-plus"></i></button>
+            </div>
+          </div>
+          <button class="add-to-cart-btn quickview-add-btn" id="quickviewAddToCart">
+            <i class="fas fa-shopping-bag"></i> Add to Cart
+          </button>
+        </div>
+
+        <div class="quickview-offer banner-incentive">
+          <i class="fas fa-tag"></i> Buy any 2 | Get FLAT 10% OFF
+        </div>
+        <div class="quickview-features">
+          <div class="quickview-feature"><i class="fas fa-check-circle"></i> Award-Winning</div>
+          <div class="quickview-feature"><i class="fas fa-check-circle"></i> Non-Toxic</div>
+          <div class="quickview-feature"><i class="fas fa-check-circle"></i> 15-Day Returns</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Back to Top -->
+  <button class="back-to-top" id="backToTop">
+    <i class="fas fa-chevron-up"></i>
+  </button>
+ 
+  <!-- WhatsApp Float -->
+  <a href="#" class="whatsapp-float">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+ 
+  <!-- Mobile Nav Overlay -->
+  <div class="mobile-overlay" id="mobileOverlay"></div>
+ 
+  <script src="js/products.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/collections.js"></script>
+</body>
+</html>
