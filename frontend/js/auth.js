@@ -1,6 +1,6 @@
 /* ============================================================
    auth.js – BrainyGrasp Authentication Module
-   Handles: OTP login, JWT storage, UI state, checkout guard
+   Handles: OTP login, JWT storage, UI state, checkout guard, cart
    ============================================================ */
 
 const API_BASE = 'http://localhost:3000';
@@ -20,6 +20,86 @@ function storeAuth(token, user) {
 function clearAuth() {
   localStorage.removeItem('bg_token');
   localStorage.removeItem('bg_user');
+}
+
+// ── Cart Helpers ───────────────────────────────────────────────────────────
+function getCart() {
+  try { return JSON.parse(localStorage.getItem('bg_cart')) || []; }
+  catch { return []; }
+}
+
+function saveCart(cart) {
+  localStorage.setItem('bg_cart', JSON.stringify(cart));
+}
+
+function addToCart(item) {
+  const cart = getCart();
+  const existing = cart.find(i => i.id === item.id);
+  if (existing) {
+    existing.quantity += 1;
+  } else {
+    cart.push({ ...item, quantity: 1 });
+  }
+  saveCart(cart);
+  updateCartCount();
+  return cart;
+}
+
+function removeFromCart(itemId) {
+  let cart = getCart();
+  cart = cart.filter(i => i.id !== itemId);
+  saveCart(cart);
+  updateCartCount();
+  return cart;
+}
+
+function clearCart() {
+  localStorage.removeItem('bg_cart');
+  updateCartCount();
+}
+
+function getCartTotal() {
+  const cart = getCart();
+  return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+}
+
+function getCartCount() {
+  const cart = getCart();
+  return cart.reduce((sum, item) => sum + item.quantity, 0);
+}
+
+function updateCartCount() {
+  const countEl = document.getElementById('cartCount');
+  if (countEl) {
+    countEl.textContent = getCartCount();
+  }
+}
+
+// ── Cart Sync on Login ─────────────────────────────────────────
+async function syncCartOnLogin() {
+  if (!isAuthenticated()) return;
+  
+  const guestCart = getCart();
+  if (guestCart.length === 0) return;
+  
+  try {
+    // Sync cart to server
+    const response = await fetch(`${API_BASE}/api/cart/sync`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getToken()}`
+      },
+      body: JSON.stringify({ items: guestCart })
+    });
+    
+    if (response.ok) {
+      // Clear local cart after sync
+      clearCart();
+    }
+  } catch (err) {
+    console.log('Cart sync failed, keeping local cart');
+  }
 }
 
 // ── Header UI ──────────────────────────────────────────────────────────────
@@ -220,7 +300,7 @@ function initLoginPage() {
       updateAuthUI();
       const params = new URLSearchParams(window.location.search);
       const redirect = params.get('redirect');
-      window.location.href = redirect === 'checkout' ? 'checkout.html' : 'index.html';
+      window.location.href = redirect === 'checkout' ? 'checkout.html' : 'aura.html';
     } catch (err) {
       showError('Network error. Please try again.');
     }
@@ -241,6 +321,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateAuthUI();
   initCheckoutGuard();
   initLoginPage();
+  updateCartCount(); // Initialize cart count on all pages
 
   const logoutBtn = document.getElementById('logoutBtn');
   if (logoutBtn) logoutBtn.addEventListener('click', logout);
