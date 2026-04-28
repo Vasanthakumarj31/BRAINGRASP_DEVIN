@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cart | BrainyGrasp</title>
+  <meta name="description" content="Review your BrainyGrasp cart and proceed to secure checkout.">
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <header class="main-header" id="mainHeader">
+    <div class="container">
+      <div class="header-inner">
+        <a href="index.html" class="logo">
+          <span class="logo-icon">BG</span>
+          <span class="logo-text">Brainy<span class="logo-highlight">Grasp</span></span>
+        </a>
+        <div class="header-actions">
+          <a href="index.html" class="btn btn-secondary">Continue Shopping</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="section">
+    <div class="container">
+      <div class="section-header">
+        <h1 class="section-title">Your Cart</h1>
+        <p class="section-subtitle">Review items before checkout.</p>
+      </div>
+      <div id="cartPageEmpty" class="cart-empty">
+        <i class="fas fa-shopping-bag"></i>
+        <p>No products in the cart.</p>
+      </div>
+      <div id="cartPageItems" class="cart-items"></div>
+      <div class="cart-footer">
+        <div class="cart-total">
+          <span>TOTAL:</span>
+          <span id="cartPageTotal">&#8377;0</span>
+        </div>
+        <button type="button" class="btn-checkout" id="cartPageCheckout">PROCEED TO CHECKOUT</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/auth.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/cart.js"></script>
+</body>
+</html>
