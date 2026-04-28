@@ -29,9 +29,41 @@ function updateAuthUI() {
   const user = getUser();
   if (user) {
     const initial = (user.name || user.phone || user.email || 'U')[0].toUpperCase();
-    btn.innerHTML = `<span class="user-avatar-initial">${initial}</span>`;
-    btn.setAttribute('href', 'dashboard.html');
+    btn.innerHTML = `
+      <div class="user-menu">
+        <button class="user-avatar-btn" aria-haspopup="true" aria-expanded="false">
+          <span class="user-avatar-initial">${initial}</span>
+        </button>
+        <div class="user-menu-dropdown" role="menu">
+          <a href="dashboard.html" class="user-menu-link">My Account</a>
+          <a href="#" id="logoutBtn" class="user-menu-link">Logout</a>
+        </div>
+      </div>
+    `;
+    btn.removeAttribute('href');
     btn.title = user.name || 'My Account';
+
+    // Wire up menu interactions (use onclick to avoid duplicate listeners)
+    const avatarBtn = btn.querySelector('.user-avatar-btn');
+    const dropdown = btn.querySelector('.user-menu-dropdown');
+    if (avatarBtn) {
+      avatarBtn.onclick = (e) => {
+        e.stopPropagation();
+        // toggle
+        const open = dropdown.style.display === 'block';
+        // close other open menus
+        document.querySelectorAll('.user-menu-dropdown').forEach(d => d.style.display = 'none');
+        dropdown.style.display = open ? 'none' : 'block';
+      };
+    }
+
+    // Close dropdown on outside click
+    document.addEventListener('click', () => {
+      if (dropdown) dropdown.style.display = 'none';
+    });
+
+    const logoutBtn = btn.querySelector('#logoutBtn');
+    if (logoutBtn) logoutBtn.onclick = (e) => { e.preventDefault(); logout(); };
   } else {
     btn.innerHTML = '<i class="fas fa-user"></i>';
     btn.setAttribute('href', 'login.html');

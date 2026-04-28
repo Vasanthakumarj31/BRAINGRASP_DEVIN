@@ -400,6 +400,44 @@ input { font-family: inherit; }
   background: var(--bg-purple);
   color: var(--primary);
 }
+
+/* User / Profile button */
+.user-btn { padding: 0; }
+.user-avatar-initial {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--text-white);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+/* User menu dropdown */
+.user-menu { position: relative; display: inline-block; }
+.user-avatar-btn { background: transparent; border: none; padding: 0; cursor: pointer; }
+.user-menu-dropdown {
+  position: absolute;
+  right: 0;
+  top: 46px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow-lg);
+  min-width: 160px;
+  z-index: 2000;
+  display: none;
+}
+.user-menu-dropdown .user-menu-link {
+  display: block;
+  padding: 10px 12px;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.user-menu-dropdown .user-menu-link:hover { background: var(--bg-purple); color: var(--primary); }
  
 .whatsapp-btn:hover {
   background: #DCF8C6;
