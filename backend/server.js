@@ -79,6 +79,7 @@ async function initDB() {
         phone VARCHAR(20) UNIQUE,
         otp VARCHAR(10),
         otp_expires TIMESTAMP,
+        cart JSONB DEFAULT '[]',
         created_at TIMESTAMP DEFAULT NOW()
       )
     `);
@@ -109,6 +110,16 @@ async function initDB() {
         total INTEGER NOT NULL,
         status VARCHAR(50) DEFAULT 'Placed',
         created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS watchlist (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        tool_id INTEGER NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW(),
+        UNIQUE(user_id, tool_id)
       )
     `);
 
@@ -348,6 +359,75 @@ app.delete('/api/addresses/:id', authenticateToken, async (req, res) => {
     res.json({ success:true });
   } catch (err) {
     res.status(500).json({ error:'Failed to delete address' });
+  }
+});
+
+// ── Watchlist ───────────────────────────────────────────────────────────────
+app.get('/api/watchlist', authenticateToken, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM watchlist WHERE user_id=$1 ORDER BY created_at DESC', [req.user.id]);
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to load watchlist' });
+  }
+});
+
+app.post('/api/watchlist', authenticateToken, async (req, res) => {
+  const { tool_id } = req.body;
+  if (!tool_id) return res.status(400).json({ error: 'tool_id is required' });
+  try {
+    await pool.query(
+      'INSERT INTO watchlist (user_id, tool_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+      [req.user.id, tool_id]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to add to watchlist' });
+  }
+});
+
+app.delete('/api/watchlist/:toolId', authenticateToken, async (req, res) => {
+  try {
+    await pool.query(
+      'DELETE FROM watchlist WHERE user_id=$1 AND tool_id=$2',
+      [req.user.id, req.params.toolId]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to remove from watchlist' });
+  }
+});
+
+// ── Cart Sync ───────────────────────────────────────────────────────────────
+app.post('/api/cart/sync', authenticateToken, async (req, res) => {
+  const { items } = req.body;
+  if (!items || !Array.isArray(items)) {
+    return res.status(400).json({ error: 'items array is required' });
+  }
+  try {
+    // Store cart in database (replace existing)
+    await pool.query(
+      'UPDATE users SET cart = $1 WHERE id = $2',
+      [JSON.stringify(items), req.user.id]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to sync cart' });
+  }
+});
+
+app.get('/api/cart', authenticateToken, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT cart FROM users WHERE id = $1', [req.user.id]);
+    const cart = result.rows[0]?.cart || [];
+    res.json(cart);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to load cart' });
   }
 });
 

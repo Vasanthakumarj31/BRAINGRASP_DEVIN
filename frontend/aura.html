@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aura Discovery - BrainyGrasp</title>
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/aura.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+  <!-- Announcement Bar -->
+  <div class="announcement-bar">
+    <div class="announcement-slider">
+      <div class="announcement-slide active">Buy any <strong>2</strong> and get <strong>FLAT 10% OFF</strong> | Use Code: <strong>BRAINY10</strong></div>
+      <div class="announcement-slide">Buy any <strong>3</strong> and get <strong>FLAT 15% OFF</strong> | Use Code: <strong>BRAINY15</strong></div>
+      <div class="announcement-slide">Get a <strong>FREE GIFT</strong> on all orders above <strong>&#8377;1,499</strong></div>
+      <div class="announcement-slide"><strong>FREE SHIPPING</strong> on order value above &#8377;999</div>
+    </div>
+  </div>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="container">
+      <div class="top-bar-links">
+        <a href="faqs.html">FAQs</a>
+        <a href="blogs.html">Blogs</a>
+        <a href="rewards.html"><i class="fas fa-gift"></i> Rewards</a>
+        <a href="about.html">About Us</a>
+        <a href="#help"><i class="fab fa-whatsapp"></i> Need Help?</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Header -->
+  <header class="main-header" id="mainHeader">
+    <div class="container">
+      <div class="header-inner">
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+          <i class="fas fa-bars"></i>
+        </button>
+        <a href="index.html" class="logo">
+          <span class="logo-icon">🧠</span>
+          <span class="logo-text">Brainy<span class="logo-highlight">Grasp</span></span>
+        </a>
+        <nav class="main-nav" id="mainNav">
+          <ul class="nav-list">
+            <li class="nav-item">
+              <a href="shop-by-age.html" class="nav-link">Shop by Age</a>
+            </li>
+            <li class="nav-item has-mega">
+              <a href="shop-by-category.html" class="nav-link">Shop by Category <i class="fas fa-chevron-down"></i></a>
+            </li>
+            <li class="nav-item">
+              <a href="parents-choice.html" class="nav-link">Parents' Choice</a>
+            </li>
+            <li class="nav-item">
+              <a href="gift-finder.html" class="nav-link nav-link-new">Gift Finder</a>
+            </li>
+            <li class="nav-item">
+              <a href="collections.html" class="nav-link">Collections</a>
+            </li>
+            <li class="nav-item">
+              <a href="aura.html" class="nav-link nav-link-new">Aura AI</a>
+            </li>
+          </ul>
+        </nav>
+        <div class="header-actions">
+          <button class="header-action-btn cart-btn" id="cartBtn">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-count" id="cartCount">0</span>
+          </button>
+          <a id="userBtn" href="login.html" class="header-action-btn user-btn" title="Sign In">
+            <i class="fas fa-user"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="aura-container">
+    <div class="container">
+      <div class="aura-header">
+        <h1><i class="fas fa-magic"></i> Aura Discovery</h1>
+        <p>AI-powered tool recommendations personalized for your child's learning journey</p>
+      </div>
+
+      <!-- Search and Filter -->
+      <div class="aura-search-section">
+        <div class="aura-search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" id="auraSearch" placeholder="Search for AI tools...">
+        </div>
+        <div class="aura-filters">
+          <select id="ageFilter" class="aura-filter-select">
+            <option value="">All Ages</option>
+            <option value="0-3">0-3 Years</option>
+            <option value="3-6">3-6 Years</option>
+            <option value="6-9">6-9 Years</option>
+            <option value="9+">9+ Years</option>
+          </select>
+          <select id="skillFilter" class="aura-filter-select">
+            <option value="">All Skills</option>
+            <option value="Logical Reasoning">Logical Reasoning</option>
+            <option value="Creativity">Creativity</option>
+            <option value="Fine Motor">Fine Motor</option>
+            <option value="Focus & Attention">Focus & Attention</option>
+            <option value="Social & Communication">Social & Communication</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- AI Tools Grid -->
+      <div class="aura-tools-grid" id="auraTools">
+        <!-- Tools will be loaded dynamically -->
+      </div>
+
+      <!-- Watchlist Section -->
+      <div class="aura-watchlist-section" id="watchlistSection" style="display:none;">
+        <h2><i class="fas fa-eye"></i> Your Watchlist</h2>
+        <div class="aura-tools-grid" id="watchlistGrid">
+          <!-- Watchlist items will be loaded here -->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Cart Sidebar -->
+  <div class="cart-sidebar" id="cartSidebar">
+    <div class="cart-sidebar-header">
+      <h3>Shopping Cart</h3>
+      <button class="cart-close" id="cartClose"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="cart-items" id="cartItems">
+      <!-- Cart items will be loaded here -->
+    </div>
+    <div class="cart-footer">
+      <div class="cart-total">
+        <span>Total</span>
+        <span id="cartTotal">₹0</span>
+      </div>
+      <button class="btn btn-primary btn-checkout" id="checkoutBtn">Proceed to Checkout</button>
+    </div>
+  </div>
+  <div class="cart-overlay" id="cartOverlay"></div>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <h4>BrainyGrasp</h4>
+          <p>Educational toys and games for children's holistic development.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="shop-by-age.html">Shop by Age</a></li>
+            <li><a href="shop-by-category.html">Shop by Category</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="faqs.html">FAQs</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Contact</h4>
+          <ul>
+            <li><i class="fas fa-envelope"></i> support@brainygrasp.com</li>
+            <li><i class="fas fa-phone"></i> +91 98765 43210</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 BrainyGrasp. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/auth.js"></script>
+  <script src="js/aura.js"></script>
+</body>
+</html>
