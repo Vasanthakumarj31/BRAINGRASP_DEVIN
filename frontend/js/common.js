@@ -238,7 +238,7 @@ function initSEOMeta() {
     'rewards.html': { title: 'Rewards | BrainyGrasp', desc: 'Earn and redeem points with BrainyGrasp rewards.' },
     'about.html': { title: 'About BrainyGrasp', desc: 'Learn our mission to make learning joyful and practical.' },
     'cart.html': { title: 'Your Cart | BrainyGrasp', desc: 'Review items in your cart before checkout.' },
-    'checkout.html': { title: 'Checkout | BrainyGrasp', desc: 'Secure checkout for your BrainyGrasp order.' }
+    // 'checkout.html' removed: Checkout page deprecated
   };
   const file = window.location.pathname.split('/').pop() || 'index.html';
   const data = map[file];
@@ -468,7 +468,54 @@ document.addEventListener('DOMContentLoaded', () => {
   if(typeof initSEOMeta === 'function') initSEOMeta();
   if(typeof initShopByAge === 'function') initShopByAge();
   if(typeof initShopByCategory === 'function') initShopByCategory();
+  if(typeof initMegaNavigation === 'function') initMegaNavigation();
   if(typeof initDiscoverySliders === 'function') initDiscoverySliders();
   
   if(typeof initScrollAnimations === 'function') setTimeout(initScrollAnimations, 100);
 });
+
+// Close popup/navigation and immediately navigate when user clicks any mega/popup item
+function initMegaNavigation() {
+  document.addEventListener('click', (e) => {
+    const el = e.target.closest('.cat-mega-item, .parents-line-item, .mega-card, .mega-card a');
+    if (!el) return;
+    // Determine target href (support both <a> and non-anchor wrappers)
+    const anchor = el.tagName === 'A' ? el : el.closest('a');
+    const href = anchor ? anchor.getAttribute('href') : null;
+    if (!href) return;
+
+    // Close open navigation/popup UI
+    const nav = document.getElementById('mainNav'); if (nav && nav.classList.contains('active')) nav.classList.remove('active');
+    const mobileOverlay = document.getElementById('mobileOverlay'); if (mobileOverlay && mobileOverlay.classList.contains('active')) mobileOverlay.classList.remove('active');
+    const sidebar = document.getElementById('catFilterSidebar'); if (sidebar && sidebar.classList.contains('active')) sidebar.classList.remove('active');
+    document.body.style.overflow = '';
+
+    // If this is a Parents' Choice popup anchor (parents-choice.html#slug),
+    // map the fragment to a shop category and redirect to shop-by-category.
+    e.preventDefault();
+    let targetUrl = href;
+    try {
+      const url = new URL(href, window.location.origin);
+      if (url.pathname.endsWith('parents-choice.html') && url.hash) {
+        const slug = url.hash.replace('#','');
+        const mapping = {
+          foil: 'Foil Fun',
+          piece: 'Piece & Play',
+          poke: 'Poke-In Art',
+          sand: 'Sandeezy',
+          snip: 'Snip, Snip!'
+        };
+        if (mapping[slug]) {
+          targetUrl = `shop-by-category.html?category=${encodeURIComponent(mapping[slug])}`;
+        } else {
+          // fallback: navigate to parents-choice anchor if unknown
+          targetUrl = href;
+        }
+      }
+    } catch (err) {
+      targetUrl = href;
+    }
+
+    window.location.href = targetUrl;
+  });
+}

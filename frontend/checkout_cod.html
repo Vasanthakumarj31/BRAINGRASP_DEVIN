@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cash on Delivery | BrainyGrasp</title>
+  <link rel="stylesheet" href="css/common.css">
+</head>
+<body>
+  <header class="main-header">
+    <div class="container">
+      <a href="index.html" class="logo">BrainyGrasp</a>
+    </div>
+  </header>
+  <main class="section">
+    <div class="container">
+      <h1>Cash On Delivery</h1>
+      <p>Confirm your order and provide delivery address.</p>
+      <div id="codItems"></div>
+      <div style="margin-top:16px">
+        <label>Full name<br><input id="codName" type="text" /></label><br>
+        <label>Phone<br><input id="codPhone" type="text" /></label><br>
+        <label>Line 1<br><input id="codLine1" type="text" /></label><br>
+        <label>City<br><input id="codCity" type="text" /></label><br>
+        <label>State<br><input id="codState" type="text" /></label><br>
+        <label>Pincode<br><input id="codPincode" type="text" /></label><br>
+        <button id="codPlaceOrder" class="btn btn-primary">Place Order (COD)</button>
+      </div>
+      <div id="codMsg" style="margin-top:12px;color:green"></div>
+    </div>
+  </main>
+
+  <script src="js/auth.js"></script>
+  <script src="js/checkout_cod.js"></script>
+</body>
+</html>

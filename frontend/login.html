@@ -6,63 +6,101 @@
   <title>Sign in - BrainyGrasp</title>
   <link rel="stylesheet" href="css/styles.css">
   <style>
-    /* Minimal page-specific tweaks */
-    .auth-container{max-width:420px;margin:48px auto;padding:24px;background:#fff;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.06)}
-    .auth-tabs{display:flex;gap:8px;margin-bottom:12px}
-    .auth-tab{flex:1;padding:8px 10px;text-align:center;cursor:pointer;border:1px solid #e6e6e6;border-radius:6px}
-    .auth-tab.active{background:#0b74ff;color:#fff;border-color:#0b74ff}
-    .input-group{margin-bottom:12px}
-    .otp-row{display:flex;gap:8px;justify-content:center;margin:12px 0}
-    .otp-box{width:44px;height:44px;text-align:center;font-size:20px;border:1px solid #ddd;border-radius:6px}
-    .muted{color:#666;font-size:13px}
+    :root{--bg:#f6fbff;--card:#ffffff;--accent:#0b74ff;--muted:#6b7280}
+    html,body{height:100%}
+    body{margin:0;font-family:Nunito,system-ui,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,#f7fbff 0%, #eef6ff 100%);display:flex;align-items:center;justify-content:center;padding:32px}
+    .auth-shell{width:100%;max-width:920px;display:grid;grid-template-columns:1fr 420px;gap:32px;align-items:center}
+    .auth-hero{display:flex;flex-direction:column;gap:16px;padding:28px;background:transparent}
+    .auth-hero h1{font-size:28px;margin:0;color:#0f172a}
+    .auth-hero p{margin:0;color:var(--muted)}
+    .auth-container{background:var(--card);border-radius:12px;padding:28px;box-shadow:0 10px 30px rgba(12,34,61,0.08)}
+    .brand{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .brand .logo-icon{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#6bc1ff);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
+    .auth-tabs{display:flex;gap:8px;margin:12px 0}
+    .auth-tab{flex:1;padding:10px 12px;text-align:center;cursor:pointer;border:1px solid #eef2ff;border-radius:8px;background:#fbfdff;color:#0f172a}
+    .auth-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+    .input-group{margin-bottom:14px;display:flex;flex-direction:column;gap:6px}
+    .input-group label{font-size:13px;color:#334155}
+    input[type="text"],input[type="email"],input[type="tel"]{padding:12px 14px;border:1px solid #e6eefb;border-radius:8px;font-size:15px}
+    .phone-row{display:flex;gap:8px}
+    .country-code{width:96px}
+    .btn-primary{background:var(--accent);color:#fff;border:none;padding:10px 14px;border-radius:8px;font-weight:600;cursor:pointer}
+    .btn-primary:focus{outline:3px solid rgba(11,116,255,0.2)}
+    .btn-link{background:none;border:none;color:var(--accent);cursor:pointer}
+    .error-msg{color:#c53030;margin-bottom:8px;display:none}
+    .muted{color:var(--muted);font-size:13px}
+    .otp-row{display:flex;gap:10px;justify-content:center;margin:14px 0}
+    .otp-box{width:52px;height:52px;text-align:center;font-size:22px;border:1px solid #e6eefb;border-radius:10px}
+    .footer-note{font-size:13px;color:var(--muted);margin-top:12px;text-align:center}
+    @media (max-width:900px){.auth-shell{grid-template-columns:1fr;max-width:520px}.auth-hero{order:2}}
   </style>
 </head>
 <body>
-  <main class="auth-container">
-    <h2 style="margin-top:0">Sign in</h2>
-    <p class="muted">Sign in with your phone number or email (OTP-based)</p>
-
-    <div class="auth-tabs">
-      <div class="auth-tab active" data-method="phone">Phone</div>
-      <div class="auth-tab" data-method="email">Email</div>
+  <div class="auth-shell">
+    <div class="auth-hero">
+      <h1>Welcome back to BrainyGrasp</h1>
+      <p class="muted">Sign in quickly using OTP. No password required — secure, fast, and kid-friendly.</p>
+      <div style="margin-top:10px">
+        <a href="index.html" class="muted">← Back to Home</a>
+      </div>
     </div>
 
-    <form id="loginForm">
-      <div id="authStep1">
-        <div id="phoneWrap" class="input-group">
-          <label for="phoneInput">Phone</label>
-          <input id="phoneInput" name="phone" type="text" placeholder="Enter phone number">
-        </div>
-
-        <div id="emailWrap" class="input-group" style="display:none">
-          <label for="emailInput">Email</label>
-          <input id="emailInput" name="email" type="email" placeholder="Enter email address">
-        </div>
-
-        <div id="authError" class="error-msg" style="display:none;color:#c0392b;margin-bottom:8px"></div>
-        <button type="button" id="sendOTPBtn" class="btn-primary">Send OTP</button>
-      </div>
-
-      <div id="authStep2" style="display:none">
-        <p id="demoOTPDisplay" class="muted" style="display:none"></p>
-        <p id="otpTimer" class="muted" style="display:none"></p>
-
-        <div class="otp-row">
-          <input class="otp-box" maxlength="1" inputmode="numeric">
-          <input class="otp-box" maxlength="1" inputmode="numeric">
-          <input class="otp-box" maxlength="1" inputmode="numeric">
-          <input class="otp-box" maxlength="1" inputmode="numeric">
-          <input class="otp-box" maxlength="1" inputmode="numeric">
-          <input class="otp-box" maxlength="1" inputmode="numeric">
-        </div>
-
-        <div style="text-align:center">
-          <button type="button" id="verifyOTPBtn" class="btn-primary">Verify & Continue</button>
-          <button type="button" id="resendOTP" style="margin-left:8px" class="btn-link">Resend</button>
+    <main class="auth-container" aria-labelledby="signinTitle">
+      <div class="brand">
+        <div class="logo-icon">BG</div>
+        <div>
+          <div id="signinTitle" style="font-weight:700">Sign in</div>
+          <div class="muted" style="font-size:13px">Use phone or email to receive a one-time code</div>
         </div>
       </div>
-    </form>
-  </main>
+
+      <div class="auth-tabs" role="tablist">
+        <div class="auth-tab active" data-method="phone" role="tab" aria-selected="true">Phone</div>
+        <div class="auth-tab" data-method="email" role="tab" aria-selected="false">Email</div>
+      </div>
+
+      <form id="loginForm" novalidate>
+        <div id="authStep1">
+          <div id="phoneWrap" class="input-group">
+            <label for="phoneInput">Phone</label>
+            <div class="phone-row">
+              <input class="country-code" type="text" value="+91" aria-label="Country code"/>
+              <input id="phoneInput" name="phone" type="tel" inputmode="tel" placeholder="98765 43210" required aria-required="true">
+            </div>
+          </div>
+
+          <div id="emailWrap" class="input-group" style="display:none">
+            <label for="emailInput">Email</label>
+            <input id="emailInput" name="email" type="email" placeholder="you@domain.com" aria-required="true">
+          </div>
+
+          <div id="authError" class="error-msg" role="alert"></div>
+          <button type="button" id="sendOTPBtn" class="btn-primary">Send OTP</button>
+
+          <div class="footer-note">By continuing you agree to our <a href="#">Privacy Policy</a>.</div>
+        </div>
+
+        <div id="authStep2" style="display:none">
+          <p id="demoOTPDisplay" class="muted" style="display:none"></p>
+          <p id="otpTimer" class="muted" style="display:none"></p>
+
+          <div class="otp-row" aria-label="Enter OTP">
+            <input class="otp-box" maxlength="1" inputmode="numeric" aria-label="OTP digit 1">
+            <input class="otp-box" maxlength="1" inputmode="numeric" aria-label="OTP digit 2">
+            <input class="otp-box" maxlength="1" inputmode="numeric" aria-label="OTP digit 3">
+            <input class="otp-box" maxlength="1" inputmode="numeric" aria-label="OTP digit 4">
+            <input class="otp-box" maxlength="1" inputmode="numeric" aria-label="OTP digit 5">
+            <input class="otp-box" maxlength="1" inputmode="numeric" aria-label="OTP digit 6">
+          </div>
+
+          <div style="text-align:center">
+            <button type="button" id="verifyOTPBtn" class="btn-primary">Verify & Continue</button>
+            <button type="button" id="resendOTP" style="margin-left:8px" class="btn-link">Resend</button>
+          </div>
+        </div>
+      </form>
+    </main>
+  </div>
 
   <script src="js/auth.js"></script>
 </body>

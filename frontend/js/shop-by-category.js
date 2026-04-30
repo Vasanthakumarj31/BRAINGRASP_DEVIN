@@ -119,6 +119,22 @@ function initShopByCategory() {
       if(targetCb) targetCb.checked = true;
       
       applyFiltersAndSort();
+      // If we're not already on the shop-by-category page, navigate there so user lands on dedicated products page
+      const currentFile = window.location.pathname.split('/').pop();
+      if (currentFile !== 'shop-by-category.html') {
+        // close any open navigation/popup UI before redirecting
+        const nav = document.getElementById('mainNav');
+        if (nav && nav.classList.contains('active')) nav.classList.remove('active');
+        const sidebar = document.getElementById('catFilterSidebar');
+        if (sidebar && sidebar.classList.contains('active')) {
+          sidebar.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+        // redirect to the shop page with category query so it initializes with the chosen category
+        const targetUrl = `shop-by-category.html?category=${encodeURIComponent(cat)}`;
+        window.location.href = targetUrl;
+        return;
+      }
       const section = document.getElementById('shopByCategory');
       if (section) {
         const headerOffset = 80;
