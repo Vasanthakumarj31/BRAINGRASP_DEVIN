@@ -6,239 +6,196 @@
 const API_BASE = 'http://localhost:3000';
 
 // ── User/Auth Helpers ──────────────────────────────────────────────────────────
-function getToken() { return localStorage.getItem('bg_token'); }
+// Note: Changed to match standard localStorage keys used in your auth.js
+function getToken() { return localStorage.getItem('authToken'); }
+
 function getUser() {
-  try { return JSON.parse(localStorage.getItem('bg_user')); } catch { return null; }
+    try { 
+        // Try to get user from storage, fallback to empty object
+        return JSON.parse(localStorage.getItem('bg_user')) || {}; 
+    } catch { 
+        return {}; 
+    }
 }
+
 function isAuthenticated() { return !!getToken(); }
 
 function clearAuth() {
-  localStorage.removeItem('bg_token');
-  localStorage.removeItem('bg_user');
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('bg_user');
 }
 
 // ── API Helpers ──────────────────────────────────────────────────────────
 async function fetchWithAuth(url, options = {}) {
-  const token = getToken();
-  const res = await fetch(url, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-      ...options.headers
+    const token = getToken();
+    const res = await fetch(url, {
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+            ...options.headers
+        }
+    });
+    
+    if (!res.ok) {
+        if (res.status === 401 || res.status === 403) {
+            clearAuth();
+            window.location.href = 'login.html';
+        }
+        const err = await res.json().catch(() => ({ error: 'Request failed' }));
+        throw new Error(err.error || 'Request failed');
     }
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: 'Request failed' }));
-    throw new Error(err.error || 'Request failed');
-  }
-  return res.json();
+    return res.json();
 }
 
 // ── Load Profile ────────────────────────────────────────────────────────────
 async function loadProfile() {
-  const user = getUser();
-  if (!user) {
-    window.location.href = 'login.html?redirect=dashboard';
-    return;
-  }
+    const nameEl = document.getElementById('userName');
+    const phoneEl = document.getElementById('userPhone');
+    const emailEl = document.getElementById('userEmail');
+    const createdEl = document.getElementById('userCreated');
 
-  // Populate profile fields
-  const nameEl = document.getElementById('userName');
-  const phoneEl = document.getElementById('userPhone');
-  const emailEl = document.getElementById('userEmail');
-  const createdEl = document.getElementById('userCreated');
-
-  if (nameEl) nameEl.textContent = user.name || 'Not set';
-  if (phoneEl) phoneEl.textContent = user.phone || user.email || 'Not set';
-  if (emailEl) emailEl.textContent = user.email || 'Not provided';
-  if (createdEl) {
-    const created = user.created_at ? new Date(user.created_at).toLocaleDateString() : new Date().toLocaleDateString();
-    createdEl.textContent = created;
-  }
-
-  // Also try to fetch fresh profile from server
-  try {
-    const data = await fetchWithAuth(`${API_BASE}/api/auth/me`);
-    if (data.user) {
-      if (nameEl) nameEl.textContent = data.user.name || 'Not set';
-      if (phoneEl) phoneEl.textContent = data.user.phone || data.user.email || 'Not set';
-      if (emailEl) emailEl.textContent = data.user.email || 'Not provided';
-      if (createdEl) {
-        const created = data.user.created_at ? new Date(data.user.created_at).toLocaleDateString() : new Date().toLocaleDateString();
-        createdEl.textContent = created;
-      }
-      // Update localStorage with fresh data
-      localStorage.setItem('bg_user', JSON.stringify(data.user));
+    // 1. First, try to fetch fresh profile from server (Source of Truth)
+    try {
+        const user = await fetchWithAuth(`${API_BASE}/api/auth/me`);
+        
+        if (user) {
+            if (nameEl) nameEl.textContent = user.name || 'Set your name';
+            if (phoneEl) phoneEl.textContent = user.phone || 'Not set';
+            if (emailEl) emailEl.textContent = user.email || 'Not set';
+            if (createdEl) {
+                createdEl.textContent = new Date(user.created_at).toLocaleDateString('en-IN');
+            }
+            // Update local storage to keep it in sync
+            localStorage.setItem('bg_user', JSON.stringify(user));
+        }
+    } catch (err) {
+        console.warn('Could not fetch fresh profile, using cache:', err.message);
+        // Fallback to local storage if server is down
+        const cachedUser = getUser();
+        if (nameEl) nameEl.textContent = cachedUser.name || 'Unknown';
     }
-  } catch (err) {
-    console.warn('Could not fetch fresh profile:', err.message);
-  }
 }
 
-// ── Order Status Helpers ──────────────────────────────────────────────────
+// ── Order UI Helpers ──────────────────────────────────────────────────
 function getStatusClass(status) {
-  const s = (status || '').toLowerCase();
-  if (s === 'delivered') return 'status-delivered';
-  if (s === 'shipped') return 'status-shipped';
-  if (s === 'processing') return 'status-processing';
-  return 'status-placed';
-}
-
-function getStatusLabel(status) {
-  const s = (status || '').toLowerCase();
-  if (s === 'delivered') return 'Delivered';
-  if (s === 'shipped') return 'Shipped';
-  if (s === 'processing') return 'Processing';
-  return 'Order Placed';
+    const s = (status || '').toLowerCase();
+    if (s === 'delivered') return 'status-delivered';
+    if (s === 'shipped') return 'status-shipped';
+    if (s === 'processing') return 'status-processing';
+    return 'status-placed';
 }
 
 function formatDate(dateStr) {
-  if (!dateStr) return '';
-  const d = new Date(dateStr);
-  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+    if (!dateStr) return '';
+    return new Date(dateStr).toLocaleDateString('en-IN', { 
+        day: 'numeric', month: 'short', year: 'numeric' 
+    });
 }
 
 function formatPrice(amount) {
-  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount || 0);
+    return new Intl.NumberFormat('en-IN', { 
+        style: 'currency', currency: 'INR', maximumFractionDigits: 0 
+    }).format(amount || 0);
 }
 
 // ── Load Orders ─────────────────────────────────────────────────────
 async function loadOrders() {
-  const ordersList = document.getElementById('ordersList');
-  if (!ordersList) return;
+    const ordersList = document.getElementById('ordersList');
+    if (!ordersList) return;
 
-  try {
-    const data = await fetchWithAuth(`${API_BASE}/api/orders`);
+    try {
+        // Your server returns an array directly: [ {id:1...}, {id:2...} ]
+        const orders = await fetchWithAuth(`${API_BASE}/api/orders`);
 
-    if (!data.orders || data.orders.length === 0) {
-      ordersList.innerHTML = `
-        <div class="orders-empty">
-          <i class="fas fa-box-open"></i>
-          <p>No orders yet. Start shopping!</p>
-          <a href="index.html" class="btn btn-primary">Browse Products</a>
-        </div>
-      `;
-      return;
+        if (!orders || orders.length === 0) {
+            ordersList.innerHTML = `
+                <div class="orders-empty" style="text-align:center; padding:40px;">
+                    <i class="fas fa-box-open" style="font-size:40px; color:#ccc;"></i>
+                    <p>No orders yet. Your cart is waiting!</p>
+                    <a href="index.html" class="btn btn-primary">Start Shopping</a>
+                </div>
+            `;
+            return;
+        }
+
+        ordersList.innerHTML = orders.map(order => {
+            // Mapping items from the JSONB column in your Postgres DB
+            const itemsHtml = (order.items || []).map(item => `
+                <div class="order-item" style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:14px;">
+                    <span>${item.name || 'Product'} <small>(x${item.quantity || 1})</small></span>
+                    <span>${formatPrice(item.price)}</span>
+                </div>
+            `).join('');
+
+            return `
+                <div class="order-card" style="border:1px solid #edf2f7; border-radius:12px; padding:20px; margin-bottom:15px; background:#fff;">
+                    <div class="order-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                        <div>
+                            <span style="font-weight:700; color:#2d3748;">Order #${order.id}</span>
+                            <div style="font-size:12px; color:#718096;">${formatDate(order.created_at)}</div>
+                        </div>
+                        <span class="status-badge ${getStatusClass(order.status)}" style="font-size:12px; font-weight:600; padding:4px 12px; border-radius:20px; background:#ebf8ff; color:#3182ce;">
+                            ${order.status || 'Placed'}
+                        </span>
+                    </div>
+                    <div class="order-items-box" style="background:#f7fafc; padding:12px; border-radius:8px; margin-bottom:15px;">
+                        ${itemsHtml}
+                    </div>
+                    <div class="order-footer" style="display:flex; justify-content:space-between; align-items:center; font-weight:700;">
+                        <span style="color:#4a5568;">Total Paid</span>
+                        <span style="color:#0b74ff; font-size:18px;">${formatPrice(order.total)}</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    } catch (err) {
+        console.error('Failed to load orders:', err);
+        ordersList.innerHTML = `<p style="color:red; text-align:center;">⚠️ Error loading orders.</p>`;
     }
-
-    ordersList.innerHTML = data.orders.map(order => {
-      const itemsHtml = (order.items || []).map(item => `
-        <div class="order-item">
-          <span class="order-item-name">${item.name || 'Product'} x ${item.quantity || 1}</span>
-          <span class="order-item-price">${formatPrice(item.price)}</span>
-        </div>
-      `).join('');
-
-      return `
-        <div class="order-card">
-          <div class="order-header">
-            <span class="order-id">Order #${order.id}</span>
-            <span class="order-date">${formatDate(order.created_at)}</span>
-            <span class="order-status ${getStatusClass(order.status)}">
-              <i class="fas fa-circle"></i>
-              ${getStatusLabel(order.status)}
-            </span>
-          </div>
-          <div class="order-items">
-            ${itemsHtml}
-          </div>
-          <div class="order-total">
-            <span class="order-total-label">Total</span>
-            <span class="order-total-amount">${formatPrice(order.total)}</span>
-          </div>
-        </div>
-      `;
-    }).join('');
-  } catch (err) {
-    console.error('Failed to load orders:', err);
-    ordersList.innerHTML = `
-      <div class="orders-empty">
-        <i class="fas fa-exclamation-circle"></i>
-        <p>Unable to load orders. Please try again.</p>
-      </div>
-    `;
-  }
 }
 
 // ── Quick Actions ────────────────────────────────────────────────────────
 function initQuickActions() {
-  // View Orders button - scroll to orders section
-  const viewOrdersBtn = document.getElementById('viewOrdersBtn');
-  if (viewOrdersBtn) {
-    viewOrdersBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      const ordersCard = document.querySelector('.orders-card');
-      if (ordersCard) {
-        ordersCard.scrollIntoView({ behavior: 'smooth' });
-      }
+    // Scroll to orders
+    document.getElementById('viewOrdersBtn')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.querySelector('.orders-card')?.scrollIntoView({ behavior: 'smooth' });
     });
-  }
 
-  // Refresh Orders button
-  const refreshBtn = document.getElementById('refreshOrdersBtn');
-  if (refreshBtn) {
-    refreshBtn.addEventListener('click', () => {
-      const ordersList = document.getElementById('ordersList');
-      if (ordersList) {
-        ordersList.innerHTML = `
-          <div class="orders-loading">
-            <i class="fas fa-spinner fa-spin"></i>
-            <span>Loading your orders...</span>
-          </div>
-        `;
-      }
-      loadOrders();
+    // Refresh Orders
+    document.getElementById('refreshOrdersBtn')?.addEventListener('click', () => {
+        const list = document.getElementById('ordersList');
+        if (list) list.innerHTML = '<div style="text-align:center;"><i class="fas fa-spinner fa-spin"></i> Refreshing...</div>';
+        loadOrders();
     });
-  }
 
-  // Logout button
-  const logoutBtn = document.getElementById('logoutQuickBtn');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      clearAuth();
-      window.location.href = 'index.html';
+    // Logout
+    document.getElementById('logoutQuickBtn')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        if(confirm("Are you sure you want to logout?")) {
+            clearAuth();
+            window.location.href = 'index.html';
+        }
     });
-  }
 }
 
-// ── Auth Check ────────────────────────────────────────────────────────
-function checkAuth() {
-  if (!isAuthenticated()) {
-    // Already not logged in - redirect to login
-    // Don't redirect immediately, let the page load first
-    const profileInfo = document.getElementById('profileInfo');
-    if (profileInfo) {
-      profileInfo.innerHTML = `
-        <div class="profile-field">
-          <label>Status</label>
-          <span style="color: var(--danger)">Please <a href="login.html?redirect=dashboard">sign in</a> to view your profile.</span>
-        </div>
-      `;
-    }
-    return false;
-  }
-  return true;
-}
-
-// ── Init ──────────────────────────────────────────────────────────
+// ── Initialization ──────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  if (checkAuth()) {
-    loadProfile();
-    loadOrders();
-    initQuickActions();
-  } else {
-    // Show login prompt
-    const actionsCard = document.querySelector('.actions-card');
-    const quickActions = actionsCard?.querySelector('.quick-actions');
-    if (quickActions) {
-      quickActions.innerHTML = `
-        <a href="login.html?redirect=dashboard" class="quick-action-btn">
-          <i class="fas fa-sign-in-alt"></i>
-          <span>Sign In to View Account</span>
-        </a>
-      `;
+    if (isAuthenticated()) {
+        loadProfile();
+        loadOrders();
+        initQuickActions();
+    } else {
+        // Not logged in: Show prompt
+        const profileCard = document.querySelector('.profile-card .card-body');
+        if (profileCard) {
+            profileCard.innerHTML = `
+                <div style="text-align:center; padding:20px;">
+                    <p>Log in to view your profile and orders.</p>
+                    <a href="login.html?redirect=dashboard" class="btn btn-primary">Sign In</a>
+                </div>
+            `;
+        }
     }
-  }
 });

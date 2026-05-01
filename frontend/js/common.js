@@ -10,7 +10,7 @@ function initAnnouncementSlider() {
     slides[current].classList.add('active');
   }, 3000);
 }
- 
+
 // === Search ===
 function initSearch() {
   const searchBtn = document.getElementById('searchBtn');
@@ -18,50 +18,53 @@ function initSearch() {
   const searchClose = document.getElementById('searchClose');
   const searchInput = document.getElementById('searchInput');
   if (!searchBtn || !searchOverlay || !searchClose || !searchInput) return;
- 
+
   searchBtn.addEventListener('click', () => {
     searchOverlay.classList.toggle('active');
     if (searchOverlay.classList.contains('active')) {
       searchInput.focus();
     }
   });
- 
+
   searchClose.addEventListener('click', () => {
     searchOverlay.classList.remove('active');
   });
 }
- 
-// === Cart Sidebar ===
+
+// === Cart Sidebar (UPDATED) ===
 function initCart() {
   const cartBtn = document.getElementById('cartBtn');
   const cartOverlay = document.getElementById('cartOverlay');
   const cartSidebar = document.getElementById('cartSidebar');
   const cartClose = document.getElementById('cartClose');
   if (!cartBtn || !cartOverlay || !cartSidebar || !cartClose) return;
- 
+
   function openCart() {
+    // TRIGGER UI UPDATE ON OPEN
+    if (typeof updateCartCount === 'function') updateCartCount();
+    
     cartOverlay.classList.add('active');
     cartSidebar.classList.add('active');
     document.body.style.overflow = 'hidden';
   }
- 
+
   function closeCart() {
     cartOverlay.classList.remove('active');
     cartSidebar.classList.remove('active');
     document.body.style.overflow = '';
   }
- 
+
   cartBtn.addEventListener('click', openCart);
   cartOverlay.addEventListener('click', closeCart);
   cartClose.addEventListener('click', closeCart);
 }
- 
+
 // === Mobile Menu ===
 function initMobileMenu() {
   const menuBtn = document.getElementById('mobileMenuBtn');
   const nav = document.getElementById('mainNav');
   const overlay = document.getElementById('mobileOverlay');
- 
+
   if (!menuBtn || !nav) return;
 
   function openMenu() {
@@ -69,17 +72,16 @@ function initMobileMenu() {
     if(overlay) overlay.classList.add('active');
     document.body.style.overflow = 'hidden';
   }
- 
+
   function closeMenu() {
     nav.classList.remove('active');
     if(overlay) overlay.classList.remove('active');
     document.body.style.overflow = '';
   }
- 
+
   menuBtn.addEventListener('click', openMenu);
   if(overlay) overlay.addEventListener('click', closeMenu);
- 
-  // Mobile mega menu toggle
+
   document.querySelectorAll('.nav-item.has-mega .nav-link').forEach(link => {
     link.addEventListener('click', (e) => {
       if (window.innerWidth <= 768) {
@@ -90,7 +92,6 @@ function initMobileMenu() {
   });
 }
 
- 
 // === Sticky Header ===
 function initStickyHeader() {
   const header = document.getElementById('mainHeader');
@@ -103,7 +104,7 @@ function initStickyHeader() {
     }
   });
 }
- 
+
 // === Back to Top ===
 function initBackToTop() {
   const btn = document.getElementById('backToTop');
@@ -116,13 +117,13 @@ function initBackToTop() {
       btn.classList.remove('visible');
     }
   });
- 
+
   btn.addEventListener('click', () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 }
- 
-// === Add to Cart Animation ===
+
+// === Add to Cart Animation (UPDATED) ===
 function initAddToCart() {
   document.addEventListener('click', (e) => {
     if (e.target.closest('.add-to-cart-btn')) {
@@ -133,7 +134,6 @@ function initAddToCart() {
       btn.innerHTML = '<i class="fas fa-check"></i> Added!';
       btn.style.background = '#10B981';
 
-      // Try to add item to cart via shared helper (falls back to simple count update)
       try {
         const card = btn.closest('.product-card');
         let item = null;
@@ -145,10 +145,11 @@ function initAddToCart() {
           if (id) item = { id, name, price };
         }
 
+        // Add to storage via helper
         if (typeof addToCart === 'function' && item) {
           addToCart(item);
         } else {
-          // ensure UI updates even if helper absent
+          // Fallback UI update
           const countEls = document.querySelectorAll('.cart-count');
           countEls.forEach(el => {
             const n = parseInt(el.textContent) || 0;
@@ -157,6 +158,10 @@ function initAddToCart() {
             setTimeout(() => el.style.transform = 'scale(1)', 200);
           });
         }
+        
+        // REFRESH UI IMMEDIATELY
+        if (typeof updateCartCount === 'function') updateCartCount();
+
       } catch (err) {
         console.error('add-to-cart failed', err);
       }
@@ -164,7 +169,7 @@ function initAddToCart() {
       setTimeout(() => {
         btn.innerHTML = originalHTML || '<i class="fas fa-shopping-bag"></i> Add to Cart';
         btn.style.background = originalBg;
-        // Update any central cart counters from storage
+        // Update counters again after animation duration
         if (typeof updateCartCount === 'function') updateCartCount();
       }, 1500);
     }
@@ -238,7 +243,6 @@ function initSEOMeta() {
     'rewards.html': { title: 'Rewards | BrainyGrasp', desc: 'Earn and redeem points with BrainyGrasp rewards.' },
     'about.html': { title: 'About BrainyGrasp', desc: 'Learn our mission to make learning joyful and practical.' },
     'cart.html': { title: 'Your Cart | BrainyGrasp', desc: 'Review items in your cart before checkout.' },
-    // 'checkout.html' removed: Checkout page deprecated
   };
   const file = window.location.pathname.split('/').pop() || 'index.html';
   const data = map[file];
@@ -252,8 +256,7 @@ function initSEOMeta() {
   }
   desc.setAttribute('content', data.desc);
 }
- 
-// === Intersection Observer for Animations ===
+
 function initScrollAnimations() {
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
@@ -263,13 +266,12 @@ function initScrollAnimations() {
       }
     });
   }, { threshold: 0.1 });
- 
+
   document.querySelectorAll('.section-header, .product-card, .age-card, .blog-card, .testimonial-card').forEach(el => {
     observer.observe(el);
   });
 }
- 
-// === Important Links Toggle ===
+
 function initImportantLinks() {
   const toggle = document.getElementById('importantLinksToggle');
   const content = document.getElementById('importantLinksContent');
@@ -282,7 +284,6 @@ function initImportantLinks() {
   });
 }
 
-// === Quick View Modal ===
 function initQuickView() {
   const modal = document.getElementById('quickviewModal');
   const overlay = document.getElementById('quickviewOverlay');
@@ -358,7 +359,6 @@ function initQuickView() {
   const qtyInput = document.getElementById('quickviewQty');
   
   if(qtyMinus && qtyPlus && qtyInput) {
-    // Clear old event listeners by cloning
     const newMinus = qtyMinus.cloneNode(true);
     const newPlus = qtyPlus.cloneNode(true);
     qtyMinus.parentNode.replaceChild(newMinus, qtyMinus);
@@ -374,33 +374,13 @@ function initQuickView() {
     });
   }
 
-  // Theme selector logic (mock)
-  const themeGrid = document.getElementById('quickviewThemeGrid');
-  if (themeGrid) {
-    themeGrid.addEventListener('click', (e) => {
-      const btn = e.target.closest('.theme-btn');
-      if (btn) {
-        themeGrid.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        // change main image (mocking)
-        const newImgSrc = btn.querySelector('img').src;
-        document.getElementById('quickviewImg').src = newImgSrc;
-      }
-    });
-  }
-
   const addBtn = document.getElementById('quickviewAddToCart');
   if (addBtn) {
     addBtn.addEventListener('click', () => {
       if (!currentQuickViewItem || typeof addToCart !== 'function') return;
       const qty = parseInt(document.getElementById('quickviewQty')?.value || '1', 10);
       const price = parseInt(String(currentQuickViewItem.price).replace(/\D/g, ''), 10) || 0;
-      addToCart({
-        id: currentQuickViewItem.id,
-        name: currentQuickViewItem.name,
-        price
-      });
-      for (let i = 1; i < qty; i += 1) {
+      for (let i = 0; i < qty; i++) {
         addToCart({
           id: currentQuickViewItem.id,
           name: currentQuickViewItem.name,
@@ -412,7 +392,6 @@ function initQuickView() {
   }
 }
 
-// === Share Dropdown ===
 function initShareDropdown() {
   document.addEventListener('click', (e) => {
     if(!e.target.closest('.product-share')) {
@@ -441,57 +420,49 @@ function initShareDropdown() {
   });
 }
 
-
-
-// === Initialize Everything ===
 document.addEventListener('DOMContentLoaded', () => {
   if(typeof initProductGrids === 'function') initProductGrids();
-  if(typeof initAnnouncementSlider === 'function') initAnnouncementSlider();
+  initAnnouncementSlider();
   if(typeof initHeroSlider === 'function') initHeroSlider();
   if(typeof initTabs === 'function') initTabs();
-  if(typeof initSearch === 'function') initSearch();
-  if(typeof initCart === 'function') initCart();
-  if(typeof initMobileMenu === 'function') initMobileMenu();
-  if(typeof initStickyHeader === 'function') initStickyHeader();
-  if(typeof initBackToTop === 'function') initBackToTop();
+  initSearch();
+  initCart();
+  initMobileMenu();
+  initStickyHeader();
+  initBackToTop();
   if(typeof initFAQ === 'function') initFAQ();
   if(typeof initAboutToggle === 'function') initAboutToggle();
   if(typeof initTestimonialsSlider === 'function') initTestimonialsSlider();
-  if(typeof initAddToCart === 'function') initAddToCart();
+  initAddToCart();
   if(typeof initGiftFinder === 'function') initGiftFinder();
-  if(typeof initImportantLinks === 'function') initImportantLinks();
-  if(typeof initQuickView === 'function') initQuickView();
-  if(typeof initShareDropdown === 'function') initShareDropdown();
-  if(typeof initCommerceRoutes === 'function') initCommerceRoutes();
-  if(typeof initGlobalLinks === 'function') initGlobalLinks();
-  if(typeof initAccessibilityBasics === 'function') initAccessibilityBasics();
-  if(typeof initSEOMeta === 'function') initSEOMeta();
+  initImportantLinks();
+  initQuickView();
+  initShareDropdown();
+  initCommerceRoutes();
+  initGlobalLinks();
+  initAccessibilityBasics();
+  initSEOMeta();
   if(typeof initShopByAge === 'function') initShopByAge();
   if(typeof initShopByCategory === 'function') initShopByCategory();
-  if(typeof initMegaNavigation === 'function') initMegaNavigation();
+  initMegaNavigation();
   if(typeof initDiscoverySliders === 'function') initDiscoverySliders();
   
-  if(typeof initScrollAnimations === 'function') setTimeout(initScrollAnimations, 100);
+  setTimeout(initScrollAnimations, 100);
 });
 
-// Close popup/navigation and immediately navigate when user clicks any mega/popup item
 function initMegaNavigation() {
   document.addEventListener('click', (e) => {
     const el = e.target.closest('.cat-mega-item, .parents-line-item, .mega-card, .mega-card a');
     if (!el) return;
-    // Determine target href (support both <a> and non-anchor wrappers)
     const anchor = el.tagName === 'A' ? el : el.closest('a');
     const href = anchor ? anchor.getAttribute('href') : null;
     if (!href) return;
 
-    // Close open navigation/popup UI
     const nav = document.getElementById('mainNav'); if (nav && nav.classList.contains('active')) nav.classList.remove('active');
     const mobileOverlay = document.getElementById('mobileOverlay'); if (mobileOverlay && mobileOverlay.classList.contains('active')) mobileOverlay.classList.remove('active');
     const sidebar = document.getElementById('catFilterSidebar'); if (sidebar && sidebar.classList.contains('active')) sidebar.classList.remove('active');
     document.body.style.overflow = '';
 
-    // If this is a Parents' Choice popup anchor (parents-choice.html#slug),
-    // map the fragment to a shop category and redirect to shop-by-category.
     e.preventDefault();
     let targetUrl = href;
     try {
@@ -507,9 +478,6 @@ function initMegaNavigation() {
         };
         if (mapping[slug]) {
           targetUrl = `shop-by-category.html?category=${encodeURIComponent(mapping[slug])}`;
-        } else {
-          // fallback: navigate to parents-choice anchor if unknown
-          targetUrl = href;
         }
       }
     } catch (err) {
