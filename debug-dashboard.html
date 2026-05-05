@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Debug Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .debug-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .profile-field {
+            margin: 10px 0;
+            padding: 8px;
+            background: #f9f9f9;
+            border-radius: 4px;
+        }
+        .profile-field label {
+            font-weight: bold;
+            display: inline-block;
+            width: 120px;
+        }
+        .profile-field span {
+            color: #333;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .log {
+            background: #000;
+            color: #00ff00;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .warning {
+            color: #ffc107;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Dashboard Profile Debug Test</h1>
+        
+        <div class="debug-section">
+            <h2>Authentication Status</h2>
+            <div id="authStatus">Checking...</div>
+            <button onclick="checkAuth()">Check Authentication</button>
+            <button onclick="loginWithOTP()">Login with OTP</button>
+        </div>
+        
+        <div class="debug-section">
+            <h2>Profile Information</h2>
+            <div class="profile-field">
+                <label>Name:</label>
+                <span id="userName">Loading...</span>
+            </div>
+            <div class="profile-field">
+                <label>Gender:</label>
+                <span id="userGender">Loading...</span>
+            </div>
+            <div class="profile-field">
+                <label>Phone:</label>
+                <span id="userPhone">Loading...</span>
+            </div>
+            <div class="profile-field">
+                <label>Email:</label>
+                <span id="userEmail">Loading...</span>
+            </div>
+            <div class="profile-field">
+                <label>Address:</label>
+                <span id="userAddress">Loading...</span>
+            </div>
+            <div class="profile-field">
+                <label>City:</label>
+                <span id="userCity">Loading...</span>
+            </div>
+            <div class="profile-field">
+                <label>State:</label>
+                <span id="userState">Loading...</span>
+            </div>
+            <div class="profile-field">
+                <label>Pincode:</label>
+                <span id="userPincode">Loading...</span>
+            </div>
+            <div class="profile-field">
+                <label>Country:</label>
+                <span id="userCountry">Loading...</span>
+            </div>
+            <div class="profile-field">
+                <label>Profile Status:</label>
+                <span id="profileStatus">Loading...</span>
+            </div>
+            
+            <button onclick="loadProfile()">Load Profile</button>
+            <button onclick="testProfileSave()">Test Profile Save</button>
+            <button onclick="testProfileUpdate()">Test Profile Update</button>
+        </div>
+        
+        <div class="debug-section">
+            <h2>Debug Log</h2>
+            <div id="debugLog" class="log"></div>
+            <button onclick="clearLog()">Clear Log</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000';
+        
+        // Debug logging
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('debugLog');
+            const logEntry = document.createElement('div');
+            logEntry.className = type;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            logElement.appendChild(logEntry);
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(message);
+        }
+        
+        function clearLog() {
+            document.getElementById('debugLog').innerHTML = '';
+        }
+        
+        // Authentication helpers
+        function getToken() {
+            return localStorage.getItem('bg_token');
+        }
+        
+        function getUser() {
+            try {
+                return JSON.parse(localStorage.getItem('bg_user')) || {};
+            } catch {
+                return {};
+            }
+        }
+        
+        function isAuthenticated() {
+            return !!getToken();
+        }
+        
+        // API helpers
+        async function fetchWithAuth(url, options = {}) {
+            const token = getToken();
+            const response = await fetch(url, {
+                ...options,
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+                    ...options.headers
+                }
+            });
+            
+            if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    localStorage.removeItem('bg_token');
+                    localStorage.removeItem('bg_user');
+                }
+                const err = await response.json().catch(() => ({ error: 'Request failed' }));
+                throw new Error(err.error || 'Request failed');
+            }
+            return response.json();
+        }
+        
+        // Check authentication
+        async function checkAuth() {
+            log('Checking authentication status...', 'info');
+            
+            const token = getToken();
+            const user = getUser();
+            
+            if (token && user.email) {
+                log(`Authenticated as: ${user.email}`, 'success');
+                document.getElementById('authStatus').innerHTML = `<span class="success">✅ Authenticated as: ${user.email}</span>`;
+                
+                // Try to load profile
+                await loadProfile();
+            } else {
+                log('Not authenticated', 'warning');
+                document.getElementById('authStatus').innerHTML = `<span class="warning">⚠️ Not authenticated</span>`;
+            }
+        }
+        
+        // Login with OTP
+        async function loginWithOTP() {
+            log('Starting OTP login...', 'info');
+            
+            try {
+                // Request OTP
+                const otpResponse = await fetch(`${API_BASE}/api/auth/request-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: 'vasanthvasanth4863@gmail.com' })
+                });
+                
+                if (!otpResponse.ok) {
+                    throw new Error('OTP request failed');
+                }
+                
+                log('OTP requested successfully', 'success');
+                
+                // Get OTP from debug endpoint
+                const debugResponse = await fetch(`${API_BASE}/api/auth/debug-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: 'vasanthvasanth4863@gmail.com' })
+                });
+                
+                const debugData = await debugResponse.json();
+                log(`OTP received: ${debugData.otp}`, 'info');
+                
+                // Verify OTP
+                const verifyResponse = await fetch(`${API_BASE}/api/auth/verify-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        email: 'vasanthvasanth4863@gmail.com',
+                        otp: debugData.otp 
+                    })
+                });
+                
+                const verifyData = await verifyResponse.json();
+                
+                if (verifyResponse.ok && verifyData.token) {
+                    localStorage.setItem('bg_token', verifyData.token);
+                    localStorage.setItem('bg_user', JSON.stringify({
+                        email: 'vasanthvasanth4863@gmail.com',
+                        name: 'Test User'
+                    }));
+                    
+                    log('Login successful!', 'success');
+                    document.getElementById('authStatus').innerHTML = `<span class="success">✅ Logged in successfully!</span>`;
+                    
+                    // Load profile
+                    await loadProfile();
+                } else {
+                    throw new Error(verifyData.error || 'Login failed');
+                }
+                
+            } catch (error) {
+                log(`Login error: ${error.message}`, 'error');
+                document.getElementById('authStatus').innerHTML = `<span class="error">❌ Login failed: ${error.message}</span>`;
+            }
+        }
+        
+        // Load profile (exact same as dashboard.js)
+        async function loadProfile() {
+            log('Loading profile from API...', 'info');
+            
+            const nameEl = document.getElementById('userName');
+            const genderEl = document.getElementById('userGender');
+            const phoneEl = document.getElementById('userPhone');
+            const emailEl = document.getElementById('userEmail');
+            const addressEl = document.getElementById('userAddress');
+            const cityEl = document.getElementById('userCity');
+            const stateEl = document.getElementById('userState');
+            const pincodeEl = document.getElementById('userPincode');
+            const countryEl = document.getElementById('userCountry');
+            const profileStatusEl = document.getElementById('profileStatus');
+            
+            try {
+                // Check if DOM elements exist
+                if (!nameEl || !phoneEl || !emailEl) {
+                    log('Required DOM elements not found!', 'error');
+                    throw new Error('Dashboard DOM elements not available');
+                }
+                
+                log('DOM elements validated', 'success');
+                
+                // Fetch complete user profile from API
+                const user = await fetchWithAuth(`${API_BASE}/api/auth/me`);
+                
+                log(`Profile data received: ${JSON.stringify(user, null, 2)}`, 'info');
+                
+                if (user && user.id) {
+                    log('Updating DOM with profile data...', 'info');
+                    
+                    // Update all profile fields with validation
+                    const updates = [
+                        { el: document.getElementById('userName'), value: user.name || 'Not set', field: 'name' },
+                        { el: document.getElementById('userGender'), value: user.gender ? user.gender.charAt(0).toUpperCase() + user.gender.slice(1) : 'Not set', field: 'gender' },
+                        { el: document.getElementById('userPhone'), value: user.phone || 'Not set', field: 'phone' },
+                        { el: document.getElementById('userEmail'), value: user.email || 'Not set', field: 'email' },
+                        { el: document.getElementById('userAddress'), value: user.address || 'Not set', field: 'address' },
+                        { el: document.getElementById('userCity'), value: user.city || 'Not set', field: 'city' },
+                        { el: document.getElementById('userState'), value: user.state || 'Not set', field: 'state' },
+                        { el: document.getElementById('userPincode'), value: user.pincode || 'Not set', field: 'pincode' },
+                        { el: document.getElementById('userCountry'), value: user.country || 'Not set', field: 'country' }
+                    ];
+                    
+                    updates.forEach(update => {
+                        if (update.el) {
+                            update.el.textContent = update.value;
+                            log(`Updated ${update.field}: ${update.value}`, 'success');
+                        } else {
+                            log(`Element not found for field: ${update.field}`, 'error');
+                        }
+                    });
+                    
+                    // Update profile status
+                    if (profileStatusEl) {
+                        if (user.profile_completed) {
+                            profileStatusEl.textContent = '✅ Complete';
+                            profileStatusEl.className = 'success';
+                            log('Profile status: Complete', 'success');
+                        } else {
+                            profileStatusEl.textContent = '⚠️ Incomplete';
+                            profileStatusEl.className = 'warning';
+                            log('Profile status: Incomplete', 'warning');
+                        }
+                    } else {
+                        log('Profile status element not found', 'error');
+                    }
+                    
+                    // Update localStorage user data
+                    localStorage.setItem('bg_user', JSON.stringify(user));
+                    log('Updated localStorage user data', 'success');
+                    
+                    // Verify updates were applied
+                    const verifyName = document.getElementById('userName')?.textContent;
+                    const verifyPhone = document.getElementById('userPhone')?.textContent;
+                    log(`Verification - Name: ${verifyName}, Phone: ${verifyPhone}`, 'info');
+                    
+                    if (verifyName === (user.name || 'Not set') && verifyPhone === (user.phone || 'Not set')) {
+                        log('✅ Profile loaded and DOM updated successfully', 'success');
+                    } else {
+                        log('⚠️ DOM update verification failed', 'warning');
+                    }
+                    
+                } else {
+                    log(`Invalid user data received from API: ${JSON.stringify(user)}`, 'error');
+                    throw new Error('Invalid user data from API');
+                }
+            } catch (error) {
+                log(`Failed to load profile: ${error.message}`, 'error');
+                
+                // Fallback display with localStorage data
+                const localUser = getUser();
+                log(`Using localStorage fallback: ${JSON.stringify(localUser)}`, 'info');
+                
+                if (nameEl) nameEl.textContent = localUser.name || 'Unknown User';
+                if (emailEl) emailEl.textContent = localUser.email || 'Not set';
+                
+                // Show error message for profile status
+                const fallbackStatusEl = document.getElementById('profileStatus');
+                if (fallbackStatusEl) {
+                    fallbackStatusEl.textContent = '❌ Error loading profile';
+                    fallbackStatusEl.className = 'error';
+                }
+            }
+        }
+        
+        // Test profile save
+        async function testProfileSave() {
+            log('Testing profile save...', 'info');
+            
+            const timestamp = Date.now();
+            const profileData = {
+                name: `Debug Test User ${timestamp}`,
+                gender: 'male',
+                phone: `99988877${timestamp.toString().slice(-2)}`,
+                address: `${timestamp} Debug Test Street`,
+                city: 'Debug City',
+                state: 'Test State',
+                pincode: '123456',
+                country: 'India'
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/profile`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getToken()}`
+                    },
+                    body: JSON.stringify(profileData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    log('Profile saved successfully!', 'success');
+                    log(`Save response: ${JSON.stringify(result, null, 2)}`, 'info');
+                    
+                    // Wait 500ms (as per fix)
+                    log('Adding 500ms delay for database consistency...', 'info');
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                    // Reload profile
+                    log('Reloading profile...', 'info');
+                    await loadProfile();
+                    
+                } else {
+                    log(`Profile save failed: ${result.error || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                log(`Profile save error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Test profile update
+        async function testProfileUpdate() {
+            log('Testing profile update...', 'info');
+            
+            const timestamp = Date.now();
+            const profileData = {
+                name: `Updated Debug User ${timestamp}`,
+                gender: 'female',
+                phone: `99988877${timestamp.toString().slice(-2)}`,
+                address: `Updated ${timestamp} Street`,
+                city: 'Updated City',
+                state: 'Updated State',
+                pincode: '654321',
+                country: 'India'
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/profile`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getToken()}`
+                    },
+                    body: JSON.stringify(profileData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    log('Profile updated successfully!', 'success');
+                    
+                    // Wait 500ms
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                    // Reload profile
+                    await loadProfile();
+                    
+                } else {
+                    log(`Profile update failed: ${result.error || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                log(`Profile update error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            log('Debug page loaded', 'info');
+            checkAuth();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart Functionality Test - BrainyGrasp</title>
+    <link rel="stylesheet" href="css/common.css">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .success { background: #d4edda; color: #155724; padding: 10px; }
+        .error { background: #f8d7da; color: #721c24; padding: 10px; }
+        .product-card { border: 1px solid #ddd; padding: 15px; margin: 10px; display: inline-block; width: 200px; }
+        .add-to-cart-btn { background: #007bff; color: white; padding: 8px 15px; border: none; cursor: pointer; }
+        .cart-count { background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <h1>🛒 Cart Functionality Test</h1>
+    
+    <div class="test-section">
+        <h3>Cart Status</h3>
+        <div>Cart Items: <span class="cart-count">0</span></div>
+        <button onclick="showCartContents()">Show Cart Contents</button>
+        <div id="cartDisplay"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Test Products</h3>
+        <div class="product-card" data-id="1" data-price="499">
+            <h4>Brainy Blocks</h4>
+            <p>₹499</p>
+            <button class="add-to-cart-btn">Add to Cart</button>
+        </div>
+        <div class="product-card" data-id="2" data-price="299">
+            <h4>Math Puzzle</h4>
+            <p>₹299</p>
+            <button class="add-to-cart-btn">Add to Cart</button>
+        </div>
+        <div class="product-card" data-id="3" data-price="699">
+            <h4>Science Kit</h4>
+            <p>₹699</p>
+            <button class="add-to-cart-btn">Add to Cart</button>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>Cart Actions</h3>
+        <button onclick="clearCart()">Clear Cart</button>
+        <button onclick="testCartFunctions()">Test Cart Functions</button>
+        <div id="testResults"></div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/common.js"></script>
+
+    <script>
+        // Initialize cart functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof initAddToCart === 'function') {
+                initAddToCart();
+            }
+            updateCartCount();
+        });
+
+        function showCartContents() {
+            const cart = getCart();
+            const display = document.getElementById('cartDisplay');
+            
+            if (cart.length === 0) {
+                display.innerHTML = '<div class="error">Cart is empty</div>';
+            } else {
+                const items = cart.map(item => 
+                    `<div>${item.name} - ₹${item.price} x ${item.quantity || 1}</div>`
+                ).join('');
+                const total = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+                display.innerHTML = `
+                    <div class="success">
+                        <h4>Cart Items (${cart.length}):</h4>
+                        ${items}
+                        <strong>Total: ₹${total}</strong>
+                    </div>
+                `;
+            }
+        }
+
+        function clearCart() {
+            localStorage.removeItem('bg_cart');
+            updateCartCount();
+            showCartContents();
+        }
+
+        function testCartFunctions() {
+            const results = document.getElementById('testResults');
+            let tests = [];
+            
+            // Test getCart function
+            try {
+                const cart = getCart();
+                tests.push(`✅ getCart: ${Array.isArray(cart) ? 'Works' : 'Failed'}`);
+            } catch (e) {
+                tests.push(`❌ getCart: ${e.message}`);
+            }
+            
+            // Test addToCart function
+            try {
+                const testItem = { id: 999, name: 'Test Item', price: 100 };
+                addToCart(testItem);
+                const cart = getCart();
+                const added = cart.find(item => item.id === 999);
+                tests.push(`✅ addToCart: ${added ? 'Works' : 'Failed'}`);
+            } catch (e) {
+                tests.push(`❌ addToCart: ${e.message}`);
+            }
+            
+            // Test updateCartCount function
+            try {
+                updateCartCount();
+                tests.push('✅ updateCartCount: Works');
+            } catch (e) {
+                tests.push(`❌ updateCartCount: ${e.message}`);
+            }
+            
+            results.innerHTML = `
+                <div class="success">
+                    <h4>Function Tests:</h4>
+                    ${tests.map(test => `<div>${test}</div>`).join('')}
+                </div>
+            `;
+            
+            showCartContents();
+        }
+    </script>
+</body>
+</html>

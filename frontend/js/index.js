@@ -106,4 +106,25 @@ function initTestimonialsSlider() {
     track.style.transform = `translateX(${position}px)`;
   });
 }
+
+// === Initialize Main Page ===
+document.addEventListener('DOMContentLoaded', () => {
+  // Initialize product grids
+  if (typeof initProductGrids === 'function') {
+    initProductGrids();
+  }
+  
+  // Initialize cart functionality
+  if (typeof initCart === 'function') {
+    initCart();
+  }
+  
+  // Initialize add to cart functionality
+  // Note: initAddToCart() called in common.js to avoid duplication
+  
+  // Update cart count on page load
+  if (typeof updateCartCount === 'function') {
+    updateCartCount();
+  }
+});
  

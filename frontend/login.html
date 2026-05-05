@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
   <title>Sign in - BrainyGrasp</title>
   <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/mobile-responsive.css">
   <style>
     :root{--bg:#f6fbff;--card:#ffffff;--accent:#0b74ff;--muted:#6b7280}
     html,body{height:100%}
@@ -50,32 +51,19 @@
         <div class="logo-icon">BG</div>
         <div>
           <div id="signinTitle" style="font-weight:700">Sign in</div>
-          <div class="muted" style="font-size:13px">Use phone or email to receive a one-time code</div>
+          <div class="muted" style="font-size:13px">Use your email to receive a one-time code</div>
         </div>
-      </div>
-
-      <div class="auth-tabs" role="tablist">
-        <div class="auth-tab active" data-method="phone" role="tab" aria-selected="true">Phone</div>
-        <div class="auth-tab" data-method="email" role="tab" aria-selected="false">Email</div>
       </div>
 
       <form id="loginForm" novalidate>
         <div id="authStep1">
-          <div id="phoneWrap" class="input-group">
-            <label for="phoneInput">Phone</label>
-            <div class="phone-row">
-              <input class="country-code" type="text" value="+91" aria-label="Country code"/>
-              <input id="phoneInput" name="phone" type="tel" inputmode="tel" placeholder="98765 43210" required aria-required="true">
-            </div>
-          </div>
-
-          <div id="emailWrap" class="input-group" style="display:none">
-            <label for="emailInput">Email</label>
-            <input id="emailInput" name="email" type="email" placeholder="you@domain.com" aria-required="true">
+          <div id="emailWrap" class="input-group">
+            <label for="emailInput">Email Address</label>
+            <input id="emailInput" name="email" type="email" placeholder="Enter your email address" required aria-required="true">
           </div>
 
           <div id="authError" class="error-msg" role="alert"></div>
-          <button type="button" id="sendOTPBtn" class="btn-primary">Send OTP</button>
+          <button type="button" id="requestOTPBtn" class="btn-primary">Send OTP</button>
 
           <div class="footer-note">By continuing you agree to our <a href="#">Privacy Policy</a>.</div>
         </div>
@@ -102,6 +90,7 @@
     </main>
   </div>
 
-  <script src="js/auth.js"></script>
+  <script src="js/auth-unified.js"></script>
+  <script src="js/mobile-enhancements.js"></script>
 </body>
 </html>

@@ -1,0 +1,21 @@
+{
+  "name": "braingrasp_devin",
+  "version": "1.0.0",
+  "description": "BrainyGRAS — Educational Toys E-commerce Platform",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Vasanthakumarj31/BRAINGRASP_DEVIN.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Vasanthakumarj31/BRAINGRASP_DEVIN/issues"
+  },
+  "homepage": "https://github.com/Vasanthakumarj31/BRAINGRASP_DEVIN#readme"
+}

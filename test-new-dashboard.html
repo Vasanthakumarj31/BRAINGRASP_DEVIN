@@ -1,0 +1,273 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Dashboard Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 3px;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background-color: #0056b3; }
+        .console-log {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 New Dashboard Test</h1>
+    
+    <div class="test-section">
+        <h2>📋 Test Results</h2>
+        <div id="testResults">
+            <div class="test-result info">Running tests...</div>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🔧 Test Controls</h2>
+        <button onclick="testAuthentication()">Test Authentication</button>
+        <button onclick="testProfileLoading()">Test Profile Loading</button>
+        <button onclick="testDOMUpdate()">Test DOM Update</button>
+        <button onclick="testProfileEdit()">Test Profile Edit</button>
+        <button onclick="goToNewDashboard()">Go to New Dashboard</button>
+        <button onclick="goToOldDashboard()">Go to Old Dashboard</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>📊 Console Log</h2>
+        <div id="consoleLog" class="console-log"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000';
+        
+        function getToken() { 
+            return localStorage.getItem('bg_token'); 
+        }
+        
+        function getUser() {
+            try { 
+                return JSON.parse(localStorage.getItem('bg_user')) || {}; 
+            } catch { 
+                return {}; 
+            }
+        }
+        
+        function isAuthenticated() { 
+            return !!getToken(); 
+        }
+        
+        function clearAuth() {
+            localStorage.removeItem('bg_token');
+            localStorage.removeItem('bg_user');
+        }
+        
+        async function fetchWithAuth(url, options = {}) {
+            const token = getToken();
+            const res = await fetch(url, {
+                ...options,
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+                    ...options.headers
+                }
+            });
+            
+            if (!res.ok) {
+                if (res.status === 401 || res.status === 403) {
+                    clearAuth();
+                }
+                const err = await res.json().catch(() => ({ error: 'Request failed' }));
+                throw new Error(err.error || 'Request failed');
+            }
+            return res.json();
+        }
+        
+        function log(message) {
+            const consoleLog = document.getElementById('consoleLog');
+            const timestamp = new Date().toLocaleTimeString();
+            consoleLog.innerHTML += `[${timestamp}] ${message}<br>`;
+            consoleLog.scrollTop = consoleLog.scrollHeight;
+            console.log(message);
+        }
+        
+        function updateTestResults() {
+            const results = document.getElementById('testResults');
+            const auth = isAuthenticated();
+            const user = getUser();
+            
+            results.innerHTML = `
+                <div class="test-result ${auth ? 'success' : 'error'}">
+                    Authentication: ${auth ? '✅ Authenticated' : '❌ Not Authenticated'}
+                </div>
+                <div class="test-result info">
+                    Token: ${getToken() ? 'Present' : 'Missing'}
+                </div>
+                <div class="test-result info">
+                    User Email: ${user.email || 'Not set'}
+                </div>
+                <div class="test-result info">
+                    User Name: ${user.name || 'Not set'}
+                </div>
+                <div class="test-result info">
+                    Profile Complete: ${user.profile_completed ? '✅ Yes' : '❌ No'}
+                </div>
+            `;
+        }
+        
+        async function testAuthentication() {
+            log('🔐 Testing authentication...');
+            const token = getToken();
+            const user = getUser();
+            const auth = isAuthenticated();
+            
+            log(`Token: ${token ? 'Present' : 'Missing'}`);
+            log(`User: ${user.email || 'Not set'}`);
+            log(`Authenticated: ${auth}`);
+            
+            updateTestResults();
+        }
+        
+        async function testProfileLoading() {
+            log('📥 Testing profile loading...');
+            
+            try {
+                if (!isAuthenticated()) {
+                    log('❌ User not authenticated');
+                    return;
+                }
+                
+                const user = await fetchWithAuth(`${API_BASE}/api/auth/me`);
+                log('✅ Profile data received:');
+                log(`   Name: ${user.name || 'Not set'}`);
+                log(`   Email: ${user.email || 'Not set'}`);
+                log(`   Phone: ${user.phone || 'Not set'}`);
+                log(`   Address: ${user.address || 'Not set'}`);
+                log(`   City: ${user.city || 'Not set'}`);
+                log(`   State: ${user.state || 'Not set'}`);
+                log(`   PIN: ${user.pincode || 'Not set'}`);
+                log(`   Profile Complete: ${user.profile_completed ? 'Yes' : 'No'}`);
+                
+                // Store user data
+                localStorage.setItem('bg_user', JSON.stringify(user));
+                updateTestResults();
+                
+                log('✅ Profile loading test passed');
+            } catch (error) {
+                log('❌ Profile loading test failed: ' + error.message);
+            }
+        }
+        
+        async function testDOMUpdate() {
+            log('🔄 Testing DOM update simulation...');
+            
+            // Simulate DOM updates
+            const testFields = [
+                { name: 'profileName', value: 'Test User' },
+                { name: 'profileEmail', value: 'test@example.com' },
+                { name: 'profilePhone', value: '1234567890' },
+                { name: 'profileAddress', value: '123 Test Street' },
+                { name: 'profileCity', value: 'Test City' },
+                { name: 'profileState', value: 'Test State' },
+                { name: 'profilePincode', value: '123456' }
+            ];
+            
+            testFields.forEach(field => {
+                log(`✅ Would update ${field.name} with: ${field.value}`);
+            });
+            
+            log('✅ DOM update simulation completed');
+        }
+        
+        async function testProfileEdit() {
+            log('✏️ Testing profile edit simulation...');
+            
+            const testData = {
+                name: 'Updated Test User',
+                phone: '9876543210',
+                gender: 'male',
+                address: '456 Updated Street',
+                city: 'Updated City',
+                state: 'Updated State',
+                pincode: '654321'
+            };
+            
+            log('📝 Profile edit data:');
+            Object.entries(testData).forEach(([key, value]) => {
+                log(`   ${key}: ${value}`);
+            });
+            
+            try {
+                if (!isAuthenticated()) {
+                    log('❌ User not authenticated');
+                    return;
+                }
+                
+                const response = await fetchWithAuth(`${API_BASE}/api/auth/profile`, {
+                    method: 'POST',
+                    body: JSON.stringify(testData)
+                });
+                
+                if (response.success) {
+                    log('✅ Profile edit simulation successful');
+                } else {
+                    log('❌ Profile edit simulation failed');
+                }
+            } catch (error) {
+                log('❌ Profile edit simulation error: ' + error.message);
+            }
+        }
+        
+        function goToNewDashboard() {
+            log('🚀 Going to new dashboard...');
+            window.location.href = 'http://localhost:5501/dashboard-new.html';
+        }
+        
+        function goToOldDashboard() {
+            log('🚀 Going to old dashboard...');
+            window.location.href = 'http://localhost:5501/dashboard.html';
+        }
+        
+        // Initialize
+        window.addEventListener('DOMContentLoaded', () => {
+            log('🚀 Test page loaded');
+            updateTestResults();
+        });
+    </script>
+</body>
+</html>

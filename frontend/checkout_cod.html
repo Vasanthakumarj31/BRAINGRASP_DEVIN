@@ -1,36 +1,521 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Cash on Delivery | BrainyGrasp</title>
-  <link rel="stylesheet" href="css/common.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout | BrainyGrasp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    :root {
+      --primary: #667eea; --primary-dark: #764ba2;
+      --orange: #FF6B35; --orange-light: #f7b731;
+      --bg: #f4f7f6; --white: #fff;
+      --text: #2d3436; --muted: #636e72;
+      --shadow: 0 8px 30px rgba(0,0,0,0.08);
+      --radius: 16px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: var(--bg); font-family: 'Nunito', sans-serif; color: var(--text); min-height: 100vh; }
+
+    /* Header */
+    .checkout-header {
+      background: var(--white); padding: 14px 5%;
+      display: flex; align-items: center; gap: 16px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06); position: sticky; top: 0; z-index: 100;
+    }
+    .checkout-header a { text-decoration: none; color: var(--muted); font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 6px; }
+    .checkout-header a:hover { color: var(--primary); }
+    .checkout-header .logo { font-family: 'Fredoka'; font-size: 1.5rem; color: var(--primary-dark); font-weight: 700; margin-left: auto; margin-right: auto; }
+
+    /* Steps */
+    .steps { display: flex; justify-content: center; gap: 0; padding: 20px 5% 0; }
+    .step { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 700; color: var(--muted); }
+    .step.active { color: var(--primary); }
+    .step.done { color: #00b894; }
+    .step-num { width: 28px; height: 28px; border-radius: 50%; background: #eee; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; }
+    .step.active .step-num { background: var(--primary); color: white; }
+    .step.done .step-num { background: #00b894; color: white; }
+    .step-line { width: 50px; height: 2px; background: #eee; margin: 0 8px; }
+    .step.done + .step .step-line, .step.active + .step-line { background: var(--primary); }
+
+    /* Layout */
+    .checkout-layout {
+      max-width: 1100px; margin: 24px auto; padding: 0 16px;
+      display: grid; grid-template-columns: 1fr 380px; gap: 24px; align-items: start;
+    }
+    @media (max-width: 800px) { .checkout-layout { grid-template-columns: 1fr; } }
+
+    .card { background: var(--white); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); margin-bottom: 20px; }
+    .card-title { font-family: 'Fredoka'; font-size: 1.25rem; color: var(--primary-dark); margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+
+    /* Form */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .full { grid-column: 1 / -1; }
+    @media (max-width: 500px) { .form-grid { grid-template-columns: 1fr; } }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: 0.8rem; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .form-group input, .form-group select {
+      padding: 12px 14px; border: 1.5px solid #e8ecef; border-radius: 10px;
+      font-family: inherit; font-size: 0.95rem; transition: all 0.2s; background: #f8f9fa;
+    }
+    .form-group input:focus, .form-group select:focus {
+      outline: none; border-color: var(--primary); background: var(--white);
+      box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+    }
+
+    /* Payment Methods */
+    .payment-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+    .payment-option { display: none; }
+    .payment-label {
+      border: 2px solid #e8ecef; border-radius: 12px; padding: 16px;
+      cursor: pointer; text-align: center; transition: all 0.25s; background: #f8f9fa;
+    }
+    .payment-label .pay-icon { font-size: 1.8rem; display: block; margin-bottom: 6px; }
+    .payment-label .pay-name { font-weight: 800; font-size: 0.9rem; }
+    .payment-label .pay-desc { font-size: 0.75rem; color: var(--muted); margin-top: 3px; }
+    .payment-option:checked + .payment-label {
+      border-color: var(--primary); background: rgba(102,126,234,0.06);
+      box-shadow: 0 0 0 1px var(--primary);
+    }
+    .payment-option:checked + .payment-label .pay-name { color: var(--primary); }
+
+    /* Order Button */
+    .btn-place {
+      width: 100%; padding: 16px; border: none; border-radius: 12px;
+      font-family: inherit; font-size: 1.05rem; font-weight: 800; cursor: pointer;
+      transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+    .btn-cod { background: linear-gradient(135deg, #2d8a4e, #00b894); color: white; }
+    .btn-rzp { background: linear-gradient(135deg, var(--orange), var(--orange-light)); color: white; }
+    .btn-place:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
+    .btn-place:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* Order Summary */
+    .order-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 0; border-bottom: 1px solid #f1f2f6; font-size: 0.9rem;
+    }
+    .order-item:last-child { border-bottom: none; }
+    .order-item-name { font-weight: 700; }
+    .order-item-qty { color: var(--muted); font-size: 0.8rem; }
+    .order-item-price { font-weight: 800; color: var(--primary-dark); }
+
+    .order-totals { margin-top: 14px; padding-top: 14px; border-top: 2px dashed #e8ecef; }
+    .total-row { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 8px; color: var(--muted); }
+    .total-row.grand { font-size: 1.1rem; font-weight: 800; color: var(--text); margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee; }
+
+    .empty-cart { text-align: center; padding: 40px 20px; color: var(--muted); }
+    .empty-cart i { font-size: 3rem; margin-bottom: 12px; opacity: 0.4; }
+
+    /* Trust badges */
+    .trust-badges { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+    .badge-item { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--muted); font-weight: 700; }
+    .badge-item i { color: #00b894; }
+
+    /* Success overlay */
+    .success-overlay {
+      position: fixed; inset: 0; background: rgba(45,52,54,0.7);
+      display: none; justify-content: center; align-items: center; z-index: 9999;
+      backdrop-filter: blur(4px);
+    }
+    .success-box {
+      background: white; border-radius: 20px; padding: 40px; text-align: center;
+      max-width: 420px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      animation: popIn 0.4s ease;
+    }
+    @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .success-icon { font-size: 4rem; margin-bottom: 16px; }
+    .success-box h2 { font-family: 'Fredoka'; font-size: 1.8rem; color: #2d8a4e; margin-bottom: 10px; }
+    .success-box p { color: var(--muted); margin-bottom: 8px; font-size: 0.95rem; }
+    .order-id-badge { background: #f0fff4; border: 1px solid #00b894; color: #2d8a4e; padding: 8px 16px; border-radius: 8px; font-weight: 800; display: inline-block; margin: 10px 0; }
+    .redirect-note { font-size: 0.8rem; color: var(--muted); margin-top: 16px; }
+  </style>
 </head>
 <body>
-  <header class="main-header">
-    <div class="container">
-      <a href="index.html" class="logo">BrainyGrasp</a>
-    </div>
-  </header>
-  <main class="section">
-    <div class="container">
-      <h1>Cash On Delivery</h1>
-      <p>Confirm your order and provide delivery address.</p>
-      <div id="codItems"></div>
-      <div style="margin-top:16px">
-        <label>Full name<br><input id="codName" type="text" /></label><br>
-        <label>Phone<br><input id="codPhone" type="text" /></label><br>
-        <label>Line 1<br><input id="codLine1" type="text" /></label><br>
-        <label>City<br><input id="codCity" type="text" /></label><br>
-        <label>State<br><input id="codState" type="text" /></label><br>
-        <label>Pincode<br><input id="codPincode" type="text" /></label><br>
-        <button id="codPlaceOrder" class="btn btn-primary">Place Order (COD)</button>
-      </div>
-      <div id="codMsg" style="margin-top:12px;color:green"></div>
-    </div>
-  </main>
 
-  <script src="js/auth.js"></script>
-  <script src="js/checkout_cod.js"></script>
+  <!-- Header -->
+  <header class="checkout-header">
+    <a href="javascript:history.back()"><i class="fas fa-arrow-left"></i> Back</a>
+    <span class="logo">BrainyGrasp</span>
+    <a href="index.html"><i class="fas fa-home"></i> Shop</a>
+  </header>
+
+  <!-- Steps -->
+  <div class="steps">
+    <div class="step done"><div class="step-num"><i class="fas fa-check"></i></div> Cart</div>
+    <div class="step-line"></div>
+    <div class="step active"><div class="step-num">2</div> Checkout</div>
+    <div class="step-line"></div>
+    <div class="step"><div class="step-num">3</div> Confirmation</div>
+  </div>
+
+  <div class="checkout-layout">
+
+    <!-- LEFT: Address + Payment -->
+    <div>
+      <!-- Delivery Address -->
+      <div class="card">
+        <h2 class="card-title"><i class="fas fa-map-marker-alt"></i> Delivery Address</h2>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Full Name *</label>
+            <input type="text" id="codName" placeholder="e.g. Vasanth Kumar" required>
+          </div>
+          <div class="form-group">
+            <label>Phone Number *</label>
+            <input type="tel" id="codPhone" placeholder="10-digit mobile" required>
+          </div>
+          <div class="form-group">
+            <label>PIN Code *</label>
+            <input type="text" id="codPincode" placeholder="6-digit PIN" maxlength="6" required>
+          </div>
+          <div class="form-group full">
+            <label>Street Address *</label>
+            <input type="text" id="codLine1" placeholder="House No., Street, Area" required>
+          </div>
+          <div class="form-group">
+            <label>City *</label>
+            <input type="text" id="codCity" placeholder="City" required>
+          </div>
+          <div class="form-group">
+            <label>State *</label>
+            <input type="text" id="codState" placeholder="State" required>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Method -->
+      <div class="card">
+        <h2 class="card-title"><i class="fas fa-credit-card"></i> Payment Method</h2>
+        <div class="payment-options">
+          <div>
+            <input type="radio" name="payMethod" id="payCOD" class="payment-option" value="cod" checked>
+            <label for="payCOD" class="payment-label">
+              <span class="pay-icon">🏠</span>
+              <div class="pay-name">Cash on Delivery</div>
+              <div class="pay-desc">Pay when delivered</div>
+            </label>
+          </div>
+          <div>
+            <input type="radio" name="payMethod" id="payRazorpay" class="payment-option" value="razorpay">
+            <label for="payRazorpay" class="payment-label">
+              <span class="pay-icon">⚡</span>
+              <div class="pay-name">Pay Online</div>
+              <div class="pay-desc">UPI, Card, Net Banking</div>
+            </label>
+          </div>
+        </div>
+
+        <button id="codPlaceOrder" class="btn-place btn-cod">
+          <i class="fas fa-check-circle"></i> Place Order (Cash on Delivery)
+        </button>
+      </div>
+
+      <!-- Trust Badges -->
+      <div class="trust-badges">
+        <div class="badge-item"><i class="fas fa-shield-alt"></i> 100% Secure</div>
+        <div class="badge-item"><i class="fas fa-truck"></i> Free Shipping ₹999+</div>
+        <div class="badge-item"><i class="fas fa-undo"></i> 15-Day Returns</div>
+        <div class="badge-item"><i class="fas fa-lock"></i> Safe Payments</div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Order Summary -->
+    <div class="card" style="position:sticky;top:80px">
+      <h2 class="card-title"><i class="fas fa-shopping-bag"></i> Order Summary</h2>
+      <div id="codItems"></div>
+      <div id="codMsg" style="margin-top:10px;font-weight:700;font-size:0.9rem;"></div>
+    </div>
+
+  </div>
+
+  <!-- Success Overlay -->
+  <div class="success-overlay" id="successOverlay">
+    <div class="success-box">
+      <div class="success-icon">🎉</div>
+      <h2>Order Placed!</h2>
+      <p>Your BrainyGrasp order has been confirmed.</p>
+      <div class="order-id-badge" id="successOrderId">Order #...</div>
+      <p id="successPayNote" style="color:#2d8a4e;font-weight:700;"></p>
+      <p class="redirect-note">Redirecting to your dashboard in 3 seconds...</p>
+    </div>
+  </div>
+
+  <script src="js/auth-unified.js"></script>
+  <script src="js/common.js"></script>
+  <script>
+  const API_BASE = 'http://localhost:3000';
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    const token = localStorage.getItem('bg_token');
+    if (!token) {
+      localStorage.setItem('redirectAfterLogin', 'checkout_cod.html');
+      window.location.href = 'login.html';
+      return;
+    }
+
+    // ── Render Cart Summary ────────────────────────────────────────────
+    function renderSummary() {
+      const cart = typeof getCart === 'function' ? getCart() : [];
+      const wrap = document.getElementById('codItems');
+
+      if (!cart || cart.length === 0) {
+        wrap.innerHTML = `<div class="empty-cart"><i class="fas fa-shopping-bag"></i><p>Your cart is empty</p><a href="index.html" style="color:var(--primary);font-weight:700">Continue Shopping</a></div>`;
+        document.getElementById('codPlaceOrder').disabled = true;
+        return;
+      }
+
+      const subtotal = cart.reduce((s, i) => s + i.price * (i.quantity || 1), 0);
+      const shipping = subtotal >= 999 ? 0 : 60;
+      const total    = subtotal + shipping;
+
+      wrap.innerHTML = `
+        ${cart.map(item => `
+          <div class="order-item">
+            <div>
+              <div class="order-item-name">${item.name}</div>
+              <div class="order-item-qty">Qty: ${item.quantity || 1}</div>
+            </div>
+            <div class="order-item-price">₹${item.price * (item.quantity || 1)}</div>
+          </div>
+        `).join('')}
+        <div class="order-totals">
+          <div class="total-row"><span>Subtotal</span><span>₹${subtotal}</span></div>
+          <div class="total-row"><span>Shipping</span><span>${shipping === 0 ? '<span style="color:#00b894">FREE</span>' : '₹' + shipping}</span></div>
+          <div class="total-row grand"><span>Total</span><span style="color:var(--orange)">₹${total}</span></div>
+        </div>
+      `;
+      return { cart, subtotal, total };
+    }
+
+    let summaryData = renderSummary();
+
+    // ── Pre-fill Address from Profile ──────────────────────────────────
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/me`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const u = await res.json();
+        if (u.name)    document.getElementById('codName').value    = u.name;
+        if (u.phone)   document.getElementById('codPhone').value   = u.phone;
+        if (u.address) document.getElementById('codLine1').value   = u.address;
+        if (u.city)    document.getElementById('codCity').value    = u.city;
+        if (u.state)   document.getElementById('codState').value   = u.state;
+        if (u.pincode) document.getElementById('codPincode').value = u.pincode;
+        localStorage.setItem('bg_user', JSON.stringify(u));
+      }
+    } catch(e) { console.warn('Pre-fill failed', e); }
+
+    // ── Update button label on payment method change ───────────────────
+    document.querySelectorAll('input[name="payMethod"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        const btn = document.getElementById('codPlaceOrder');
+        if (radio.value === 'razorpay') {
+          btn.className = 'btn-place btn-rzp';
+          btn.innerHTML = '<i class="fas fa-bolt"></i> Pay Now with Razorpay';
+        } else {
+          btn.className = 'btn-place btn-cod';
+          btn.innerHTML = '<i class="fas fa-check-circle"></i> Place Order (Cash on Delivery)';
+        }
+      });
+    });
+
+    // ── Collect & Validate Address ─────────────────────────────────────
+    function getAddress() {
+      const name    = document.getElementById('codName').value.trim();
+      const phone   = document.getElementById('codPhone').value.trim();
+      const line1   = document.getElementById('codLine1').value.trim();
+      const city    = document.getElementById('codCity').value.trim();
+      const state   = document.getElementById('codState').value.trim();
+      const pincode = document.getElementById('codPincode').value.trim();
+      return { name, phone, line1, city, state, pincode };
+    }
+
+    function showMsg(text, color = '#c53030') {
+      const el = document.getElementById('codMsg');
+      el.style.color = color;
+      el.textContent = text;
+    }
+
+    function validateAddress(a) {
+      if (!a.name || !a.phone || !a.line1 || !a.city || !a.state || !a.pincode) {
+        showMsg('⚠️ Please fill all delivery fields.');
+        return false;
+      }
+      if (!/^\d{10}$/.test(a.phone)) {
+        showMsg('⚠️ Enter a valid 10-digit phone number.');
+        return false;
+      }
+      if (!/^\d{6}$/.test(a.pincode)) {
+        showMsg('⚠️ Enter a valid 6-digit PIN code.');
+        return false;
+      }
+      return true;
+    }
+
+    // ── Save Address & Place Order ─────────────────────────────────────
+    async function saveAddressAndOrder(payMethod, paymentId = null) {
+      const addr = getAddress();
+      if (!validateAddress(addr)) return null;
+
+      summaryData = renderSummary();
+      if (!summaryData) return null;
+
+      const btn = document.getElementById('codPlaceOrder');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+      try {
+        // Step 1: Save address
+        const adrRes = await fetch(`${API_BASE}/api/addresses`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ full_name: addr.name, phone: addr.phone, line1: addr.line1, city: addr.city, state: addr.state, pincode: addr.pincode, is_default: false })
+        });
+        if (!adrRes.ok) throw new Error('Address save failed');
+        const adrData = await adrRes.json();
+
+        // Step 2: Create order
+        const ordRes = await fetch(`${API_BASE}/api/orders`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({
+            address_id: adrData.id,
+            items: summaryData.cart,
+            subtotal: summaryData.subtotal,
+            total: summaryData.total,
+            payment_method: payMethod,
+            payment_id: paymentId
+          })
+        });
+        if (!ordRes.ok) throw new Error('Order creation failed');
+        const ord = await ordRes.json();
+
+        // Clear cart
+        if (typeof clearCart === 'function') clearCart();
+        localStorage.removeItem('bg_cart');
+
+        return ord.id;
+
+      } catch(err) {
+        console.error(err);
+        showMsg('❌ ' + (err.message || 'Something went wrong. Please try again.'));
+        btn.disabled = false;
+        return null;
+      }
+    }
+
+    function showSuccess(orderId, payNote) {
+      document.getElementById('successOrderId').textContent = `Order #${orderId}`;
+      document.getElementById('successPayNote').textContent = payNote;
+      document.getElementById('successOverlay').style.display = 'flex';
+      document.querySelector('.steps .step:last-child').classList.add('active');
+      setTimeout(() => window.location.href = 'dashboard-new.html', 3000);
+    }
+
+    // ── Main Order Button ──────────────────────────────────────────────
+    document.getElementById('codPlaceOrder').addEventListener('click', async () => {
+      const method = document.querySelector('input[name="payMethod"]:checked').value;
+
+      if (method === 'cod') {
+        // ── COD Flow ──────────────────────────────────────────────────
+        const orderId = await saveAddressAndOrder('cod');
+        if (orderId) showSuccess(orderId, '🏠 Pay cash when your order arrives.');
+
+      } else {
+        // ── Razorpay Flow ─────────────────────────────────────────────
+        const addr = getAddress();
+        if (!validateAddress(addr)) return;
+        summaryData = renderSummary();
+        if (!summaryData) return;
+
+        const btn = document.getElementById('codPlaceOrder');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Initializing Payment...';
+
+        try {
+          // Create Razorpay order on backend
+          const rzpOrderRes = await fetch(`${API_BASE}/api/payment/create-order`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ amount: summaryData.total })
+          });
+          const rzpOrder = await rzpOrderRes.json();
+
+          if (!rzpOrder.orderId) {
+            showMsg('❌ Could not initialize payment. Check Razorpay API keys.');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-bolt"></i> Pay Now with Razorpay';
+            return;
+          }
+
+          const user = JSON.parse(localStorage.getItem('bg_user') || '{}');
+
+          const options = {
+            key: rzpOrder.key,
+            amount: rzpOrder.amount,
+            currency: rzpOrder.currency,
+            name: 'BrainyGrasp',
+            description: 'Educational Toys Purchase',
+            image: 'images/logo.jpg',
+            order_id: rzpOrder.orderId,
+            prefill: {
+              name: addr.name,
+              contact: addr.phone,
+              email: user.email || ''
+            },
+            theme: { color: '#667eea' },
+            handler: async (response) => {
+              // Verify signature on backend
+              const verifyRes = await fetch(`${API_BASE}/api/payment/verify`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature
+                })
+              });
+              const verify = await verifyRes.json();
+
+              if (verify.success) {
+                const orderId = await saveAddressAndOrder('razorpay', verify.payment_id);
+                if (orderId) showSuccess(orderId, '✅ Payment successful! Your order is confirmed.');
+              } else {
+                showMsg('❌ Payment verification failed. Please contact support.');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-bolt"></i> Pay Now with Razorpay';
+              }
+            },
+            modal: {
+              ondismiss: () => {
+                showMsg('Payment cancelled. Try again.', '#636e72');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-bolt"></i> Pay Now with Razorpay';
+              }
+            }
+          };
+
+          const rzp = new Razorpay(options);
+          rzp.open();
+
+        } catch(err) {
+          console.error('Razorpay error:', err);
+          showMsg('❌ Payment initialization failed. Please try again.');
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-bolt"></i> Pay Now with Razorpay';
+        }
+      }
+    });
+
+  });
+  </script>
+
+  <!-- Razorpay SDK -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </body>
 </html>

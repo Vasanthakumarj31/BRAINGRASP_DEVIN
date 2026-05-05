@@ -1,28 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
   <title>BrainyGrasp - Where Learning Meets Play!</title>
   <link rel="stylesheet" href="css/common.css">
   <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="css/search.css">
+  <link rel="stylesheet" href="css/mobile-responsive.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
+
 <body>
- 
+
   <!-- Announcement Bar -->
   <div class="announcement-bar">
     <div class="announcement-slider">
-      <div class="announcement-slide active">Buy any <strong>2</strong> and get <strong>FLAT 10% OFF</strong> | Use Code: <strong>BRAINY10</strong></div>
-      <div class="announcement-slide">Buy any <strong>3</strong> and get <strong>FLAT 15% OFF</strong> | Use Code: <strong>BRAINY15</strong></div>
-      <div class="announcement-slide">Get a <strong>FREE GIFT</strong> on all orders above <strong>&#8377;1,499</strong></div>
+      <div class="announcement-slide active">Buy any <strong>2</strong> and get <strong>FLAT 10% OFF</strong> | Use
+        Code: <strong>BRAINY10</strong></div>
+      <div class="announcement-slide">Buy any <strong>3</strong> and get <strong>FLAT 15% OFF</strong> | Use Code:
+        <strong>BRAINY15</strong></div>
+      <div class="announcement-slide">Get a <strong>FREE GIFT</strong> on all orders above <strong>&#8377;1,499</strong>
+      </div>
       <div class="announcement-slide"><strong>FREE SHIPPING</strong> on order value above &#8377;999</div>
     </div>
   </div>
- 
+
   <!-- Top Bar -->
   <div class="top-bar">
     <div class="container">
@@ -34,22 +44,21 @@
       </div>
     </div>
   </div>
- 
+
   <!-- Main Header -->
   <header class="main-header" id="mainHeader">
     <div class="container">
       <div class="header-inner">
         <!-- Mobile Menu Toggle -->
-        <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle mobile menu">
           <i class="fas fa-bars"></i>
         </button>
- 
+
         <!-- Logo -->
         <a href="/" class="logo">
-          <span class="logo-icon">🧠</span>
-          <span class="logo-text">Brainy<span class="logo-highlight">Grasp</span></span>
+          <img src="images/logo.jpg" alt="BrainyGrasp Logo" class="brand-logo">
         </a>
- 
+
         <!-- Navigation -->
         <nav class="main-nav" id="mainNav">
           <ul class="nav-list">
@@ -61,28 +70,45 @@
               <div class="mega-menu category-mega-menu">
                 <div class="category-mega-flex">
                   <div class="category-mega-icons">
-                    <a href="shop-by-category.html?category=Arts+%26+Crafts" class="cat-mega-item" data-category="Arts & Crafts">
-                      <div class="cat-mega-circle"><img src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=100&h=100&fit=crop" alt="Arts & Crafts"></div>
+                    <a href="shop-by-category.html?category=Arts+%26+Crafts" class="cat-mega-item"
+                      data-category="Arts & Crafts">
+                      <div class="cat-mega-circle"><img
+                          src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=100&h=100&fit=crop"
+                          alt="Arts & Crafts"></div>
                       <span>Arts & Crafts</span>
                     </a>
-                    <a href="shop-by-category.html?category=Puzzles+%26+Pretend" class="cat-mega-item" data-category="Puzzles & Pretend">
-                      <div class="cat-mega-circle"><img src="https://images.unsplash.com/photo-1566140967404-b8b3932483f5?w=100&h=100&fit=crop" alt="Puzzles"></div>
+                    <a href="shop-by-category.html?category=Puzzles+%26+Pretend" class="cat-mega-item"
+                      data-category="Puzzles & Pretend">
+                      <div class="cat-mega-circle"><img
+                          src="https://images.unsplash.com/photo-1566140967404-b8b3932483f5?w=100&h=100&fit=crop"
+                          alt="Puzzles"></div>
                       <span>Puzzles & Pretend Play</span>
                     </a>
-                    <a href="shop-by-category.html?category=Infant+Toys" class="cat-mega-item" data-category="Infant Toys">
-                      <div class="cat-mega-circle"><img src="https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=100&h=100&fit=crop" alt="Toddlers"></div>
+                    <a href="shop-by-category.html?category=Infant+Toys" class="cat-mega-item"
+                      data-category="Infant Toys">
+                      <div class="cat-mega-circle"><img
+                          src="https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=100&h=100&fit=crop"
+                          alt="Toddlers"></div>
                       <span>Toddlers & Infants</span>
                     </a>
-                    <a href="shop-by-category.html?category=Learning+Products" class="cat-mega-item" data-category="Learning Products">
-                      <div class="cat-mega-circle"><img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=100&h=100&fit=crop" alt="Learning"></div>
+                    <a href="shop-by-category.html?category=Learning+Products" class="cat-mega-item"
+                      data-category="Learning Products">
+                      <div class="cat-mega-circle"><img
+                          src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=100&h=100&fit=crop"
+                          alt="Learning"></div>
                       <span>Learning Products</span>
                     </a>
-                    <a href="shop-by-category.html?category=Card+%26+Board+Games" class="cat-mega-item" data-category="Card & Board Games">
-                      <div class="cat-mega-circle"><img src="https://images.unsplash.com/photo-1509228627152-72ae9ae6848d?w=100&h=100&fit=crop" alt="Games"></div>
+                    <a href="shop-by-category.html?category=Card+%26+Board+Games" class="cat-mega-item"
+                      data-category="Card & Board Games">
+                      <div class="cat-mega-circle"><img
+                          src="https://images.unsplash.com/photo-1509228627152-72ae9ae6848d?w=100&h=100&fit=crop"
+                          alt="Games"></div>
                       <span>Card & Board Games</span>
                     </a>
                     <a href="shop-by-category.html?category=STEM+Toys" class="cat-mega-item" data-category="STEM Toys">
-                      <div class="cat-mega-circle"><img src="https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=100&h=100&fit=crop" alt="STEM"></div>
+                      <div class="cat-mega-circle"><img
+                          src="https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=100&h=100&fit=crop"
+                          alt="STEM"></div>
                       <span>STEM Toys</span>
                     </a>
                   </div>
@@ -92,7 +118,7 @@
                 </div>
               </div>
             </li>
-                        <li class="nav-item has-mega">
+            <li class="nav-item has-mega">
               <a href="parents-choice.html" class="nav-link">Parents' Choice <i class="fas fa-chevron-down"></i></a>
               <div class="mega-menu parents-choice-mega">
                 <div class="parents-mega-flex">
@@ -125,7 +151,8 @@
               </div>
             </li>
             <li class="nav-item has-mega">
-              <a href="collections.html?collection=gifting" class="nav-link">Gifting <i class="fas fa-chevron-down"></i></a>
+              <a href="collections.html?collection=gifting" class="nav-link">Gifting <i
+                  class="fas fa-chevron-down"></i></a>
               <div class="mega-menu mega-menu-small">
                 <div class="mega-grid mega-grid-2">
                   <a href="collections.html?collection=birthday" class="mega-card">
@@ -141,28 +168,35 @@
                     <p>Gift Bundles</p>
                   </a>
                 </div>
-                <a href="collections.html?collection=gifting" class="mega-shop-all">Shop All <i class="fas fa-arrow-right"></i></a>
+                <a href="collections.html?collection=gifting" class="mega-shop-all">Shop All <i
+                    class="fas fa-arrow-right"></i></a>
               </div>
             </li>
-            <li class="nav-item"><a href="collections.html?collection=bestsellers" class="nav-link nav-link-highlight">Bestsellers</a></li>
-            <li class="nav-item"><a href="collections.html?collection=newlaunches" class="nav-link nav-link-new">New Launches</a></li>
-            <li class="nav-item"><a href="collections.html?collection=bundles" class="nav-link nav-link-sale">Bundles 20% Off</a></li>
-            <li class="nav-item"><a href="collections.html?collection=return" class="nav-link nav-link-sale">Return Gifts 25% Off</a></li>
+            <li class="nav-item"><a href="collections.html?collection=bestsellers"
+                class="nav-link nav-link-highlight">Bestsellers</a></li>
+            <li class="nav-item"><a href="collections.html?collection=newlaunches" class="nav-link nav-link-new">New
+                Launches</a></li>
+            <li class="nav-item"><a href="collections.html?collection=bundles" class="nav-link nav-link-sale">Bundles
+                20% Off</a></li>
+            <li class="nav-item"><a href="collections.html?collection=return" class="nav-link nav-link-sale">Return
+                Gifts 25% Off</a></li>
           </ul>
         </nav>
- 
+
         <!-- Header Actions -->
         <div class="header-actions">
-          <button class="header-action-btn search-btn" id="searchBtn">
+          <button class="header-action-btn search-btn" id="searchBtn" aria-label="Open search">
             <i class="fas fa-search"></i>
           </button>
-          <a href="#" class="header-action-btn whatsapp-btn">
+          <a href="#" class="header-action-btn whatsapp-btn" aria-label="Contact via WhatsApp">
             <i class="fab fa-whatsapp"></i>
           </a>
-          <button class="header-action-btn cart-btn" id="cartBtn">
-            <i class="fas fa-shopping-bag"></i>
-            <span class="cart-count">0</span>
-          </button>
+              <div class="cart-btn-wrapper" style="position:relative;display:inline-flex;align-items:center;">
+            <button class="header-action-btn cart-btn" id="cartBtn" aria-label="Open cart">
+              <i class="fas fa-shopping-bag"></i>
+            </button>
+            <span class="cart-count" style="position:absolute;top:-6px;right:-6px;">0</span>
+          </div>
           <!-- Login and Sign Up icons removed -->
           <a id="userBtn" href="login.html" class="header-action-btn user-btn" title="Sign In">
             <i class="fas fa-user"></i>
@@ -170,25 +204,25 @@
         </div>
       </div>
     </div>
- 
+
     <!-- Search Overlay -->
     <div class="search-overlay" id="searchOverlay">
       <div class="container">
         <div class="search-box">
           <i class="fas fa-search"></i>
-          <input type="text" placeholder="What are you looking for?" id="searchInput">
-          <button class="search-close" id="searchClose"><i class="fas fa-times"></i></button>
+          <input type="text" placeholder="What are you looking for?" id="searchInput" aria-label="Search">
+          <button class="search-close" id="searchClose" aria-label="Close search"><i class="fas fa-times"></i></button>
         </div>
       </div>
     </div>
   </header>
- 
+
   <!-- Cart Sidebar -->
   <div class="cart-overlay" id="cartOverlay"></div>
   <div class="cart-sidebar" id="cartSidebar">
     <div class="cart-header">
       <h3><i class="fas fa-shopping-bag"></i> SHOPPING CART</h3>
-      <button class="cart-close" id="cartClose"><i class="fas fa-times"></i></button>
+      <button class="cart-close" id="cartClose" aria-label="Close cart"><i class="fas fa-times"></i></button>
     </div>
     <div class="cart-offers">
       <p>Buy any <strong>2</strong> and get <strong>FLAT 10% OFF</strong> | Use Code: <strong>BRAINY10</strong></p>
@@ -196,20 +230,25 @@
       <p>Get a <strong>FREE GIFT</strong> on all orders above <strong>&#8377;1,499</strong></p>
       <p><strong>FREE SHIPPING</strong> on order value above &#8377;999</p>
     </div>
-    <div class="cart-empty">
+    <div class="cart-empty" id="cartEmpty">
       <i class="fas fa-shopping-bag"></i>
       <p>No Products in the Cart</p>
+    </div>
+    <div class="cart-items" id="cartItems">
+      <!-- Cart items will be dynamically added here -->
     </div>
     <div class="cart-footer">
       <div class="cart-total">
         <span>TOTAL:</span>
-        <span>&#8377;0</span>
+        <span id="cartTotal">&#8377;0</span>
       </div>
-      <!-- <button class="btn-checkout">PROCEED TO CHECKOUT</button> -->
-      <button class="btn-view-cart">VIEW CART</button>
+      <button class="btn-checkout" id="sidebarCheckoutBtn"
+        style="width:100%;padding:14px;margin-top:10px;background:linear-gradient(135deg,#FF6B35,#f7b731);color:#fff;border:none;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;letter-spacing:0.5px">PROCEED
+        TO CHECKOUT &#x2192;</button>
+      <button class="btn-view-cart" style="margin-top:8px">VIEW CART</button>
     </div>
   </div>
- 
+
   <!-- Hero Section -->
   <section class="hero-section custom-banners">
     <div class="hero-slider">
@@ -222,21 +261,69 @@
         </div>
         <div class="container banner-container">
           <div class="banner-images cluster-left">
-            <img src="https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=340&h=340&fit=crop" class="prod-img img-main" alt="Brain Blocks">
-            <img src="https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=220&h=220&fit=crop" class="prod-img img-front-left" alt="Sensory Book">
-            <img src="https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=160&h=160&fit=crop" class="prod-img img-front-right" alt="STEM Kit">
+            <img src="https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=400&h=400&fit=crop"
+              class="prod-img img-main" alt="Brain Blocks">
+            <img src="https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=300&h=300&fit=crop"
+              class="prod-img img-front-left" alt="Sensory Book">
+            <img src="https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=240&h=240&fit=crop"
+              class="prod-img img-front-right" alt="STEM Kit">
           </div>
           <div class="banner-content right-text">
-            <span class="banner-tag">✨ Just Arrived</span>
-            <h1>Exciting New<br>Launches</h1>
-            <p>Spark a lifelong love for playful learning!</p>
-            <a href="collections.html?collection=newlaunches" class="btn btn-banner btn-orange">Shop New Arrivals →</a>
+            <h1>Exciting New Launches</h1>
+            <p>that spark a lifelong love for playful learning!</p>
+            <a href="collections.html?collection=newlaunches" class="btn btn-banner btn-orange">Shop now</a>
           </div>
         </div>
       </div>
 
       <!-- Slide 2: Early Learning Fun -->
       <div class="hero-slide banner-toddler">
+        <div class="banner-bg">
+          <div class="stars-layer stars-layer-2"></div>
+          <div class="giant-circle giant-circle-right"></div>
+        </div>
+        <div class="container banner-container">
+          <div class="banner-content left-text">
+            <h1>Learning Fun for Tiny Tots</h1>
+            <p>Cloth books, play mats, sensory toys and more!</p>
+            <a href="shop-by-age.html" class="btn btn-banner btn-orange">Shop now</a>
+          </div>
+          <div class="banner-images cluster-right">
+            <img src="https://images.unsplash.com/photo-1566140967404-b8b3932483f5?w=400&h=400&fit=crop"
+              class="prod-img img-main" alt="Sensory Mat">
+            <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=300&h=300&fit=crop"
+              class="prod-img img-front-left" alt="Cloth Book">
+            <img src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=240&h=240&fit=crop"
+              class="prod-img img-front-right" alt="Art Book">
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 3: Birthday Return Gifts -->
+      <div class="hero-slide banner-gifts">
+        <div class="banner-bg">
+          <div class="stars-layer"></div>
+          <div class="giant-circle giant-circle-right"></div>
+        </div>
+        <div class="container banner-container">
+          <div class="banner-content left-text">
+            <h1>Save BIG on Birthday Return Gifts</h1>
+            <p>Up to 25% OFF on bulk orders!</p>
+            <a href="collections.html?collection=gifting" class="btn btn-banner btn-orange">Shop now</a>
+          </div>
+          <div class="banner-images cluster-right-spread">
+            <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=300&h=360&fit=crop"
+              class="prod-img img-box-1" alt="Flash Cards">
+            <img src="https://images.unsplash.com/photo-1509228627152-72ae9ae6848d?w=280&h=360&fit=crop"
+              class="prod-img img-box-2" alt="Math Game">
+            <img src="https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=300&h=360&fit=crop"
+              class="prod-img img-box-3" alt="STEM Kit">
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 4: Yellow Creative Play -->
+      <div class="hero-slide banner-yellow">
         <div class="banner-bg sunburst">
           <div class="age-badge">Ages<br><strong>0-3</strong></div>
           <div class="stars-layer-white"></div>
@@ -249,29 +336,36 @@
             <a href="shop-by-age.html" class="btn btn-banner btn-dark">Shop 0–3 Years →</a>
           </div>
           <div class="banner-images cluster-right">
-            <img src="https://images.unsplash.com/photo-1566140967404-b8b3932483f5?w=320&h=320&fit=crop" class="prod-img img-main" alt="Sensory Mat">
-            <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=210&h=210&fit=crop" class="prod-img img-front-left" alt="Cloth Book">
-            <img src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=190&h=190&fit=crop" class="prod-img img-front-right" alt="Art Book">
+            <img src="https://images.unsplash.com/photo-1566140967404-b8b3932483f5?w=320&h=320&fit=crop"
+              class="prod-img img-main" alt="Sensory Mat">
+            <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=210&h=210&fit=crop"
+              class="prod-img img-front-left" alt="Cloth Book">
+            <img src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=190&h=190&fit=crop"
+              class="prod-img img-front-right" alt="Art Book">
           </div>
         </div>
       </div>
 
-      <!-- Slide 3: Birthday Return Gifts -->
-      <div class="hero-slide banner-gifts">
+      <!-- Slide 5: Birthday Wrap -->
+      <div class="hero-slide banner-wrap">
         <div class="banner-bg blue-burst">
           <div class="confetti"></div>
         </div>
         <div class="container banner-container">
           <div class="banner-content left-text">
             <span class="banner-tag tag-orange">🎉 Bulk Deals</span>
-            <h1>Save BIG on <span class="highlight-block">Birthday</span> <span class="highlight-block">Return Gifts</span></h1>
+            <h1>Save BIG on <span class="highlight-block">Birthday</span> <span class="highlight-block">Return
+                Gifts</span></h1>
             <p>Up to <strong>25% OFF</strong> on bulk orders!</p>
             <a href="collections.html?collection=gifting" class="btn btn-banner btn-orange">Plan My Return Gifts →</a>
           </div>
           <div class="banner-images cluster-right-spread">
-            <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=210&h=260&fit=crop" class="prod-img img-box-1" alt="Flash Cards">
-            <img src="https://images.unsplash.com/photo-1509228627152-72ae9ae6848d?w=190&h=260&fit=crop" class="prod-img img-box-2" alt="Math Game">
-            <img src="https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=210&h=260&fit=crop" class="prod-img img-box-3" alt="STEM Kit">
+            <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=210&h=260&fit=crop"
+              class="prod-img img-box-1" alt="Flash Cards">
+            <img src="https://images.unsplash.com/photo-1509228627152-72ae9ae6848d?w=190&h=260&fit=crop"
+              class="prod-img img-box-2" alt="Math Game">
+            <img src="https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=210&h=260&fit=crop"
+              class="prod-img img-box-3" alt="STEM Kit">
           </div>
         </div>
       </div>
@@ -281,12 +375,14 @@
       <button class="hero-dot active" data-slide="0"></button>
       <button class="hero-dot" data-slide="1"></button>
       <button class="hero-dot" data-slide="2"></button>
+      <button class="hero-dot" data-slide="3"></button>
+      <button class="hero-dot" data-slide="4"></button>
     </div>
-    <button class="hero-arrow hero-prev"><i class="fas fa-chevron-left"></i></button>
-    <button class="hero-arrow hero-next"><i class="fas fa-chevron-right"></i></button>
-</section>
+    <button class="hero-arrow hero-prev" aria-label="Previous slide"><i class="fas fa-chevron-left"></i></button>
+    <button class="hero-arrow hero-next" aria-label="Next slide"><i class="fas fa-chevron-right"></i></button>
+  </section>
 
- 
+
   <!-- Banner Strip -->
   <section class="banner-strip">
     <div class="container">
@@ -322,7 +418,7 @@
       </div>
     </div>
   </section>
- 
+
   <!-- Now Trending Section -->
   <section class="section trending-section">
     <div class="container">
@@ -345,7 +441,7 @@
       </div>
     </div>
   </section>
- 
+
   <!-- Promo Banner -->
   <section class="promo-banner">
     <div class="container">
@@ -353,16 +449,18 @@
         <div class="promo-content">
           <span class="promo-badge">Limited Time Offer</span>
           <h2>Summer Learning Festival! <span>🌞</span></h2>
-          <p>Get up to <strong>25% OFF</strong> on our bestselling bundles. Make this summer the most fun & educational one yet!</p>
+          <p>Get up to <strong>25% OFF</strong> on our bestselling bundles. Make this summer the most fun & educational
+            one yet!</p>
           <a href="#" class="btn btn-primary">Shop Bundles <i class="fas fa-arrow-right"></i></a>
         </div>
         <div class="promo-image">
-          <img src="https://images.unsplash.com/photo-1472162072942-cd5147eb3902?w=500&h=400&fit=crop" alt="Summer Learning Festival">
+          <img src="https://images.unsplash.com/photo-1472162072942-cd5147eb3902?w=500&h=400&fit=crop"
+            alt="Summer Learning Festival" loading="lazy">
         </div>
       </div>
     </div>
   </section>
- 
+
   <!-- Handpicked Section -->
   <section class="section handpicked-section">
     <div class="container">
@@ -394,9 +492,11 @@
         <div class="testimonial-track">
           <div class="testimonial-card">
             <div class="testimonial-stars">
-              <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+              <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                class="fas fa-star"></i><i class="fas fa-star"></i>
             </div>
-            <p>"My daughter absolutely loves the Brain Builder puzzle set! She's only 4 but she already recognizes shapes and colors so well. The quality is amazing and it's completely safe for kids."</p>
+            <p>"My daughter absolutely loves the Brain Builder puzzle set! She's only 4 but she already recognizes
+              shapes and colors so well. The quality is amazing and it's completely safe for kids."</p>
             <div class="testimonial-author">
               <div class="author-avatar" style="background: linear-gradient(135deg, #FF6B6B, #FFD93D);">R</div>
               <div>
@@ -407,9 +507,11 @@
           </div>
           <div class="testimonial-card">
             <div class="testimonial-stars">
-              <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+              <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                class="fas fa-star"></i><i class="fas fa-star"></i>
             </div>
-            <p>"Got the STEM Explorer kit for my 7-year-old son. He's been building and experimenting for hours! Best screen-free activity we've found. Highly recommend for curious minds!"</p>
+            <p>"Got the STEM Explorer kit for my 7-year-old son. He's been building and experimenting for hours! Best
+              screen-free activity we've found. Highly recommend for curious minds!"</p>
             <div class="testimonial-author">
               <div class="author-avatar" style="background: linear-gradient(135deg, #4D96FF, #6BCB77);">T</div>
               <div>
@@ -420,9 +522,11 @@
           </div>
           <div class="testimonial-card">
             <div class="testimonial-stars">
-              <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+              <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                class="fas fa-star"></i><i class="fas fa-star"></i>
             </div>
-            <p>"The craft kit is a game-changer! My 6-year-old boy spent the entire afternoon creating beautiful art. It's mess-free, which is a huge plus for us parents. 10/10 would buy again!"</p>
+            <p>"The craft kit is a game-changer! My 6-year-old boy spent the entire afternoon creating beautiful art.
+              It's mess-free, which is a huge plus for us parents. 10/10 would buy again!"</p>
             <div class="testimonial-author">
               <div class="author-avatar" style="background: linear-gradient(135deg, #FF9A9E, #A18CD1);">S</div>
               <div>
@@ -433,9 +537,11 @@
           </div>
           <div class="testimonial-card">
             <div class="testimonial-stars">
-              <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+              <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                class="fas fa-star"></i><i class="fas fa-star"></i>
             </div>
-            <p>"My son loved the sparkle art set so much! He had fun planning scenes and choosing shiny colours. No glue or paint needed - the outcome is stunning and now decorates his whole bedroom."</p>
+            <p>"My son loved the sparkle art set so much! He had fun planning scenes and choosing shiny colours. No glue
+              or paint needed - the outcome is stunning and now decorates his whole bedroom."</p>
             <div class="testimonial-author">
               <div class="author-avatar" style="background: linear-gradient(135deg, #6BCB77, #FFD93D);">K</div>
               <div>
@@ -446,9 +552,11 @@
           </div>
           <div class="testimonial-card">
             <div class="testimonial-stars">
-              <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+              <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                class="fas fa-star"></i><i class="fas fa-star"></i>
             </div>
-            <p>"The ocean puzzle is fantastic for my kids who love the sea! Beautiful, colourful, giant pieces. It gets them off screens and focused on something educational. I highly recommend it!"</p>
+            <p>"The ocean puzzle is fantastic for my kids who love the sea! Beautiful, colourful, giant pieces. It gets
+              them off screens and focused on something educational. I highly recommend it!"</p>
             <div class="testimonial-author">
               <div class="author-avatar" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">R</div>
               <div>
@@ -459,9 +567,11 @@
           </div>
           <div class="testimonial-card">
             <div class="testimonial-stars">
-              <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+              <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                class="fas fa-star"></i><i class="fas fa-star"></i>
             </div>
-            <p>"When BrainQuiz arrived, we opened it and played right away. We had so much fun! Quality and price is amazing. I recommend this awesome learning game to anyone with children of any age!"</p>
+            <p>"When BrainQuiz arrived, we opened it and played right away. We had so much fun! Quality and price is
+              amazing. I recommend this awesome learning game to anyone with children of any age!"</p>
             <div class="testimonial-author">
               <div class="author-avatar" style="background: linear-gradient(135deg, #f093fb, #f5576c);">L</div>
               <div>
@@ -472,9 +582,11 @@
           </div>
           <div class="testimonial-card">
             <div class="testimonial-stars">
-              <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+              <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                class="fas fa-star"></i><i class="fas fa-star"></i>
             </div>
-            <p>"The dry-erase activity mats are brilliant! My niece loves being able to try again and again. The kids even pick it up on their own. Great for building confidence in little learners."</p>
+            <p>"The dry-erase activity mats are brilliant! My niece loves being able to try again and again. The kids
+              even pick it up on their own. Great for building confidence in little learners."</p>
             <div class="testimonial-author">
               <div class="author-avatar" style="background: linear-gradient(135deg, #667eea, #764ba2);">A</div>
               <div>
@@ -485,9 +597,11 @@
           </div>
           <div class="testimonial-card">
             <div class="testimonial-stars">
-              <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+              <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                class="fas fa-star"></i><i class="fas fa-star"></i>
             </div>
-            <p>"The flash cards are thick & durable with stunning patterns. My 4-month-old daughter is fascinated by them. It's her favourite activity and keeps her attention for a really long time!"</p>
+            <p>"The flash cards are thick & durable with stunning patterns. My 4-month-old daughter is fascinated by
+              them. It's her favourite activity and keeps her attention for a really long time!"</p>
             <div class="testimonial-author">
               <div class="author-avatar" style="background: linear-gradient(135deg, #FFD93D, #FF6B6B);">S</div>
               <div>
@@ -499,12 +613,14 @@
         </div>
       </div>
       <div class="testimonial-controls">
-        <button class="testimonial-arrow testimonial-prev"><i class="fas fa-chevron-left"></i></button>
-        <button class="testimonial-arrow testimonial-next"><i class="fas fa-chevron-right"></i></button>
+        <button class="testimonial-arrow testimonial-prev" aria-label="Previous testimonial"><i
+            class="fas fa-chevron-left"></i></button>
+        <button class="testimonial-arrow testimonial-next" aria-label="Next testimonial"><i
+            class="fas fa-chevron-right"></i></button>
       </div>
     </div>
   </section>
- 
+
   <!-- Newsletter Section
   <section class="newsletter-section">
     <div class="container">
@@ -520,7 +636,7 @@
       </div>
     </div>
   </section> -->
- 
+
   <!-- Important Links / SEO Section -->
   <section class="section important-links-section">
     <div class="container">
@@ -615,7 +731,8 @@
             <i class="fas fa-chevron-down"></i>
           </button>
           <div class="faq-answer">
-            <p>Yes! Our flashcards, interactive toys, and learning kits are very effective for kids' learning and development. They are designed by educators to maximize engagement and retention.</p>
+            <p>Yes! Our flashcards, interactive toys, and learning kits are very effective for kids' learning and
+              development. They are designed by educators to maximize engagement and retention.</p>
           </div>
         </div>
         <div class="faq-item">
@@ -624,7 +741,8 @@
             <i class="fas fa-chevron-down"></i>
           </button>
           <div class="faq-answer">
-            <p>You can introduce educational toys right from the first month! Check out our learning toys for different age groups, then pick one at your discretion.</p>
+            <p>You can introduce educational toys right from the first month! Check out our learning toys for different
+              age groups, then pick one at your discretion.</p>
           </div>
         </div>
         <div class="faq-item">
@@ -633,7 +751,8 @@
             <i class="fas fa-chevron-down"></i>
           </button>
           <div class="faq-answer">
-            <p>Absolutely! Our kids' learning toys are focused on channelling your child's time and interests constructively, keeping them engaged away from screens.</p>
+            <p>Absolutely! Our kids' learning toys are focused on channelling your child's time and interests
+              constructively, keeping them engaged away from screens.</p>
           </div>
         </div>
         <div class="faq-item">
@@ -642,7 +761,8 @@
             <i class="fas fa-chevron-down"></i>
           </button>
           <div class="faq-answer">
-            <p>Yes, we have a wide range of early-learning toys including high contrast flashcards, sensory mats, soft books, and more - all designed for the youngest learners.</p>
+            <p>Yes, we have a wide range of early-learning toys including high contrast flashcards, sensory mats, soft
+              books, and more - all designed for the youngest learners.</p>
           </div>
         </div>
         <div class="faq-item">
@@ -651,7 +771,8 @@
             <i class="fas fa-chevron-down"></i>
           </button>
           <div class="faq-answer">
-            <p>Safety is our top priority. All our toys are made from non-toxic, environmentally friendly, wear-resistant materials that meet international safety standards.</p>
+            <p>Safety is our top priority. All our toys are made from non-toxic, environmentally friendly,
+              wear-resistant materials that meet international safety standards.</p>
           </div>
         </div>
         <div class="faq-item">
@@ -660,7 +781,8 @@
             <i class="fas fa-chevron-down"></i>
           </button>
           <div class="faq-answer">
-            <p>Yes! We offer many travel-friendly options including activity books, flashcards, and compact game sets that can be easily carried anywhere.</p>
+            <p>Yes! We offer many travel-friendly options including activity books, flashcards, and compact game sets
+              that can be easily carried anywhere.</p>
           </div>
         </div>
         <div class="faq-item">
@@ -669,13 +791,14 @@
             <i class="fas fa-chevron-down"></i>
           </button>
           <div class="faq-answer">
-            <p>Yes! Most of our products are designed to be gender-neutral, suitable for all children regardless of gender. We believe every child deserves access to fun, educational play.</p>
+            <p>Yes! Most of our products are designed to be gender-neutral, suitable for all children regardless of
+              gender. We believe every child deserves access to fun, educational play.</p>
           </div>
         </div>
       </div>
     </div>
   </section>
- 
+
   <!-- Newsletter Section -->
   <!-- <section class="newsletter-section">
     <div class="container">
@@ -691,17 +814,17 @@
       </div>
     </div>
   </section> -->
- 
+
   <!-- Footer -->
   <footer class="main-footer">
     <div class="container">
       <div class="footer-grid">
         <div class="footer-col footer-brand">
           <a href="/" class="footer-logo">
-            <span class="logo-icon">🧠</span>
-            <span class="logo-text">Brainy<span class="logo-highlight">Grasp</span></span>
+            <img src="images/logo.jpg" alt="BrainyGrasp Logo" class="brand-logo">
           </a>
-          <p>Where learning meets play! Educational toys designed to spark curiosity and build confidence in every child.</p>
+          <p>Where learning meets play! Educational toys designed to spark curiosity and build confidence in every
+            child.</p>
           <div class="footer-social">
             <a href="#"><i class="fab fa-facebook-f"></i></a>
             <a href="#"><i class="fab fa-instagram"></i></a>
@@ -770,11 +893,12 @@
       </div>
     </div>
   </footer>
- 
+
   <!-- Product Quick View Modal -->
   <div class="quickview-overlay" id="quickviewOverlay"></div>
   <div class="quickview-modal" id="quickviewModal">
-    <button class="quickview-close" id="quickviewClose"><i class="fas fa-times"></i></button>
+    <button class="quickview-close" id="quickviewClose" aria-label="Close quick view"><i
+        class="fas fa-times"></i></button>
     <div class="quickview-content">
       <div class="quickview-image">
         <img id="quickviewImg" src="" alt="Product">
@@ -785,7 +909,8 @@
         <h2 class="quickview-name" id="quickviewName"></h2>
         <div class="quickview-reviews" id="quickviewReviews">
           <div class="stars">
-            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+              class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
           </div>
           <span class="review-count">566 reviews</span>
         </div>
@@ -795,23 +920,27 @@
           <span class="price-save" id="quickviewSave"></span>
         </div>
         <div class="quickview-description">
-          <p>Educational toy designed by experts to spark curiosity and build confidence. Made from 100% safe, non-toxic materials.</p>
+          <p>Educational toy designed by experts to spark curiosity and build confidence. Made from 100% safe, non-toxic
+            materials.</p>
         </div>
-        
+
         <!-- Theme Selector -->
         <div class="quickview-themes">
           <label>Select Theme:</label>
           <div class="theme-grid" id="quickviewThemeGrid">
             <button class="theme-btn active">
-              <img src="https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=100&h=100&fit=crop" alt="Theme 1">
+              <img src="https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=100&h=100&fit=crop"
+                alt="Theme 1">
               <span>Animals</span>
             </button>
             <button class="theme-btn">
-              <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=100&h=100&fit=crop" alt="Theme 2">
+              <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=100&h=100&fit=crop"
+                alt="Theme 2">
               <span>Space</span>
             </button>
             <button class="theme-btn">
-              <img src="https://images.unsplash.com/photo-1566140967404-b8b3932483f5?w=100&h=100&fit=crop" alt="Theme 3">
+              <img src="https://images.unsplash.com/photo-1566140967404-b8b3932483f5?w=100&h=100&fit=crop"
+                alt="Theme 3">
               <span>Dinosaurs</span>
             </button>
           </div>
@@ -821,9 +950,9 @@
           <div class="quickview-quantity">
             <label>Quantity:</label>
             <div class="quantity-selector">
-              <button class="qty-btn qty-minus"><i class="fas fa-minus"></i></button>
-              <input type="number" value="1" min="1" max="10" class="qty-input" id="quickviewQty">
-              <button class="qty-btn qty-plus"><i class="fas fa-plus"></i></button>
+              <button class="qty-btn qty-minus" aria-label="Decrease quantity"><i class="fas fa-minus"></i></button>
+              <input type="number" value="1" min="1" max="10" class="qty-input" id="quickviewQty" aria-label="Quantity">
+              <button class="qty-btn qty-plus" aria-label="Increase quantity"><i class="fas fa-plus"></i></button>
             </div>
           </div>
           <button class="add-to-cart-btn quickview-add-btn" id="quickviewAddToCart">
@@ -844,21 +973,24 @@
   </div>
 
   <!-- Back to Top -->
-  <button class="back-to-top" id="backToTop">
+  <button class="back-to-top" id="backToTop" aria-label="Back to top">
     <i class="fas fa-chevron-up"></i>
   </button>
- 
+
   <!-- WhatsApp Float -->
-  <a href="#" class="whatsapp-float">
+  <a href="#" class="whatsapp-float" aria-label="Contact us on WhatsApp">
     <i class="fab fa-whatsapp"></i>
   </a>
- 
+
   <!-- Mobile Nav Overlay -->
   <div class="mobile-overlay" id="mobileOverlay"></div>
- 
+
   <script src="js/products.js"></script>
-  <script src="js/auth.js"></script>
+  <script src="js/auth-unified.js"></script>
+  <script src="js/search.js"></script>
   <script src="js/common.js"></script>
   <script src="js/index.js"></script>
+  <script src="js/mobile-enhancements.js"></script>
 </body>
+
 </html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Login Test - BrainyGrasp</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        button { margin: 5px; padding: 10px; }
+        input { margin: 5px; padding: 8px; }
+        .status { background: #f5f5f5; padding: 10px; margin: 10px 0; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>Login Debug Test</h1>
+    
+    <div class="test-section">
+        <h3>Script Loading Status</h3>
+        <div id="scriptStatus">Checking...</div>
+    </div>
+
+    <div class="test-section">
+        <h3>OTP Test</h3>
+        <input type="tel" id="phoneInput" placeholder="9876543210" value="9876543210">
+        <button id="requestOTPBtn">Send OTP</button>
+        <div id="otpResult">Click to test...</div>
+    </div>
+
+    <div class="test-section">
+        <h3>Console Log</h3>
+        <div id="consoleLog" style="background: #000; color: #0f0; padding: 10px; font-family: monospace; height: 200px; overflow-y: auto;"></div>
+    </div>
+
+    <script>
+        // Override console to capture logs
+        const originalLog = console.log;
+        const originalError = console.error;
+        const logDiv = document.getElementById('consoleLog');
+        
+        function addToLog(message, type = 'log') {
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#ff6b6b' : '#0f0';
+            logDiv.innerHTML += `<div style="color: ${color}">[${timestamp}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        console.log = (...args) => {
+            originalLog.apply(console, args);
+            addToLog(args.join(' '), 'log');
+        };
+        
+        console.error = (...args) => {
+            originalError.apply(console, args);
+            addToLog(args.join(' '), 'error');
+        };
+
+        // Check script loading
+        window.addEventListener('load', () => {
+            const statusDiv = document.getElementById('scriptStatus');
+            let status = '';
+            
+            // Check if auth-unified.js loaded
+            if (typeof window.AuthUnified !== 'undefined') {
+                status += '✅ AuthUnified loaded<br>';
+                
+                // Check functions
+                const functions = ['requestOTP', 'handleVerifyOTP', 'isAuthenticated', 'getToken'];
+                functions.forEach(func => {
+                    const available = typeof window.AuthUnified[func] === 'function';
+                    status += `${available ? '✅' : '❌'} ${func}<br>`;
+                });
+            } else {
+                status += '❌ AuthUnified not loaded<br>';
+            }
+            
+            // Check if we can load it manually
+            const script = document.createElement('script');
+            script.src = 'js/auth-unified.js';
+            script.onload = () => {
+                addToLog('Manual script load successful');
+                if (typeof window.AuthUnified !== 'undefined') {
+                    statusDiv.innerHTML += '✅ Manual load successful<br>';
+                }
+            };
+            script.onerror = (error) => {
+                addToLog('Manual script load failed: ' + error.message, 'error');
+                statusDiv.innerHTML += '❌ Manual load failed<br>';
+            };
+            document.head.appendChild(script);
+            
+            statusDiv.innerHTML = status;
+        });
+
+        // Test OTP functionality
+        document.getElementById('requestOTPBtn').addEventListener('click', async () => {
+            const phone = document.getElementById('phoneInput').value;
+            const resultDiv = document.getElementById('otpResult');
+            
+            if (!phone) {
+                resultDiv.innerHTML = '❌ Please enter phone number';
+                return;
+            }
+            
+            resultDiv.innerHTML = '🔄 Sending OTP...';
+            addToLog('Testing OTP request...');
+            
+            try {
+                const response = await fetch('http://localhost:3000/api/auth/request-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ method: 'phone', value: phone })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    resultDiv.innerHTML = `✅ OTP sent! Demo: ${data.otp_demo || 'Check console'}`;
+                    addToLog(`OTP request successful: ${JSON.stringify(data)}`);
+                } else {
+                    resultDiv.innerHTML = `❌ Failed: ${data.error || 'Unknown error'}`;
+                    addToLog(`OTP request failed: ${JSON.stringify(data)}`, 'error');
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `❌ Network error: ${error.message}`;
+                addToLog(`Network error: ${error.message}`, 'error');
+            }
+        });
+    </script>
+</body>
+</html>

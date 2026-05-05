@@ -453,26 +453,7 @@ function initTestimonialsSlider() {
 }
  
 // === Add to Cart Animation ===
-function initAddToCart() {
-  document.addEventListener('click', (e) => {
-    if (e.target.closest('.add-to-cart-btn')) {
-      const btn = e.target.closest('.add-to-cart-btn');
-      btn.innerHTML = '<i class="fas fa-check"></i> Added!';
-      btn.style.background = '#10B981';
-      
-      // Update cart count
-      const countEl = document.querySelector('.cart-count');
-      countEl.textContent = parseInt(countEl.textContent) + 1;
-      countEl.style.transform = 'scale(1.3)';
-      setTimeout(() => countEl.style.transform = 'scale(1)', 200);
-      
-      setTimeout(() => {
-        btn.innerHTML = '<i class="fas fa-shopping-bag"></i> Add to Cart';
-        btn.style.background = '';
-      }, 1500);
-    }
-  });
-}
+// Note: initAddToCart function moved to common.js to avoid duplication
  
 // === Intersection Observer for Animations ===
 function initScrollAnimations() {
@@ -1069,7 +1050,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initFAQ();
   initAboutToggle();
   initTestimonialsSlider();
-  initAddToCart();
+  // initAddToCart() - moved to common.js to avoid duplication
   initGiftFinder();
   initImportantLinks();
   initQuickView();
@@ -1081,3 +1062,52 @@ document.addEventListener('DOMContentLoaded', () => {
   // Delay scroll animations to let content render
   setTimeout(initScrollAnimations, 100);
 });
+
+// === Essential Cart Functions ===
+function getCart() {
+  try {
+    return JSON.parse(localStorage.getItem('bg_cart')) || [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function addToCart(item) {
+  const cart = getCart();
+  const existingItem = cart.find(cartItem => cartItem.id === item.id);
+  
+  if (existingItem) {
+    existingItem.quantity = (existingItem.quantity || 1) + 1;
+  } else {
+    cart.push({ ...item, quantity: 1 });
+  }
+  
+  localStorage.setItem('bg_cart', JSON.stringify(cart));
+  
+  // Update cart count if function exists
+  if (typeof updateCartCount === 'function') {
+    updateCartCount();
+  }
+}
+
+function removeFromCart(itemId) {
+  let cart = getCart();
+  cart = cart.filter(item => item.id !== itemId);
+  localStorage.setItem('bg_cart', JSON.stringify(cart));
+  
+  // Update cart count if function exists
+  if (typeof updateCartCount === 'function') {
+    updateCartCount();
+  }
+}
+
+function getCartTotal() {
+  const cart = getCart();
+  return cart.reduce((total, item) => total + (item.price * (item.quantity || 1)), 0);
+}
+
+// Make functions globally available
+window.getCart = getCart;
+window.addToCart = addToCart;
+window.removeFromCart = removeFromCart;
+window.getCartTotal = getCartTotal;

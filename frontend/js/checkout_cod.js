@@ -6,12 +6,12 @@
 document.addEventListener('DOMContentLoaded', () => {
     const itemsWrap = document.getElementById('codItems');
     const msg = document.getElementById('codMsg');
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('bg_token');  // Fixed: was 'authToken'
 
     // 1. SECURITY GATE: Ensure user is logged in
     if (!token) {
-        alert("Session expired. Please log in again.");
-        window.location.href = 'login.html?redirect=checkout';
+        localStorage.setItem('redirectAfterLogin', 'checkout_cod.html');
+        window.location.href = 'login.html';
         return;
     }
 
@@ -53,9 +53,15 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             if (res.ok) {
                 const user = await res.json();
-                if (user.name) document.getElementById('codName').value = user.name;
-                if (user.phone) document.getElementById('codPhone').value = user.phone;
-                // Note: Add logic here to fetch and prefill the last saved address if needed
+                // Pre-fill all saved profile fields
+                if (user.name)    document.getElementById('codName').value    = user.name;
+                if (user.phone)   document.getElementById('codPhone').value   = user.phone;
+                if (user.address) document.getElementById('codLine1').value   = user.address;
+                if (user.city)    document.getElementById('codCity').value    = user.city;
+                if (user.state)   document.getElementById('codState').value   = user.state;
+                if (user.pincode) document.getElementById('codPincode').value = user.pincode;
+                // Cache for use below
+                localStorage.setItem('bg_user', JSON.stringify(user));
             }
         } catch (err) {
             console.warn("Could not prefill user data:", err);
@@ -135,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Redirect to Dashboard after 3 seconds to show the new order
                 setTimeout(() => {
-                    window.location.href = 'dashboard.html';
+                    window.location.href = 'dashboard-new.html';
                 }, 3000);
 
             } catch (err) {
