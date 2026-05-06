@@ -30,22 +30,22 @@ function initCheckoutProtection() {
     // Protect all checkout buttons and links
     document.addEventListener('click', (e) => {
         const checkoutLink = e.target.closest('a[href*="checkout"], button[data-action="checkout"], .btn-checkout, #cartPageCheckout');
-        
+
         if (checkoutLink) {
             e.preventDefault();
-            
+
             if (!isAuthenticated()) {
                 // Save redirect intent
                 const targetUrl = checkoutLink.href || checkoutLink.dataset.href || 'checkout_cod.html';
                 localStorage.setItem('redirectAfterLogin', targetUrl);
-                
+
                 // Show login prompt
                 if (confirm("Please sign in to proceed with checkout. Continue to login?")) {
                     window.location.href = 'login.html';
                 }
                 return;
             }
-            
+
             // User is authenticated, proceed to checkout
             const targetUrl = checkoutLink.href || 'checkout_cod.html';
             window.location.href = targetUrl;
@@ -147,21 +147,21 @@ async function handleVerifyOTP() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, otp })
         });
-        
+
         const data = await res.json();
-        
+
         if (data.token && data.user) {
             // 1. Store JWT + user in localStorage
             storeAuth(data.token, data.user);
-            
+
             // 2. Migrate guest cart → database
             await syncCartOnLogin();
-            
+
             // 3. Update UI
             if (typeof updateCartCount === 'function') {
                 await updateCartCount();
             }
-            
+
             // 4. Check if profile is completed
             try {
                 const profileResponse = await fetch(`${API_BASE}/api/auth/profile-status`, {
@@ -171,12 +171,12 @@ async function handleVerifyOTP() {
                         'Content-Type': 'application/json'
                     }
                 });
-                
+
                 const profileData = await profileResponse.json();
-                
+
                 // 5. Smart Redirect based on profile completion
                 const redirectPath = localStorage.getItem('redirectAfterLogin');
-                
+
                 if (!profileData.profile_completed) {
                     // First-time user: save where they eventually want to land
                     // after completing their profile (checkout or dashboard)
@@ -224,9 +224,10 @@ async function handleVerifyOTP() {
 }
 
 // ── Enhanced Cart UI Sync ───────────────────────────────────────────────
-// Always reads from localStorage for instant UI response. localStorage is
-// kept up-to-date by addToCart / removeFromCart / updateQuantityInCart
-// (which also fire syncCartToDB in the background).
+// Reads from localStorage for instant UI response. localStorage is always
+// up-to-date because addToCart / removeFromCart / updateQuantityInCart
+// update it synchronously before calling this function. The DB is kept in
+// sync separately via the fire-and-forget syncCartToDB() call.
 function updateCartCount() {
     const cart = getLocalCart();
 
@@ -260,7 +261,7 @@ async function fetchUserProfile() {
         const response = await fetch(`${API_BASE}/api/auth/me`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        
+
         if (response.ok) {
             const user = await response.json();
             // Update local storage with fresh data
@@ -275,7 +276,7 @@ async function fetchUserProfile() {
     } catch (err) {
         console.error("❌ Profile fetch error:", err);
     }
-    
+
     // Fallback to cached user data
     return getUser();
 }
@@ -318,9 +319,9 @@ async function requestOTP(method, value) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: value })
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             console.log('✅ OTP sent successfully');
             if (data.otp_demo) {
@@ -342,10 +343,10 @@ async function requestOTP(method, value) {
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize checkout protection
     initCheckoutProtection();
-    
+
     // Sync global UI
     syncGlobalUI();
-    
+
     // Attach OTP verification handler
     const verifyBtn = document.getElementById('verifyOTPBtn');
     if (verifyBtn) {
@@ -362,20 +363,20 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const method = 'email';
             const value = document.getElementById('emailInput').value;
-            
+
             if (!value) {
                 alert('Please enter your email address');
                 return;
             }
-            
+
             requestBtn.disabled = true;
             requestBtn.textContent = 'Sending...';
-            
+
             const success = await requestOTP(method, value);
-            
+
             requestBtn.disabled = false;
             requestBtn.textContent = 'Send OTP';
-            
+
             if (success) {
                 // Show OTP input section
                 const authStep1 = document.getElementById('authStep1');
@@ -417,7 +418,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 otpBoxes[index + 1].focus();
             }
         });
-        
+
         box.addEventListener('keydown', (e) => {
             if (e.key === 'Backspace' && !e.target.value && index > 0) {
                 otpBoxes[index - 1].focus();

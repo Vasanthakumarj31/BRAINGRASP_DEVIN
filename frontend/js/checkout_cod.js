@@ -76,11 +76,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
             if (res.ok) {
                 const user = await res.json();
-                if (user.name)    document.getElementById('codName').value    = user.name;
-                if (user.phone)   document.getElementById('codPhone').value   = user.phone;
-                if (user.address) document.getElementById('codLine1').value   = user.address;
-                if (user.city)    document.getElementById('codCity').value    = user.city;
-                if (user.state)   document.getElementById('codState').value   = user.state;
+                if (user.name) document.getElementById('codName').value = user.name;
+                if (user.phone) document.getElementById('codPhone').value = user.phone;
+                if (user.address) document.getElementById('codLine1').value = user.address;
+                if (user.city) document.getElementById('codCity').value = user.city;
+                if (user.state) document.getElementById('codState').value = user.state;
                 if (user.pincode) document.getElementById('codPincode').value = user.pincode;
                 localStorage.setItem('bg_user', JSON.stringify(user));
             }
@@ -99,11 +99,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (placeOrderBtn) {
         placeOrderBtn.addEventListener('click', async () => {
             // Collect Form Values
-            const name    = document.getElementById('codName').value.trim();
-            const phone   = document.getElementById('codPhone').value.trim();
-            const line1   = document.getElementById('codLine1').value.trim();
-            const city    = document.getElementById('codCity').value.trim();
-            const state   = document.getElementById('codState').value.trim();
+            const name = document.getElementById('codName').value.trim();
+            const phone = document.getElementById('codPhone').value.trim();
+            const line1 = document.getElementById('codLine1').value.trim();
+            const city = document.getElementById('codCity').value.trim();
+            const state = document.getElementById('codState').value.trim();
             const pincode = document.getElementById('codPincode').value.trim();
 
             // Basic Validation
