@@ -8,24 +8,54 @@ const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const { sendOTP } = require('./otpService');
 
+// ── Rate Limiting ─────────────────────────────────────────────────────────────
+// Guard OTP endpoint: max 5 requests per IP per 15 minutes
+let rateLimit;
+try {
+  rateLimit = require('express-rate-limit');
+} catch {
+  // express-rate-limit not installed — skip rate limiting (run: npm install express-rate-limit)
+  console.warn('⚠️  express-rate-limit not found. OTP endpoint is unprotected. Run: npm install express-rate-limit');
+  rateLimit = null;
+}
+const otpLimiter = rateLimit
+  ? rateLimit({ windowMs: 15 * 60 * 1000, max: 5, standardHeaders: true, legacyHeaders: false,
+      message: { error: 'Too many OTP requests from this IP. Please wait 15 minutes.' } })
+  : (req, res, next) => next(); // no-op fallback
+
 // Razorpay instance
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
     key_secret: process.env.RAZORPAY_KEY_SECRET
 });
 
-const SECRET_KEY = 'super_secret_brainygrasp_key';
+// ── Startup validation ────────────────────────────────────────────────────
+if (!process.env.JWT_SECRET) {
+  throw new Error('❌ Missing required env var: JWT_SECRET must be set in .env');
+}
+const SECRET_KEY = process.env.JWT_SECRET;
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 // ── Middleware ──────────────────────────────────────────────────────────────
-// Proper CORS handling for all requests
+// CORS: allow origins listed in ALLOWED_ORIGINS env var (comma-separated).
+// Falls back to '*' in development so local file:// and localhost work out of the box.
+const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',')
+  : null; // null = allow all
+
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
+  const origin = req.headers.origin;
+  if (!ALLOWED_ORIGINS) {
+    res.header('Access-Control-Allow-Origin', '*');
+  } else if (origin && ALLOWED_ORIGINS.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Vary', 'Origin');
+  }
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.header('Access-Control-Max-Age', '86400'); // 24 hours
-  
+
   if (req.method === 'OPTIONS') {
     res.header('Access-Control-Allow-Credentials', 'true');
     res.status(200).end();
@@ -36,14 +66,14 @@ app.use((req, res, next) => {
 app.use(express.json());
 
 // ── Database Connection ─────────────────────────────────────────────────────
-// ── Database Connection ─────────────────────────────────────────────────────
-const pool = new Pool({ 
-    user: 'postgres', 
-    host: 'localhost', 
-    database: 'brainygras', 
-    password: 'password', 
-    port: 5432,
+const pool = new Pool({
+    user:     process.env.DB_USER     || 'postgres',
+    host:     process.env.DB_HOST     || 'localhost',
+    database: process.env.DB_NAME     || 'brainygras',
+    password: process.env.DB_PASSWORD || 'password',
+    port:     parseInt(process.env.DB_PORT) || 5432,
 });
+
 
 // ── Database Initialization (Tables) ────────────────────────────────────────
 async function initDB() {
@@ -125,7 +155,23 @@ async function initDB() {
   }
 }
 
-setTimeout(initDB, 2000);
+// ── Database Initialization with Retry ──────────────────────────────────────
+// Retries up to 5 times with exponential back-off (2s, 4s, 8s, 16s, 32s).
+// This replaces the fragile setTimeout(initDB, 2000) pattern.
+async function initDBWithRetry(retries = 5) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      await initDB();
+      return; // success
+    } catch (err) {
+      const wait = Math.pow(2, attempt) * 1000;
+      console.error(`DB init attempt ${attempt} failed. Retrying in ${wait / 1000}s…`, err.message);
+      if (attempt < retries) await new Promise(r => setTimeout(r, wait));
+    }
+  }
+  console.error('❌ DB init failed after all retries. Tables may not be ready.');
+}
+initDBWithRetry();
 
 // ── Auth Middleware ─────────────────────────────────────────────────────────
 function authenticateToken(req, res, next) {
@@ -146,8 +192,8 @@ function authenticateToken(req, res, next) {
 app.options('/api/auth/request-otp', cors());
 app.options('/api/auth/verify-otp', cors());
 
-// 1. Request OTP (Email Only)
-app.post('/api/auth/request-otp', cors(), async (req, res) => {
+// 1. Request OTP (Email Only) — rate-limited to 5 req / 15 min per IP
+app.post('/api/auth/request-otp', otpLimiter, cors(), async (req, res) => {
   console.log('📧 Received OTP request for email:', req.body.email);
   
   const { email } = req.body;
@@ -218,35 +264,8 @@ app.post('/api/auth/verify-otp', cors(), async (req, res) => {
   }
 });
 
-// Debug endpoint to get actual OTP (for testing only)
-app.post('/api/auth/debug-otp', cors(), async (req, res) => {
-  const { email } = req.body;
-  if (!email) return res.status(400).json({ error: 'Email is required' });
-
-  try {
-    const result = await pool.query('SELECT otp, otp_expires FROM users WHERE email=$1', [email]);
-    if (result.rows.length === 0) return res.status(404).json({ error: 'User not found' });
-
-    const user = result.rows[0];
-    if (!user.otp) {
-      return res.json({ 
-        message: 'No OTP found for this user',
-        otp: null,
-        otp_expires: null
-      });
-    }
-
-    res.json({ 
-      message: 'Current OTP found',
-      otp: user.otp,
-      otp_expires: user.otp_expires,
-      is_expired: new Date() > new Date(user.otp_expires)
-    });
-  } catch (err) {
-    console.error('Debug OTP error:', err);
-    res.status(500).json({ error: 'Debug endpoint failed' });
-  }
-});
+// Debug OTP endpoint removed for security.
+// Use direct DB inspection during local development only.
 
 // 3. Get User Profile (For Dashboard)
 app.get('/api/auth/me', authenticateToken, async (req, res) => {
@@ -442,17 +461,64 @@ app.post('/api/payment/verify', authenticateToken, async (req, res) => {
   }
 });
 
-// 7. Get Products (For Frontend)
+// 7. Get All Products (For Frontend)
 app.get('/api/products', async (req, res) => {
   try {
-    const result = await pool.query(`
-      SELECT * FROM products ORDER BY sales DESC
-    `);
+    const result = await pool.query(`SELECT * FROM products ORDER BY sales DESC`);
     res.json(result.rows);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch products' });
   }
 });
+
+// 7a. Search Products (used by search.js)
+app.get('/api/products/search', async (req, res) => {
+  const { q } = req.query;
+  if (!q || q.trim().length < 2) {
+    return res.status(400).json({ error: 'Query must be at least 2 characters' });
+  }
+  try {
+    const pattern = `%${q.trim()}%`;
+    const result = await pool.query(`
+      SELECT id, name, category, price, original_price, image, badge, age, sales
+      FROM products
+      WHERE name       ILIKE $1
+         OR category   ILIKE $1
+         OR theme      ILIKE $1
+         OR group_name ILIKE $1
+      ORDER BY sales DESC
+      LIMIT 20
+    `, [pattern]);
+    res.json({ products: result.rows });
+  } catch (err) {
+    console.error('Product search error:', err);
+    res.status(500).json({ error: 'Search failed' });
+  }
+});
+
+// 7b. Search Categories (used by search.js)
+app.get('/api/categories/search', async (req, res) => {
+  const { q } = req.query;
+  if (!q || q.trim().length < 2) {
+    return res.status(400).json({ error: 'Query must be at least 2 characters' });
+  }
+  try {
+    const pattern = `%${q.trim()}%`;
+    const result = await pool.query(`
+      SELECT category AS name, COUNT(*) AS product_count
+      FROM products
+      WHERE category ILIKE $1
+      GROUP BY category
+      ORDER BY product_count DESC
+      LIMIT 10
+    `, [pattern]);
+    res.json({ categories: result.rows });
+  } catch (err) {
+    console.error('Category search error:', err);
+    res.status(500).json({ error: 'Category search failed' });
+  }
+});
+
 
 // 8. Get Orders (For Dashboard)
 app.get('/api/orders', authenticateToken, async (req, res) => {
@@ -460,7 +526,7 @@ app.get('/api/orders', authenticateToken, async (req, res) => {
     const result = await pool.query(`
       SELECT o.*, a.full_name, a.line1, a.city 
       FROM orders o 
-      JOIN addresses a ON o.address_id = a.id 
+      LEFT JOIN addresses a ON o.address_id = a.id 
       WHERE o.user_id = $1 ORDER BY o.created_at DESC
     `, [req.user.id]);
     res.json(result.rows);

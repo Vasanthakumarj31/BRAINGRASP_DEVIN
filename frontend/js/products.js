@@ -205,7 +205,8 @@ function renderProducts(gridId, productList) {
 // === Fetch from DB Backend ===
 async function fetchProductsFromDB() {
   try {
-    const res = await fetch('http://localhost:3000/api/products');
+    const apiBase = (window.BG_CONFIG && window.BG_CONFIG.API_BASE) || 'http://localhost:3000';
+    const res = await fetch(`${apiBase}/api/products`);
     if (!res.ok) throw new Error('API response was not ok');
     const data = await res.json();
     

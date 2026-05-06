@@ -3,7 +3,7 @@
    Handles: Search overlay, autocomplete, product search, filtering
    ============================================================ */
 
-const API_BASE = 'http://localhost:3000';
+const API_BASE = (window.BG_CONFIG && window.BG_CONFIG.API_BASE) || 'http://localhost:3000';
 
 // Search state management
 const searchState = {
@@ -294,7 +294,7 @@ function displaySearchResults(products, categories, query) {
                     <div class="search-no-results-icon">
                         <i class="fas fa-search"></i>
                     </div>
-                    <h3>No results found for "${query}"</h3>
+                    <h3>No results found for "${escapeHTML(query)}"</h3>
                     <p>Try searching for something else or browse our categories</p>
                     <div class="search-suggestions">
                         <h4>Popular searches:</h4>
@@ -314,7 +314,7 @@ function displaySearchResults(products, categories, query) {
         html += `
             <div class="search-section">
                 <a href="search-results.html?q=${encodeURIComponent(query)}" class="search-view-all">
-                    View all results for "${query}" (${products.length} products)
+                    View all results for "${escapeHTML(query)}" (${products.length} products)
                     <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
@@ -394,12 +394,23 @@ function showSearchError() {
     `;
 }
 
+// Escape user input before injecting into innerHTML (prevents XSS)
+function escapeHTML(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#x27;');
+}
+
 // Highlight matching text
 function highlightMatch(text, query) {
-    if (!query) return text;
-    
-    const regex = new RegExp(`(${query})`, 'gi');
-    return text.replace(regex, '<mark>$1</mark>');
+    if (!query) return escapeHTML(text);
+    // Escape special regex characters in user query before building RegExp
+    const safeQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${safeQuery})`, 'gi');
+    return escapeHTML(text).replace(regex, '<mark>$1</mark>');
 }
 
 // Search suggestion click

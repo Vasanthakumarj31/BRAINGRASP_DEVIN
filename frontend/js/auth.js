@@ -2,7 +2,7 @@
    auth.js – BrainyGrasp Authentication & Cart Sync Module
    ============================================================ */
 
-const API_BASE = 'http://localhost:3000';
+const API_BASE = (window.BG_CONFIG && window.BG_CONFIG.API_BASE) || 'http://localhost:3000';
 
 // ── Auth Helpers ──────────────────────────────────────────────────────────
 function getToken() { return localStorage.getItem('bg_token'); }

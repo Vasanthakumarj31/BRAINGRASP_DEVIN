@@ -3,7 +3,7 @@
    Handles: User profile display, order history, quick actions
    ============================================================ */
 
-const API_BASE = 'http://localhost:3000';
+const API_BASE = (window.BG_CONFIG && window.BG_CONFIG.API_BASE) || 'http://localhost:3000';
 
 // ── User/Auth Helpers ──────────────────────────────────────────────────────────
 // Note: Changed to match standard localStorage keys used in your auth.js
@@ -575,9 +575,8 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('User is authenticated, loading dashboard...');
         loadProfile();
         loadOrders();
-        initLogout();
-        initQuickActions();
-        initProfileEditing(); // Initialize profile editing functionality
+        initQuickActions();        // Handles logout, refresh, and scroll-to-orders
+        initProfileEditing();      // Handles edit form show/hide and profile save
     } else {
         console.log('User is not authenticated, showing login prompt...');
         // Not logged in: Show prompt

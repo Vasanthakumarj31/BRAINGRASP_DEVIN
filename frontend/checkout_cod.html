@@ -244,10 +244,11 @@
     </div>
   </div>
 
+  <script src="js/config.js"></script>
   <script src="js/auth-unified.js"></script>
   <script src="js/common.js"></script>
   <script>
-  const API_BASE = 'http://localhost:3000';
+  const API_BASE = (window.BG_CONFIG && window.BG_CONFIG.API_BASE) || 'http://localhost:3000';
 
   document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('bg_token');
@@ -257,9 +258,33 @@
       return;
     }
 
+    // ── Load Cart: DB-first for logged-in users, localStorage fallback ────
+    let activeCart = [];
+    try {
+      const cartRes = await fetch(`${API_BASE}/api/cart`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (cartRes.ok) {
+        const dbCart = await cartRes.json();
+        if (dbCart && dbCart.length > 0) {
+          activeCart = dbCart;
+          // Keep localStorage in sync
+          localStorage.setItem('bg_cart', JSON.stringify(dbCart));
+        } else {
+          // DB cart empty — fall back to localStorage
+          activeCart = typeof getCart === 'function' ? getCart() : [];
+        }
+      } else {
+        activeCart = typeof getCart === 'function' ? getCart() : [];
+      }
+    } catch (e) {
+      console.warn('DB cart load failed, using localStorage:', e);
+      activeCart = typeof getCart === 'function' ? getCart() : [];
+    }
+
     // ── Render Cart Summary ────────────────────────────────────────────
     function renderSummary() {
-      const cart = typeof getCart === 'function' ? getCart() : [];
+      const cart = activeCart;
       const wrap = document.getElementById('codItems');
 
       if (!cart || cart.length === 0) {
@@ -272,11 +297,13 @@
       const shipping = subtotal >= 999 ? 0 : 60;
       const total    = subtotal + shipping;
 
+      const esc = (s) => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
       wrap.innerHTML = `
         ${cart.map(item => `
           <div class="order-item">
             <div>
-              <div class="order-item-name">${item.name}</div>
+              <div class="order-item-name">${esc(item.name)}</div>
               <div class="order-item-qty">Qty: ${item.quantity || 1}</div>
             </div>
             <div class="order-item-price">₹${item.price * (item.quantity || 1)}</div>

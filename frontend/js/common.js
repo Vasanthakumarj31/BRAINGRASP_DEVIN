@@ -367,14 +367,44 @@ function getCartTotal() {
 
 
 // Make functions globally available
-
 window.getCart = getCart;
-
 window.addToCart = addToCart;
-
 window.removeFromCart = removeFromCart;
-
 window.getCartTotal = getCartTotal;
+
+// === escapeHTML — shared XSS-safe string encoder ===
+// Mirrors the version in search.js; available to all pages that load common.js
+function escapeHTML(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+}
+window.escapeHTML = escapeHTML;
+
+// === Clear Cart ===
+function clearCart() {
+  localStorage.removeItem('bg_cart');
+
+  // Also sync empty cart to DB if user is logged in
+  const token = localStorage.getItem('bg_token');
+  if (token) {
+    const apiBase = (window.BG_CONFIG && window.BG_CONFIG.API_BASE) || 'http://localhost:3000';
+    fetch(`${apiBase}/api/cart/sync`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ items: [] })
+    }).catch(err => console.error('❌ Failed to clear DB cart:', err));
+  }
+
+  if (typeof updateCartCount === 'function') updateCartCount();
+}
+window.clearCart = clearCart;
 
 
 
@@ -466,7 +496,7 @@ function renderCartSidebar() {
 
         <div class="cart-item-info">
 
-          <div class="cart-item-name">${item.name}</div>
+          <div class="cart-item-name">${escapeHTML(item.name)}</div>
 
           <div class="cart-item-price">₹${item.price} x ${item.quantity || 1}</div>
 
