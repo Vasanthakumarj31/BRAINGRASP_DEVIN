@@ -63,31 +63,61 @@ function clearLocalCart() {
     localStorage.removeItem('bg_cart');
 }
 
-// ── Cart Migration: Guest -> Database ────────────────────────────────────
+// ── Cart Migration: Guest -> Database & Load DB cart into localStorage ───
 async function syncCartOnLogin() {
     const token = getToken();
     const guestCart = getLocalCart();
-    
-    if (!token || guestCart.length === 0) return;
-    
+
+    if (!token) return;
+
     try {
-        const response = await fetch(`${API_BASE}/api/cart/sync`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ items: guestCart })
-        });
-        
-        if (response.ok) {
-            console.log('✅ Guest cart synced to database');
-            clearLocalCart();
-            return true;
-        } else {
-            console.error('❌ Cart sync failed:', await response.text());
-            return false;
+        // Step 1: Fetch existing DB cart
+        let dbCart = [];
+        try {
+            const fetchRes = await fetch(`${API_BASE}/api/cart`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (fetchRes.ok) {
+                dbCart = await fetchRes.json() || [];
+            }
+        } catch (err) {
+            console.warn('⚠️ Could not fetch existing DB cart:', err);
         }
+
+        // Step 2: Merge guest cart into DB cart (avoid duplicates)
+        if (guestCart.length > 0) {
+            const merged = [...dbCart];
+            guestCart.forEach(guestItem => {
+                const existing = merged.find(i => i.id === guestItem.id);
+                if (existing) {
+                    existing.quantity = (existing.quantity || 1) + (guestItem.quantity || 1);
+                } else {
+                    merged.push(guestItem);
+                }
+            });
+            dbCart = merged;
+
+            // Sync merged cart to DB
+            const syncRes = await fetch(`${API_BASE}/api/cart/sync`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ items: dbCart })
+            });
+
+            if (syncRes.ok) {
+                console.log('✅ Guest cart merged & synced to database');
+            } else {
+                console.error('❌ Cart sync failed:', await syncRes.text());
+            }
+        }
+
+        // Step 3: Always load authoritative DB cart into localStorage
+        localStorage.setItem('bg_cart', JSON.stringify(dbCart));
+        console.log('✅ DB cart loaded into localStorage:', dbCart.length, 'items');
+        return true;
     } catch (err) {
         console.error('❌ Cart migration error:', err);
         return false;
@@ -194,28 +224,11 @@ async function handleVerifyOTP() {
 }
 
 // ── Enhanced Cart UI Sync ───────────────────────────────────────────────
-async function updateCartCount() {
-    const token = getToken();
-    let cart = [];
-
-    if (token) {
-        // Fetch from PostgreSQL
-        try {
-            const response = await fetch(`${API_BASE}/api/cart`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (response.ok) {
-                cart = await response.json();
-            }
-        } catch (err) {
-            console.error("❌ Failed to fetch database cart:", err);
-            // Fallback to local storage if API fails
-            cart = getLocalCart();
-        }
-    } else {
-        // Fetch from LocalStorage
-        cart = getLocalCart();
-    }
+// Always reads from localStorage for instant UI response. localStorage is
+// kept up-to-date by addToCart / removeFromCart / updateQuantityInCart
+// (which also fire syncCartToDB in the background).
+function updateCartCount() {
+    const cart = getLocalCart();
 
     const totalCount = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
     const totalPrice = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
@@ -234,7 +247,7 @@ async function updateCartCount() {
 
     // Render Cart Sidebar
     if (typeof renderCartSidebar === 'function') {
-        renderCartSidebar(cart);
+        renderCartSidebar();
     }
 }
 

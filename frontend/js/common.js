@@ -283,94 +283,87 @@ function initBackToTop() {
 // === Essential Cart Functions ===
 
 function getCart() {
-
   try {
-
     return JSON.parse(localStorage.getItem('bg_cart')) || [];
-
   } catch (e) {
-
     return [];
-
   }
-
 }
 
-
+// Sync current localStorage cart to the DB (for logged-in users)
+function syncCartToDB() {
+  const token = localStorage.getItem('bg_token');
+  if (!token) return;
+  const apiBase = (window.BG_CONFIG && window.BG_CONFIG.API_BASE) || 'http://localhost:3000';
+  const cart = getCart();
+  fetch(`${apiBase}/api/cart/sync`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({ items: cart })
+  }).catch(err => console.error('\u274c Failed to sync cart to DB:', err));
+}
+window.syncCartToDB = syncCartToDB;
 
 function addToCart(item) {
-
   const cart = getCart();
-
   const existingItem = cart.find(cartItem => cartItem.id === item.id);
 
-
-
   if (existingItem) {
-
     existingItem.quantity = (existingItem.quantity || 1) + 1;
-
   } else {
-
     cart.push({ ...item, quantity: 1 });
-
   }
-
-
 
   localStorage.setItem('bg_cart', JSON.stringify(cart));
 
+  // Sync to DB if user is logged in
+  syncCartToDB();
 
-
-  // Update cart count if function exists
-
+  // Update cart count / UI
   if (typeof updateCartCount === 'function') {
-
     updateCartCount();
-
   }
-
 }
-
-
 
 function removeFromCart(itemId) {
-
   let cart = getCart();
-
   cart = cart.filter(item => item.id !== itemId);
-
   localStorage.setItem('bg_cart', JSON.stringify(cart));
 
+  // Sync to DB if user is logged in
+  syncCartToDB();
 
-
-  // Update cart count if function exists
-
+  // Update cart count / UI
   if (typeof updateCartCount === 'function') {
-
     updateCartCount();
-
   }
-
 }
-
-
 
 function getCartTotal() {
-
   const cart = getCart();
-
   return cart.reduce((total, item) => total + (item.price * (item.quantity || 1)), 0);
-
 }
 
-
+// ── Update quantity of an item in the cart (delta = +1 or -1) ──
+function updateQuantityInCart(itemId, delta) {
+  const cart = getCart();
+  const item = cart.find(i => i.id === itemId);
+  if (!item) return;
+  item.quantity = Math.max(1, (item.quantity || 1) + delta);
+  localStorage.setItem('bg_cart', JSON.stringify(cart));
+  syncCartToDB();
+  if (typeof updateCartCount === 'function') updateCartCount();
+}
 
 // Make functions globally available
 window.getCart = getCart;
 window.addToCart = addToCart;
 window.removeFromCart = removeFromCart;
 window.getCartTotal = getCartTotal;
+window.updateQuantityInCart = updateQuantityInCart;
 
 // === escapeHTML — shared XSS-safe string encoder ===
 // Mirrors the version in search.js; available to all pages that load common.js
@@ -431,6 +424,10 @@ if (typeof updateCartCount === 'undefined') {
     countEls.forEach(el => {
 
       el.textContent = totalItems;
+
+      // Hide badge when cart is empty
+
+      el.style.display = totalItems > 0 ? 'flex' : 'none';
 
       // Add animation
 
@@ -525,6 +522,62 @@ function renderCartSidebar() {
     if (cartTotal) cartTotal.textContent = `₹${total}`;
 
   }
+
+}
+
+
+
+// === Cart Sidebar Button Handlers ===
+// Delegated listener for +/−/× buttons rendered inside #cartItems by renderCartSidebar().
+// Must be initialised once — handles all dynamically rendered buttons.
+
+function initCartSidebarActions() {
+
+  document.addEventListener('click', function (e) {
+
+    // ── Quantity minus ─────────────────────────────────────────────────
+
+    const minusBtn = e.target.closest('#cartItems .quantity-btn.minus');
+
+    if (minusBtn) {
+
+      const id = parseInt(minusBtn.dataset.id, 10);
+
+      if (!isNaN(id) && typeof updateQuantityInCart === 'function') updateQuantityInCart(id, -1);
+
+      return;
+
+    }
+
+    // ── Quantity plus ──────────────────────────────────────────────────
+
+    const plusBtn = e.target.closest('#cartItems .quantity-btn.plus');
+
+    if (plusBtn) {
+
+      const id = parseInt(plusBtn.dataset.id, 10);
+
+      if (!isNaN(id) && typeof updateQuantityInCart === 'function') updateQuantityInCart(id, +1);
+
+      return;
+
+    }
+
+    // ── Remove item ────────────────────────────────────────────────────
+
+    const removeBtn = e.target.closest('#cartItems .remove-btn');
+
+    if (removeBtn) {
+
+      const id = parseInt(removeBtn.dataset.id, 10);
+
+      if (!isNaN(id) && typeof removeFromCart === 'function') removeFromCart(id);
+
+      return;
+
+    }
+
+  });
 
 }
 
@@ -1151,6 +1204,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (typeof initTestimonialsSlider === 'function') initTestimonialsSlider();
 
   initAddToCart();
+
+  initCartSidebarActions(); // ← wire up sidebar +/−/× buttons
 
   if (typeof initGiftFinder === 'function') initGiftFinder();
 

@@ -7,6 +7,46 @@
   <meta name="description" content="Review your BrainyGrasp cart and proceed to secure checkout.">
   <link rel="stylesheet" href="css/common.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    /* ── Cart Page Item Layout ── */
+    .cart-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+      border-bottom: 1px solid #f0f0f0;
+      gap: 12px;
+    }
+    .cart-item-info { flex: 1; }
+    .cart-item-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 3px; }
+    .cart-item-meta { font-size: 0.82rem; color: #888; }
+    .cart-item-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .quantity-btn {
+      width: 30px; height: 30px;
+      border: 1.5px solid #ddd;
+      border-radius: 6px;
+      background: #f8f8f8;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .quantity-btn:hover { background: #667eea; color: #fff; border-color: #667eea; }
+    .cart-item-qty { min-width: 28px; text-align: center; font-weight: 700; font-size: 0.95rem; }
+    .cart-item-subtotal { font-weight: 800; color: #667eea; min-width: 60px; text-align: right; }
+    .cart-item-remove {
+      background: none; border: none; cursor: pointer;
+      color: #e74c3c; font-size: 0.95rem;
+      padding: 6px; border-radius: 6px; transition: background 0.15s;
+    }
+    .cart-item-remove:hover { background: #fdecea; }
+  </style>
 </head>
 <body>
   <header class="main-header" id="mainHeader">
