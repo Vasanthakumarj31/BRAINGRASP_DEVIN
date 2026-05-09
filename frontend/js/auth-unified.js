@@ -39,10 +39,28 @@ function initCheckoutProtection() {
                 const targetUrl = checkoutLink.href || checkoutLink.dataset.href || 'checkout_cod.html';
                 localStorage.setItem('redirectAfterLogin', targetUrl);
 
-                // Show login prompt
-                if (confirm("Please sign in to proceed with checkout. Continue to login?")) {
-                    window.location.href = 'login.html';
+                // Show custom login prompt modal instead of blocking confirm()
+                let authModal = document.getElementById('authUnifiedModal');
+                if (!authModal) {
+                    const modalHTML = `
+                        <div id="authUnifiedModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 9999; backdrop-filter: blur(4px);">
+                            <div style="background: white; padding: 30px; border-radius: 20px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); font-family: 'Nunito', sans-serif;">
+                                <div style="background: #e0e7ff; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                                    <i class="fas fa-lock" style="font-size: 24px; color: #4f46e5;"></i>
+                                </div>
+                                <h3 style="font-family: 'Fredoka', sans-serif; font-size: 24px; color: #1e1e1e; margin-bottom: 10px; margin-top: 0;">Sign in Required</h3>
+                                <p style="color: #666; margin-bottom: 25px; font-size: 16px; line-height: 1.5; margin-top: 0;">Please sign in or create an account to proceed with checkout securely.</p>
+                                <div style="display: flex; gap: 15px; justify-content: center;">
+                                    <button onclick="document.getElementById('authUnifiedModal').style.display='none'" style="flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #ddd; background: white; color: #333; font-weight: bold; font-size: 16px; cursor: pointer;">Cancel</button>
+                                    <button onclick="window.location.href='login.html'" style="flex: 1; padding: 12px; border-radius: 10px; border: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 4px 15px rgba(102,126,234,0.3);">Sign In</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    document.body.insertAdjacentHTML('beforeend', modalHTML);
+                    authModal = document.getElementById('authUnifiedModal');
                 }
+                authModal.style.display = 'flex';
                 return;
             }
 
