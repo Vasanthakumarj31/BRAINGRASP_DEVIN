@@ -22,6 +22,74 @@ function clearAuth() {
     localStorage.removeItem('bg_user');
 }
 
+// ── Inline Error Display (replaces alert()) ───────────────────────────────
+/**
+ * Show an error message inline in the form.
+ * @param {string} elementId - ID of the error container element
+ * @param {string} message   - Human-readable error text
+ */
+function showAuthError(elementId, message) {
+    let el = document.getElementById(elementId);
+    if (!el) {
+        // Create a floating error banner if the target element doesn't exist
+        el = document.createElement('div');
+        el.id = elementId;
+        el.style.cssText = `
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b;
+            padding: 12px 20px; border-radius: 10px; font-family: 'Nunito', sans-serif;
+            font-size: 14px; font-weight: 600; z-index: 10000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 90%;
+        `;
+        document.body.appendChild(el);
+    }
+    el.textContent = message;
+    el.style.display = 'block';
+    // Auto-hide after 5 seconds
+    clearTimeout(el._hideTimer);
+    el._hideTimer = setTimeout(() => { el.style.display = 'none'; }, 5000);
+}
+
+// ── Logout Confirmation Modal (replaces confirm()) ────────────────────────
+function showLogoutConfirmModal() {
+    const existing = document.getElementById('logoutConfirmModal');
+    if (existing) { existing.style.display = 'flex'; return; }
+
+    const modalHTML = `
+        <div id="logoutConfirmModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+             background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center;
+             z-index: 9999; backdrop-filter: blur(4px);">
+            <div style="background: white; padding: 30px; border-radius: 20px; max-width: 380px; width: 90%;
+                 text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); font-family: 'Nunito', sans-serif;">
+                <div style="background: #fee2e2; width: 60px; height: 60px; border-radius: 50%; display: flex;
+                     align-items: center; justify-content: center; margin: 0 auto 20px;">
+                    <i class="fas fa-sign-out-alt" style="font-size: 24px; color: #dc2626;"></i>
+                </div>
+                <h3 style="font-family: 'Fredoka', sans-serif; font-size: 22px; color: #1e1e1e;
+                     margin: 0 0 10px 0;">Sign Out?</h3>
+                <p style="color: #666; margin: 0 0 25px 0; font-size: 15px; line-height: 1.5;">
+                    Your cart will be cleared. Are you sure you want to sign out?
+                </p>
+                <div style="display: flex; gap: 12px; justify-content: center;">
+                    <button onclick="document.getElementById('logoutConfirmModal').style.display='none'"
+                        style="flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #ddd;
+                               background: white; color: #333; font-weight: bold; font-size: 15px; cursor: pointer;">
+                        Cancel
+                    </button>
+                    <button onclick="(function(){ clearAuth(); clearLocalCart(); window.location.href='index.html'; })()"
+                        style="flex: 1; padding: 12px; border-radius: 10px; border: none;
+                               background: linear-gradient(135deg, #ef4444, #dc2626);
+                               color: white; font-weight: bold; font-size: 15px; cursor: pointer;
+                               box-shadow: 0 4px 15px rgba(220,38,38,0.3);">
+                        Sign Out
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
 // ── Checkout Intent Detection ────────────────────────────────────────────
 /**
  * Intercept checkout clicks and verify authentication
@@ -149,7 +217,8 @@ async function handleVerifyOTP() {
     const email = document.getElementById('emailInput').value;
 
     if (otp.length < 6) {
-        alert("Please enter the full 6-digit OTP.");
+        const verifyBtn = document.getElementById('verifyOTPBtn');
+        showAuthError('otpError', 'Please enter the full 6-digit OTP.');
         return;
     }
 
@@ -225,7 +294,7 @@ async function handleVerifyOTP() {
                 }
             }
         } else {
-            alert(data.error || "Invalid OTP. Please try again.");
+            showAuthError('otpError', data.error || 'Invalid OTP. Please try again.');
             if (verifyBtn) {
                 verifyBtn.disabled = false;
                 verifyBtn.textContent = 'Verify & Continue';
@@ -233,7 +302,7 @@ async function handleVerifyOTP() {
         }
     } catch (err) {
         console.error("❌ Verification Error:", err);
-        alert("Server connection failed. Please try again.");
+        showAuthError('otpError', 'Server connection failed. Please try again.');
         if (verifyBtn) {
             verifyBtn.disabled = false;
             verifyBtn.textContent = 'Verify & Continue';
@@ -347,12 +416,12 @@ async function requestOTP(method, value) {
             }
             return true;
         } else {
-            alert(data.error || "Failed to send OTP");
+            showAuthError('otpRequestError', data.error || 'Failed to send OTP');
             return false;
         }
     } catch (err) {
         console.error("❌ OTP request error:", err);
-        alert("Server connection failed");
+        showAuthError('otpRequestError', 'Server connection failed. Please try again.');
         return false;
     }
 }
@@ -383,7 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const value = document.getElementById('emailInput').value;
 
             if (!value) {
-                alert('Please enter your email address');
+                showAuthError('otpRequestError', 'Please enter your email address');
                 return;
             }
 
@@ -402,21 +471,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (authStep1 && authStep2) {
                     authStep1.style.display = 'none';
                     authStep2.style.display = 'block';
+                    // Populate the email confirmation label
+                    const emailDisplay = document.getElementById('otpEmailDisplay');
+                    if (emailDisplay) emailDisplay.textContent = value;
+                    // Focus first OTP box
+                    const firstBox = document.querySelector('.otp-box');
+                    if (firstBox) firstBox.focus();
                 }
             }
         });
     }
 
-    // Logout handlers
+    // Logout handlers — custom modal instead of blocking confirm()
     const logoutBtns = document.querySelectorAll('#logoutBtn, #logoutQuickBtn, [data-action="logout"]');
     logoutBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
-            if (confirm("Are you sure you want to logout?")) {
-                clearAuth();
-                clearLocalCart();
-                window.location.href = 'index.html';
-            }
+            showLogoutConfirmModal();
         });
     });
 
@@ -443,6 +514,25 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // Resend OTP handler
+    const resendBtn = document.getElementById('resendOTP');
+    if (resendBtn) {
+        resendBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const value = document.getElementById('emailInput')?.value;
+            if (!value) return;
+            resendBtn.disabled = true;
+            resendBtn.textContent = 'Sending...';
+            await requestOTP('email', value);
+            resendBtn.disabled = false;
+            resendBtn.textContent = 'Resend OTP';
+            // Clear OTP boxes for fresh entry
+            document.querySelectorAll('.otp-box').forEach(b => { b.value = ''; });
+            const firstBox = document.querySelector('.otp-box');
+            if (firstBox) firstBox.focus();
+        });
+    }
 });
 
 // ── Export for use in other scripts ───────────────────────────────────────
@@ -457,5 +547,7 @@ window.AuthUnified = {
     fetchUserProfile,
     syncGlobalUI,
     requestOTP,
-    handleVerifyOTP
+    handleVerifyOTP,
+    showAuthError,
+    showLogoutConfirmModal
 };

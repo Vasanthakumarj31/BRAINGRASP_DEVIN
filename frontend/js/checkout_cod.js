@@ -334,7 +334,7 @@ async function startRazorpay(token) {
       currency    : rzpOrder.currency,
       name        : 'BrainyGrasp',
       description : 'Educational Toys Purchase',
-      image       : 'images/logo.jpg',
+      image       : 'images/ChatGPT Image May 9, 2026, 10_43_38 AM.png',
       order_id    : rzpOrder.orderId,
       prefill     : {
         name   : addr.name,

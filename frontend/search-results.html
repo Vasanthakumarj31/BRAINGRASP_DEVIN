@@ -426,10 +426,10 @@
     <!-- JavaScript -->
     <script src="js/config.js"></script>
   <script src="js/auth-unified.js"></script>
-    <script src="js/search.js"></script>
+    <script src="js/modern-search.js"></script>
     <script>
         // Search results page functionality
-        const API_BASE = 'http://localhost:3000';
+        const API_BASE = (window.BG_CONFIG && window.BG_CONFIG.API_BASE) || 'http://localhost:3000';
         let currentPage = 1;
         let searchQuery = '';
         let allProducts = [];

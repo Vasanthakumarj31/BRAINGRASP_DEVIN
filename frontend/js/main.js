@@ -284,19 +284,7 @@ function initTabs() {
   });
 }
  
-// === Search ===
-function initSearch() {
-  const searchBtn = document.getElementById('searchBtn');
-  const searchOverlay = document.getElementById('searchOverlay');
-  const searchClose = document.getElementById('searchClose');
-  const searchInput = document.getElementById('searchInput');
- 
-  searchBtn.addEventListener('click', () => {
-    searchOverlay.classList.toggle('active');
-    if (searchOverlay.classList.contains('active')) {
-      searchInput.focus();
-    }
-  });
+});
  
   searchClose.addEventListener('click', () => {
     searchOverlay.classList.remove('active');

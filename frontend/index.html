@@ -26,7 +26,8 @@
       <div class="announcement-slide active">Buy any <strong>2</strong> and get <strong>FLAT 10% OFF</strong> | Use
         Code: <strong>BRAINY10</strong></div>
       <div class="announcement-slide">Buy any <strong>3</strong> and get <strong>FLAT 15% OFF</strong> | Use Code:
-        <strong>BRAINY15</strong></div>
+        <strong>BRAINY15</strong>
+      </div>
       <div class="announcement-slide">Get a <strong>FREE GIFT</strong> on all orders above <strong>&#8377;1,499</strong>
       </div>
       <div class="announcement-slide"><strong>FREE SHIPPING</strong> on order value above &#8377;999</div>
@@ -56,7 +57,8 @@
 
         <!-- Logo -->
         <a href="/" class="logo">
-          <img src="images/logo.jpg" alt="BrainyGrasp Logo" class="brand-logo">
+          <img src="images/ChatGPT Image May 9, 2026, 10_43_38 AM.png" alt="BrainyGrasp Logo" class="brand-logo"
+            style="max-height: 55px; width: auto;">
         </a>
 
         <!-- Navigation -->
@@ -185,13 +187,13 @@
 
         <!-- Header Actions -->
         <div class="header-actions">
-          <button class="header-action-btn search-btn" id="searchBtn" aria-label="Open search">
-            <i class="fas fa-search"></i>
-          </button>
           <a href="#" class="header-action-btn whatsapp-btn" aria-label="Contact via WhatsApp">
             <i class="fab fa-whatsapp"></i>
           </a>
-              <div class="cart-btn-wrapper" style="position:relative;display:inline-flex;align-items:center;">
+          <button class="header-action-btn search-btn" id="searchBtn" aria-label="Open search">
+            <i class="fas fa-search"></i>
+          </button>
+          <div class="cart-btn-wrapper" style="position:relative;display:inline-flex;align-items:center;">
             <button class="header-action-btn cart-btn" id="cartBtn" aria-label="Open cart">
               <i class="fas fa-shopping-bag"></i>
             </button>
@@ -205,13 +207,29 @@
       </div>
     </div>
 
-    <!-- Search Overlay -->
-    <div class="search-overlay" id="searchOverlay">
-      <div class="container">
-        <div class="search-box">
-          <i class="fas fa-search"></i>
-          <input type="text" placeholder="What are you looking for?" id="searchInput" aria-label="Search">
-          <button class="search-close" id="searchClose" aria-label="Close search"><i class="fas fa-times"></i></button>
+    <!-- Modern Search Overlay -->
+    <div class="modern-search-overlay" id="modernSearchOverlay">
+      <div class="modern-search-container">
+        <div class="modern-search-box">
+          <i class="fas fa-search search-icon"></i>
+          <input type="text" id="modernSearchInput" placeholder="Search for toys, games, ages..." autocomplete="off">
+          <button class="modern-search-close" id="modernSearchClose" aria-label="Close search">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modern-search-results-area">
+          <div id="modernSearchSuggestions" class="modern-search-suggestions">
+            <h4>Popular Searches</h4>
+            <div class="suggestion-tags">
+              <span class="search-tag">STEM Toys</span>
+              <span class="search-tag">Puzzles</span>
+              <span class="search-tag">0-3 Years</span>
+              <span class="search-tag">Birthday Gifts</span>
+            </div>
+          </div>
+          <div id="modernSearchResults" class="modern-search-results">
+            <!-- Results dynamically injected here -->
+          </div>
         </div>
       </div>
     </div>
@@ -253,8 +271,24 @@
   <section class="hero-section custom-banners">
     <div class="hero-slider">
 
+      <!-- Slide 0: BrainyGrasp Brand Intro -->
+      <div class="hero-slide banner-brand active">
+        <div class="banner-brand-inner">
+          <div class="brand-text-content">
+            <h1>Where <span class="blue">Learning</span><br>Meets <span class="orange">Play!</span></h1>
+            <p>Spark curiosity and joy with our award-winning educational toys, crafted for growing minds.</p>
+            <a href="shop-by-category.html" class="btn-brand">Explore Toys <i class="fas fa-arrow-right"
+                style="margin-left:8px;"></i></a>
+          </div>
+          <div class="brand-image-container">
+            <img src="images/WhatsApp Image 2026-05-01 at 6.42.32 PM.jpeg"
+              alt="Brainy Grasp – Children learning and playing" class="brand-hero-img">
+          </div>
+        </div>
+      </div>
+
       <!-- Slide 1: Exciting New Launches -->
-      <div class="hero-slide banner-launches active">
+      <div class="hero-slide banner-launches">
         <div class="banner-bg">
           <div class="stars-layer"></div>
           <div class="giant-circle"></div>
@@ -377,6 +411,7 @@
       <button class="hero-dot" data-slide="2"></button>
       <button class="hero-dot" data-slide="3"></button>
       <button class="hero-dot" data-slide="4"></button>
+      <button class="hero-dot" data-slide="5"></button>
     </div>
     <button class="hero-arrow hero-prev" aria-label="Previous slide"><i class="fas fa-chevron-left"></i></button>
     <button class="hero-arrow hero-next" aria-label="Next slide"><i class="fas fa-chevron-right"></i></button>
@@ -460,6 +495,8 @@
       </div>
     </div>
   </section>
+
+   
 
   <!-- Handpicked Section -->
   <section class="section handpicked-section">
@@ -621,6 +658,31 @@
     </div>
   </section>
 
+    <!-- About Section -->
+  <section class="section about-section bg-light-blue">
+    <div class="container">
+      <div class="about-inner">
+        <div class="about-content">
+          <span class="about-tag">Welcome to BrainyGrasp</span>
+          <h2 class="section-title">Nurturing Young Minds</h2>
+          <p class="about-text">BrainyGrasp is a community that really wants to improve children's IQ in a unique and attractive way. We believe that learning should be as joyful as play!</p>
+          <ul class="about-features">
+            <li><i class="fas fa-check-circle"></i> Enhances Cognitive Skills</li>
+            <li><i class="fas fa-check-circle"></i> Safe & Non-Toxic Materials</li>
+            <li><i class="fas fa-check-circle"></i> Designed by Child Experts</li>
+          </ul>
+        </div>
+        <div class="about-image-wrapper">
+          <img src="https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=600&h=600&fit=crop" alt="Kids playing and learning" class="about-img">
+          <div class="floating-badge">
+            <strong>#1</strong>
+            <span>Choice for Parents</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Newsletter Section
   <section class="newsletter-section">
     <div class="container">
@@ -718,6 +780,7 @@
     </div>
   </section>
 
+  
   <!-- FAQ Section -->
   <section class="section faq-section" id="faqs">
     <div class="container">
@@ -821,7 +884,7 @@
       <div class="footer-grid">
         <div class="footer-col footer-brand">
           <a href="/" class="footer-logo">
-            <img src="images/logo.jpg" alt="BrainyGrasp Logo" class="brand-logo">
+            <img src="images/ChatGPT Image May 9, 2026, 10_43_38 AM.png" alt="BrainyGrasp Logo" class="brand-logo" style="max-height: 55px; width: auto;">
           </a>
           <p>Where learning meets play! Educational toys designed to spark curiosity and build confidence in every
             child.</p>
@@ -988,10 +1051,10 @@
   <script src="js/products.js"></script>
   <script src="js/config.js"></script>
   <script src="js/auth-unified.js"></script>
-  <script src="js/search.js"></script>
   <script src="js/common.js"></script>
   <script src="js/index.js"></script>
   <script src="js/mobile-enhancements.js"></script>
+  <script src="js/modern-search.js"></script>
 </body>
 
 </html>

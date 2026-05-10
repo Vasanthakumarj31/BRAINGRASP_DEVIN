@@ -6,6 +6,7 @@
   <title>BrainyGrasp - Where Learning Meets Play!</title>
   <link rel="stylesheet" href="css/common.css">
   <link rel="stylesheet" href="css/shop-by-category.css">
+  <link rel="stylesheet" href="css/search.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -47,7 +48,7 @@
  
         <!-- Logo -->
         <a href="/" class="logo">
-          <img src="images/logo.jpg" alt="BrainyGrasp Logo" class="brand-logo">
+          <img src="images/ChatGPT Image May 9, 2026, 10_43_38 AM.png" alt="BrainyGrasp Logo" class="brand-logo" style="max-height: 55px; width: auto;">
         </a>
  
         <!-- Navigation -->
@@ -153,34 +154,50 @@
  
         <!-- Header Actions -->
         <div class="header-actions">
-          <button class="header-action-btn search-btn" id="searchBtn">
-            <i class="fas fa-search"></i>
-          </button>
           <a href="#" class="header-action-btn whatsapp-btn">
             <i class="fab fa-whatsapp"></i>
           </a>
-          <button class="header-action-btn cart-btn" id="cartBtn">
-            <i class="fas fa-shopping-bag"></i>
-            <span class="cart-count">0</span>
+          <button class="header-action-btn search-btn" id="searchBtn" aria-label="Open search">
+            <i class="fas fa-search"></i>
           </button>
+          <div class="cart-btn-wrapper" style="position:relative;display:inline-flex;align-items:center;">
+            <button class="header-action-btn cart-btn" id="cartBtn" aria-label="Open cart">
+              <i class="fas fa-shopping-bag"></i>
+            </button>
+            <span class="cart-count" style="position:absolute;top:-6px;right:-6px;">0</span>
+          </div>
             <a id="userBtn" href="login.html" class="header-action-btn user-btn" title="Sign In">
               <i class="fas fa-user"></i>
             </a>
         </div>
       </div>
     </div>
- 
-    <!-- Search Overlay -->
-    <div class="search-overlay" id="searchOverlay">
-      <div class="container">
-        <div class="search-box">
-          <i class="fas fa-search"></i>
-          <input type="text" placeholder="What are you looking for?" id="searchInput">
-          <button class="search-close" id="searchClose"><i class="fas fa-times"></i></button>
+  </header>
+
+  <!-- Modern Search Overlay -->
+  <div class="modern-search-overlay" id="modernSearchOverlay">
+    <div class="modern-search-container">
+      <div class="modern-search-box">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" id="modernSearchInput" placeholder="Search for toys, games, ages..." autocomplete="off">
+        <button class="modern-search-close" id="modernSearchClose" aria-label="Close search">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modern-search-results-area">
+        <div id="modernSearchSuggestions" class="modern-search-suggestions">
+          <h4>Popular Searches</h4>
+          <div class="suggestion-tags">
+            <span class="search-tag">STEM Toys</span>
+            <span class="search-tag">Puzzles</span>
+            <span class="search-tag">0-3 Years</span>
+            <span class="search-tag">Birthday Gifts</span>
+          </div>
         </div>
+        <div id="modernSearchResults" class="modern-search-results"></div>
       </div>
     </div>
-  </header>
+  </div>
  
   <!-- Cart Sidebar -->
   <div class="cart-overlay" id="cartOverlay"></div>
@@ -473,7 +490,7 @@
       <div class="footer-grid">
         <div class="footer-col footer-brand">
           <a href="/" class="footer-logo">
-            <img src="images/logo.jpg" alt="BrainyGrasp Logo" class="brand-logo">
+            <img src="images/ChatGPT Image May 9, 2026, 10_43_38 AM.png" alt="BrainyGrasp Logo" class="brand-logo" style="max-height: 55px; width: auto;">
           </a>
           <p>Where learning meets play! Educational toys designed to spark curiosity and build confidence in every child.</p>
           <div class="footer-social">
@@ -633,8 +650,8 @@
   <script src="js/products.js"></script>
   <script src="js/config.js"></script>
   <script src="js/auth-unified.js"></script>
-  <script src="js/search.js"></script>
   <script src="js/common.js"></script>
   <script src="js/collections.js"></script>
+  <script src="js/modern-search.js"></script>
 </body>
 </html>

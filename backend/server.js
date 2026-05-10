@@ -3,10 +3,10 @@ const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const { sendOTP } = require('./otpService');
+const { initRedis, getCached, setCache, deleteCache, clearCachePattern, CACHE_KEYS, TTL } = require('./redisClient');
 
 // ── Rate Limiting ─────────────────────────────────────────────────────────────
 // Guard OTP endpoint: max 5 requests per IP per 15 minutes
@@ -66,11 +66,15 @@ app.use((req, res, next) => {
 app.use(express.json());
 
 // ── Database Connection ─────────────────────────────────────────────────────
+// DB_PASSWORD is required — no insecure fallback
+if (!process.env.DB_PASSWORD) {
+  throw new Error('❌ Missing required env var: DB_PASSWORD must be set in .env');
+}
 const pool = new Pool({
     user:     process.env.DB_USER     || 'postgres',
     host:     process.env.DB_HOST     || 'localhost',
     database: process.env.DB_NAME     || 'brainygras',
-    password: process.env.DB_PASSWORD || 'password',
+    password: process.env.DB_PASSWORD,
     port:     parseInt(process.env.DB_PORT) || 5432,
 });
 
@@ -171,7 +175,12 @@ async function initDBWithRetry(retries = 5) {
   }
   console.error('❌ DB init failed after all retries. Tables may not be ready.');
 }
-initDBWithRetry();
+
+// Initialize both DB and Redis on startup
+(async () => {
+  await initDBWithRetry();
+  await initRedis();
+})();
 
 // ── Auth Middleware ─────────────────────────────────────────────────────────
 function authenticateToken(req, res, next) {
@@ -205,15 +214,20 @@ app.post('/api/auth/request-otp', otpLimiter, cors(), async (req, res) => {
   console.log('🔢 Generated OTP:', otp);
 
   try {
-    console.log('💾 Storing OTP in database...');
-    // Store OTP in database
+    console.log('💾 Storing OTP in cache...');
+    
+    // Store OTP in Redis with 10-minute expiry
+    const redisOtpData = { email, otp, expires: expires.toISOString() };
+    await setCache(CACHE_KEYS.OTP(email), redisOtpData, TTL.OTP);
+    
+    // Also store in database for fallback
     await pool.query(`
       INSERT INTO users (email, otp, otp_expires)
       VALUES ($1, $2, $3)
       ON CONFLICT (email) DO UPDATE SET otp=$2, otp_expires=$3
     `, [email, otp, expires]);
     
-    console.log('✅ OTP stored in database');
+    console.log('✅ OTP stored in Redis and database');
 
     console.log('📧 Sending OTP to user email...');
     // Send OTP to user's email
@@ -246,20 +260,46 @@ app.post('/api/auth/verify-otp', cors(), async (req, res) => {
   if (!email || !otp) return res.status(400).json({ error: 'Email and OTP required' });
 
   try {
-    const result = await pool.query('SELECT * FROM users WHERE email=$1', [email]);
-    if (result.rows.length === 0) return res.status(404).json({ error: 'User not found' });
-
-    const user = result.rows[0];
-    if (user.otp !== otp || new Date() > new Date(user.otp_expires)) {
+    // Try to get OTP from Redis cache first (faster)
+    const cachedOTP = await getCached(CACHE_KEYS.OTP(email));
+    
+    let otpData = cachedOTP;
+    
+    // Fallback to database if not in cache
+    if (!otpData) {
+      const result = await pool.query('SELECT * FROM users WHERE email=$1', [email]);
+      // Return the same error regardless of whether the email exists (prevents email enumeration)
+      if (result.rows.length === 0) return res.status(401).json({ error: 'Invalid or expired OTP' });
+      
+      const user = result.rows[0];
+      if (!user.otp || new Date() > new Date(user.otp_expires)) {
+        return res.status(401).json({ error: 'Invalid or expired OTP' });
+      }
+      
+      otpData = { email: user.email, otp: user.otp, expires: user.otp_expires };
+    }
+    
+    // Verify OTP
+    if (otpData.otp !== otp || new Date() > new Date(otpData.expires)) {
       return res.status(401).json({ error: 'Invalid or expired OTP' });
     }
-
-    // Clear OTP and generate JWT
+    
+    // Get user from database
+    const userResult = await pool.query('SELECT id, name, email, phone FROM users WHERE email=$1', [email]);
+    if (userResult.rows.length === 0) return res.status(401).json({ error: 'Invalid or expired OTP' });
+    
+    const user = userResult.rows[0];
+    
+    // Clear OTP from both Redis and database
+    await deleteCache(CACHE_KEYS.OTP(email));
     await pool.query('UPDATE users SET otp=NULL, otp_expires=NULL WHERE id=$1', [user.id]);
+    
+    // Generate JWT
     const token = jwt.sign({ id: user.id }, SECRET_KEY, { expiresIn: '7d' });
 
     res.json({ token, user: { id: user.id, name: user.name, phone: user.phone, email: user.email } });
   } catch (err) {
+    console.error('OTP verification error:', err);
     res.status(500).json({ error: 'Verification failed' });
   }
 });
@@ -270,9 +310,27 @@ app.post('/api/auth/verify-otp', cors(), async (req, res) => {
 // 3. Get User Profile (For Dashboard)
 app.get('/api/auth/me', authenticateToken, async (req, res) => {
   try {
+    // Try cache first
+    const cachedProfile = await getCached(CACHE_KEYS.USER_PROFILE(req.user.id));
+    if (cachedProfile) {
+      return res.json(cachedProfile);
+    }
+    
+    // Fetch from database
     const result = await pool.query('SELECT id, name, email, phone, gender, address, city, state, pincode, country, profile_completed, created_at FROM users WHERE id=$1', [req.user.id]);
-    res.json(result.rows[0]);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    const profile = result.rows[0];
+    
+    // Cache the profile
+    await setCache(CACHE_KEYS.USER_PROFILE(req.user.id), profile, TTL.USER_PROFILE);
+    
+    res.json(profile);
   } catch (err) {
+    console.error('Profile fetch error:', err);
     res.status(500).json({ error: 'Server Error' });
   }
 });
@@ -310,6 +368,9 @@ app.post('/api/auth/profile', authenticateToken, async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'User not found' });
     }
+
+    // Invalidate cache for this user
+    await deleteCache(CACHE_KEYS.USER_PROFILE(req.user.id));
 
     res.json({ 
       success: true, 
@@ -363,8 +424,13 @@ app.post('/api/cart/sync', authenticateToken, async (req, res) => {
   const { items } = req.body;
   try {
     await pool.query('UPDATE users SET cart = $1 WHERE id = $2', [JSON.stringify(items), req.user.id]);
+    
+    // Update cache as well
+    await setCache(CACHE_KEYS.USER_CART(req.user.id), items, TTL.USER_CART);
+    
     res.json({ success: true });
   } catch (err) {
+    console.error('Cart sync error:', err);
     res.status(500).json({ error: 'Sync failed' });
   }
 });
@@ -372,10 +438,22 @@ app.post('/api/cart/sync', authenticateToken, async (req, res) => {
 // 5. Get User Cart
 app.get('/api/cart', authenticateToken, async (req, res) => {
   try {
+    // Try cache first for faster response
+    const cachedCart = await getCached(CACHE_KEYS.USER_CART(req.user.id));
+    if (cachedCart) {
+      return res.json(cachedCart);
+    }
+    
+    // Fallback to database
     const result = await pool.query('SELECT cart FROM users WHERE id = $1', [req.user.id]);
     const cart = result.rows[0]?.cart || [];
+    
+    // Cache the cart
+    await setCache(CACHE_KEYS.USER_CART(req.user.id), cart, TTL.USER_CART);
+    
     res.json(cart);
   } catch (err) {
+    console.error('Cart fetch error:', err);
     res.status(500).json({ error: 'Failed to fetch cart' });
   }
 });
@@ -408,8 +486,12 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
       payment_id
     ]);
     
-    // Clear user's cart in DB after successful order
+    // Clear user's cart in DB and cache after successful order
     await pool.query("UPDATE users SET cart = '[]' WHERE id = $1", [req.user.id]);
+    await deleteCache(CACHE_KEYS.USER_CART(req.user.id));
+    
+    // Invalidate orders cache so fresh data is fetched
+    await deleteCache(CACHE_KEYS.USER_ORDERS(req.user.id));
     
     res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -464,9 +546,23 @@ app.post('/api/payment/verify', authenticateToken, async (req, res) => {
 // 7. Get All Products (For Frontend)
 app.get('/api/products', async (req, res) => {
   try {
+    // Try cache first for instant response
+    const cachedProducts = await getCached(CACHE_KEYS.ALL_PRODUCTS);
+    if (cachedProducts && cachedProducts.length > 0) {
+      return res.json(cachedProducts);
+    }
+    
+    // Fetch from database
     const result = await pool.query(`SELECT * FROM products ORDER BY sales DESC`);
+    
+    // Cache the result for 1 hour
+    if (result.rows.length > 0) {
+      await setCache(CACHE_KEYS.ALL_PRODUCTS, result.rows, TTL.PRODUCTS);
+    }
+    
     res.json(result.rows);
   } catch (err) {
+    console.error('Product fetch error:', err);
     res.status(500).json({ error: 'Failed to fetch products' });
   }
 });
@@ -478,6 +574,15 @@ app.get('/api/products/search', async (req, res) => {
     return res.status(400).json({ error: 'Query must be at least 2 characters' });
   }
   try {
+    const cacheKey = CACHE_KEYS.PRODUCT_SEARCH(q);
+    
+    // Try cache first
+    const cachedResults = await getCached(cacheKey);
+    if (cachedResults) {
+      return res.json({ products: cachedResults });
+    }
+    
+    // Fetch from database
     const pattern = `%${q.trim()}%`;
     const result = await pool.query(`
       SELECT id, name, category, price, original_price, image, badge, age, sales
@@ -489,6 +594,10 @@ app.get('/api/products/search', async (req, res) => {
       ORDER BY sales DESC
       LIMIT 20
     `, [pattern]);
+    
+    // Cache the search results for 30 minutes
+    await setCache(cacheKey, result.rows, TTL.PRODUCT_SEARCH);
+    
     res.json({ products: result.rows });
   } catch (err) {
     console.error('Product search error:', err);
@@ -503,6 +612,15 @@ app.get('/api/categories/search', async (req, res) => {
     return res.status(400).json({ error: 'Query must be at least 2 characters' });
   }
   try {
+    const cacheKey = CACHE_KEYS.CATEGORY_SEARCH(q);
+    
+    // Try cache first
+    const cachedResults = await getCached(cacheKey);
+    if (cachedResults) {
+      return res.json({ categories: cachedResults });
+    }
+    
+    // Fetch from database
     const pattern = `%${q.trim()}%`;
     const result = await pool.query(`
       SELECT category AS name, COUNT(*) AS product_count
@@ -512,6 +630,10 @@ app.get('/api/categories/search', async (req, res) => {
       ORDER BY product_count DESC
       LIMIT 10
     `, [pattern]);
+    
+    // Cache the search results for 30 minutes
+    await setCache(cacheKey, result.rows, TTL.PRODUCT_SEARCH);
+    
     res.json({ categories: result.rows });
   } catch (err) {
     console.error('Category search error:', err);
@@ -523,14 +645,26 @@ app.get('/api/categories/search', async (req, res) => {
 // 8. Get Orders (For Dashboard)
 app.get('/api/orders', authenticateToken, async (req, res) => {
   try {
+    // Try cache first
+    const cachedOrders = await getCached(CACHE_KEYS.USER_ORDERS(req.user.id));
+    if (cachedOrders) {
+      return res.json(cachedOrders);
+    }
+    
+    // Fetch from database
     const result = await pool.query(`
       SELECT o.*, a.full_name, a.line1, a.city 
       FROM orders o 
       LEFT JOIN addresses a ON o.address_id = a.id 
       WHERE o.user_id = $1 ORDER BY o.created_at DESC
     `, [req.user.id]);
+    
+    // Cache the orders for 1 hour
+    await setCache(CACHE_KEYS.USER_ORDERS(req.user.id), result.rows, TTL.USER_ORDERS);
+    
     res.json(result.rows);
   } catch (err) {
+    console.error('Orders fetch error:', err);
     res.status(500).json({ error: 'Failed to fetch orders' });
   }
 });

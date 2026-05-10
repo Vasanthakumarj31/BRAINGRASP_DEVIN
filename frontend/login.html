@@ -69,8 +69,9 @@
         </div>
 
         <div id="authStep2" style="display:none">
-          <p id="demoOTPDisplay" class="muted" style="display:none"></p>
-          <p id="otpTimer" class="muted" style="display:none"></p>
+          <p class="muted" style="margin-bottom:14px;">
+            A 6-digit code was sent to <strong id="otpEmailDisplay"></strong>
+          </p>
 
           <div class="otp-row" aria-label="Enter OTP">
             <input class="otp-box" maxlength="1" inputmode="numeric" aria-label="OTP digit 1">
@@ -81,9 +82,11 @@
             <input class="otp-box" maxlength="1" inputmode="numeric" aria-label="OTP digit 6">
           </div>
 
+          <div id="otpError" class="error-msg" role="alert" style="margin-bottom:8px;"></div>
+
           <div style="text-align:center">
-            <button type="button" id="verifyOTPBtn" class="btn-primary">Verify & Continue</button>
-            <button type="button" id="resendOTP" style="margin-left:8px" class="btn-link">Resend</button>
+            <button type="button" id="verifyOTPBtn" class="btn-primary">Verify &amp; Continue</button>
+            <button type="button" id="resendOTP" style="margin-left:8px" class="btn-link">Resend OTP</button>
           </div>
         </div>
       </form>

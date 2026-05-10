@@ -81,6 +81,7 @@ function initTestimonialsSlider() {
   const nextBtn = document.querySelector('.testimonial-next');
   let position = 0;
   const cardWidth = 370; // card width + gap
+  let autoSlide;
  
   function slide(direction) {
     const maxScroll = track.scrollWidth - track.parentElement.offsetWidth;
@@ -88,15 +89,28 @@ function initTestimonialsSlider() {
     position = Math.max(-maxScroll, Math.min(0, position));
     track.style.transform = `translateX(${position}px)`;
   }
+
+  function startAuto() {
+    autoSlide = setInterval(() => slide(-1), 5000);
+  }
+
+  function stopAuto() {
+    clearInterval(autoSlide);
+  }
  
-  prevBtn.addEventListener('click', () => slide(1));
-  nextBtn.addEventListener('click', () => slide(-1));
+  if (prevBtn) prevBtn.addEventListener('click', () => { slide(1);  stopAuto(); startAuto(); });
+  if (nextBtn) nextBtn.addEventListener('click', () => { slide(-1); stopAuto(); startAuto(); });
+
+  // Pause on hover
+  track.addEventListener('mouseenter', stopAuto);
+  track.addEventListener('mouseleave', startAuto);
  
   // Touch/drag support
   let startX, startPos;
   track.addEventListener('touchstart', (e) => {
     startX = e.touches[0].clientX;
     startPos = position;
+    stopAuto();
   });
  
   track.addEventListener('touchmove', (e) => {
@@ -105,7 +119,12 @@ function initTestimonialsSlider() {
     position = Math.max(-maxScroll, Math.min(0, startPos + diff));
     track.style.transform = `translateX(${position}px)`;
   });
+
+  track.addEventListener('touchend', startAuto);
+
+  startAuto();
 }
+
 
 // === Initialize Main Page ===
 document.addEventListener('DOMContentLoaded', () => {
@@ -122,6 +141,21 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize add to cart functionality
   // Note: initAddToCart() called in common.js to avoid duplication
   
+  // Initialize testimonials slider
+  if (typeof initTestimonialsSlider === 'function') {
+    initTestimonialsSlider();
+  }
+
+  // Initialize hero slider
+  if (typeof initHeroSlider === 'function') {
+    initHeroSlider();
+  }
+
+  // Initialize tab functionality
+  if (typeof initTabs === 'function') {
+    initTabs();
+  }
+
   // Update cart count on page load
   if (typeof updateCartCount === 'function') {
     updateCartCount();
