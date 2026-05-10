@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results - BrainyGrasp</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/search.css">
+    <link rel="stylesheet" href="css/mobile-responsive.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .search-results-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 0;
+            margin-bottom: 30px;
+        }
+        
+        .search-results-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .search-results-title {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-family: 'Fredoka', cursive;
+        }
+        
+        .search-results-query {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        
+        .search-results-stats {
+            font-size: 1em;
+            opacity: 0.8;
+        }
+        
+        .search-filters-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .search-filters-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .search-filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .filter-group {
+            margin-bottom: 15px;
+        }
+        
+        .filter-label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #555;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .filter-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .filter-option input[type="checkbox"] {
+            margin: 0;
+        }
+        
+        .filter-option label {
+            margin: 0;
+            cursor: pointer;
+            font-size: 0.95em;
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: #f8f9fa;
+        }
+        
+        .product-info {
+            padding: 20px;
+        }
+        
+        .product-name {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .product-category {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 12px;
+        }
+        
+        .product-price {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .product-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-add-to-cart {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+        
+        .btn-add-to-cart:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-quick-view {
+            background: #f8f9fa;
+            color: #333;
+            border: 1px solid #e9ecef;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-quick-view:hover {
+            background: #e9ecef;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .no-results-icon {
+            font-size: 64px;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+        
+        .no-results-title {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .no-results-text {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .search-suggestions {
+            margin-top: 20px;
+        }
+        
+        .search-suggestions h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .suggestion-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .suggestion-tag {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 0.9em;
+            color: #495057;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .suggestion-tag:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 40px 0;
+        }
+        
+        .pagination button {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 0.95em;
+            color: #495057;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .pagination button:hover,
+        .pagination button.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 20px;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .search-results-title {
+                font-size: 2em;
+            }
+            
+            .search-filters-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Include header from index.html -->
+    <div id="header-container"></div>
+    
+    <!-- Search Results Header -->
+    <div class="search-results-header">
+        <div class="search-results-container">
+            <h1 class="search-results-title">Search Results</h1>
+            <div class="search-results-query" id="searchQuery">Searching...</div>
+            <div class="search-results-stats" id="searchStats">Loading results...</div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="search-results-container">
+        <!-- Filters Section -->
+        <div class="search-filters-section">
+            <h2 class="search-filters-title">Filters</h2>
+            <div class="search-filters-grid">
+                <div class="filter-group">
+                    <div class="filter-label">Categories</div>
+                    <div class="filter-options">
+                        <div class="filter-option">
+                            <input type="checkbox" id="cat-arts" value="Arts & Crafts">
+                            <label for="cat-arts">Arts & Crafts</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="cat-puzzles" value="Puzzles">
+                            <label for="cat-puzzles">Puzzles</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="cat-stem" value="STEM">
+                            <label for="cat-stem">STEM Toys</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="cat-learning" value="Learning">
+                            <label for="cat-learning">Learning Products</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="filter-group">
+                    <div class="filter-label">Price Range</div>
+                    <div class="filter-options">
+                        <div class="filter-option">
+                            <input type="checkbox" id="price-0-500" value="0-500">
+                            <label for="price-0-500">Under ₹500</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="price-500-1000" value="500-1000">
+                            <label for="price-500-1000">₹500 - ₹1,000</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="price-1000-2000" value="1000-2000">
+                            <label for="price-1000-2000">₹1,000 - ₹2,000</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="price-2000+" value="2000+">
+                            <label for="price-2000+">Above ₹2,000</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="filter-group">
+                    <div class="filter-label">Age Group</div>
+                    <div class="filter-options">
+                        <div class="filter-option">
+                            <input type="checkbox" id="age-0-2" value="0-2">
+                            <label for="age-0-2">0-2 years</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="age-3-5" value="3-5">
+                            <label for="age-3-5">3-5 years</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="age-6-8" value="6-8">
+                            <label for="age-6-8">6-8 years</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="age-9+" value="9+">
+                            <label for="age-9+">9+ years</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="filter-group">
+                    <div class="filter-label">Availability</div>
+                    <div class="filter-options">
+                        <div class="filter-option">
+                            <input type="checkbox" id="in-stock" value="in-stock" checked>
+                            <label for="in-stock">In Stock</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="out-of-stock" value="out-of-stock">
+                            <label for="out-of-stock">Out of Stock</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Products Grid -->
+        <div id="productsContainer">
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+            </div>
+        </div>
+        
+        <!-- Pagination -->
+        <div class="pagination" id="pagination"></div>
+    </div>
+    
+    <!-- Include footer -->
+    <div id="footer-container"></div>
+    
+    <!-- JavaScript -->
+    <script src="js/config.js"></script>
+  <script src="js/auth-unified.js"></script>
+    <script src="js/search.js"></script>
+    <script>
+        // Search results page functionality
+        const API_BASE = 'http://localhost:3000';
+        let currentPage = 1;
+        let searchQuery = '';
+        let allProducts = [];
+        let filteredProducts = [];
+        let filters = {
+            categories: [],
+            priceRanges: [],
+            ageGroups: [],
+            availability: ['in-stock']
+        };
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Load header and footer
+            await loadHeaderFooter();
+            
+            // Get search query from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            searchQuery = urlParams.get('q') || '';
+            
+            if (searchQuery) {
+                document.getElementById('searchQuery').textContent = `Results for "${searchQuery}"`;
+                await performSearch();
+            } else {
+                document.getElementById('searchQuery').textContent = 'No search query provided';
+                showNoResults();
+            }
+            
+            // Setup filter listeners
+            setupFilterListeners();
+        });
+        
+        // Load header and footer
+        async function loadHeaderFooter() {
+            try {
+                // Load header
+                const headerResponse = await fetch('index.html');
+                const headerHtml = await headerResponse.text();
+                const headerStart = headerHtml.indexOf('<header');
+                const headerEnd = headerHtml.indexOf('</header>') + 9;
+                const headerContent = headerHtml.substring(headerStart, headerEnd);
+                document.getElementById('header-container').innerHTML = headerContent;
+                
+                // Load footer
+                const footerStart = headerHtml.indexOf('<footer');
+                const footerEnd = headerHtml.indexOf('</footer>') + 9;
+                const footerContent = headerHtml.substring(footerStart, footerEnd);
+                document.getElementById('footer-container').innerHTML = footerContent;
+                
+                // Initialize search functionality
+                if (typeof initSearch === 'function') {
+                    initSearch();
+                }
+            } catch (error) {
+                console.error('Failed to load header/footer:', error);
+            }
+        }
+        
+        // Perform search
+        async function performSearch() {
+            try {
+                document.getElementById('productsContainer').innerHTML = `
+                    <div class="loading-spinner">
+                        <div class="spinner"></div>
+                    </div>
+                `;
+                
+                // Search products
+                const response = await fetch(`${API_BASE}/api/products/search?q=${encodeURIComponent(searchQuery)}&page=${currentPage}`);
+                
+                if (!response.ok) {
+                    throw new Error('Search failed');
+                }
+                
+                const data = await response.json();
+                allProducts = data.products || [];
+                
+                // Apply filters
+                applyFilters();
+                
+                // Update stats
+                updateSearchStats();
+                
+            } catch (error) {
+                console.error('Search error:', error);
+                // Use mock data for demo
+                allProducts = getMockSearchResults();
+                applyFilters();
+                updateSearchStats();
+            }
+        }
+        
+        // Apply filters
+        function applyFilters() {
+            filteredProducts = allProducts.filter(product => {
+                // Category filter
+                if (filters.categories.length > 0) {
+                    const productCategory = product.category || '';
+                    const categoryMatch = filters.categories.some(cat => 
+                        productCategory.toLowerCase().includes(cat.toLowerCase())
+                    );
+                    if (!categoryMatch) return false;
+                }
+                
+                // Price range filter
+                if (filters.priceRanges.length > 0) {
+                    const price = parseFloat(product.price || 0);
+                    const priceMatch = filters.priceRanges.some(range => {
+                        if (range === '0-500') return price <= 500;
+                        if (range === '500-1000') return price > 500 && price <= 1000;
+                        if (range === '1000-2000') return price > 1000 && price <= 2000;
+                        if (range === '2000+') return price > 2000;
+                        return false;
+                    });
+                    if (!priceMatch) return false;
+                }
+                
+                // Age group filter
+                if (filters.ageGroups.length > 0) {
+                    const productAge = product.age_group || '';
+                    const ageMatch = filters.ageGroups.some(age => 
+                        productAge.toLowerCase().includes(age.toLowerCase())
+                    );
+                    if (!ageMatch) return false;
+                }
+                
+                // Availability filter
+                if (filters.availability.includes('in-stock') && !product.in_stock) {
+                    return false;
+                }
+                if (filters.availability.includes('out-of-stock') && product.in_stock) {
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            displayProducts();
+            updatePagination();
+        }
+        
+        // Display products
+        function displayProducts() {
+            const container = document.getElementById('productsContainer');
+            
+            if (filteredProducts.length === 0) {
+                showNoResults();
+                return;
+            }
+            
+            const productsHtml = filteredProducts.map(product => `
+                <div class="product-card" href="product-detail.html?id=${product.id}">
+                    <img src="${product.image || 'https://via.placeholder.com/280x200'}" alt="${product.name}" class="product-image">
+                    <div class="product-info">
+                        <h3 class="product-name">${highlightSearchTerm(product.name, searchQuery)}</h3>
+                        <p class="product-category">${product.category || 'Toys'}</p>
+                        <p class="product-price">₹${product.price || '0'}</p>
+                        <div class="product-actions">
+                            <button class="btn-add-to-cart" onclick="addToCart(${product.id})">
+                                <i class="fas fa-shopping-cart"></i> Add to Cart
+                            </button>
+                            <button class="btn-quick-view" onclick="quickView(${product.id})">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = `<div class="products-grid">${productsHtml}</div>`;
+        }
+        
+        // Show no results
+        function showNoResults() {
+            const container = document.getElementById('productsContainer');
+            container.innerHTML = `
+                <div class="no-results">
+                    <div class="no-results-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h2 class="no-results-title">No results found</h2>
+                    <p class="no-results-text">We couldn't find any products matching "${searchQuery}"</p>
+                    <div class="search-suggestions">
+                        <h4>Try searching for:</h4>
+                        <div class="suggestion-tags">
+                            <a href="search-results.html?q=puzzles" class="suggestion-tag">Puzzles</a>
+                            <a href="search-results.html?q=art+and+craft" class="suggestion-tag">Art and Craft</a>
+                            <a href="search-results.html?q=learning+toys" class="suggestion-tag">Learning Toys</a>
+                            <a href="search-results.html?q=board+games" class="suggestion-tag">Board Games</a>
+                            <a href="search-results.html?q=stem+toys" class="suggestion-tag">STEM Toys</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Update search stats
+        function updateSearchStats() {
+            const statsElement = document.getElementById('searchStats');
+            const totalResults = allProducts.length;
+            const filteredResults = filteredProducts.length;
+            
+            if (totalResults === 0) {
+                statsElement.textContent = 'No products found';
+            } else if (filteredResults === totalResults) {
+                statsElement.textContent = `${totalResults} product${totalResults !== 1 ? 's' : ''} found`;
+            } else {
+                statsElement.textContent = `${filteredResults} of ${totalResults} product${totalResults !== 1 ? 's' : ''} found (filtered)`;
+            }
+        }
+        
+        // Update pagination
+        function updatePagination() {
+            const paginationContainer = document.getElementById('pagination');
+            const totalPages = Math.ceil(filteredProducts.length / 12); // 12 products per page
+            
+            if (totalPages <= 1) {
+                paginationContainer.innerHTML = '';
+                return;
+            }
+            
+            let paginationHtml = '';
+            
+            // Previous button
+            if (currentPage > 1) {
+                paginationHtml += `<button onclick="changePage(${currentPage - 1})">Previous</button>`;
+            }
+            
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                const activeClass = i === currentPage ? 'active' : '';
+                paginationHtml += `<button class="${activeClass}" onclick="changePage(${i})">${i}</button>`;
+            }
+            
+            // Next button
+            if (currentPage < totalPages) {
+                paginationHtml += `<button onclick="changePage(${currentPage + 1})">Next</button>`;
+            }
+            
+            paginationContainer.innerHTML = paginationHtml;
+        }
+        
+        // Change page
+        function changePage(page) {
+            currentPage = page;
+            performSearch();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // Setup filter listeners
+        function setupFilterListeners() {
+            // Category filters
+            document.querySelectorAll('input[type="checkbox"][id^="cat-"]').forEach(checkbox => {
+                checkbox.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        filters.categories.push(e.target.value);
+                    } else {
+                        filters.categories = filters.categories.filter(cat => cat !== e.target.value);
+                    }
+                    applyFilters();
+                });
+            });
+            
+            // Price range filters
+            document.querySelectorAll('input[type="checkbox"][id^="price-"]').forEach(checkbox => {
+                checkbox.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        filters.priceRanges.push(e.target.value);
+                    } else {
+                        filters.priceRanges = filters.priceRanges.filter(range => range !== e.target.value);
+                    }
+                    applyFilters();
+                });
+            });
+            
+            // Age group filters
+            document.querySelectorAll('input[type="checkbox"][id^="age-"]').forEach(checkbox => {
+                checkbox.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        filters.ageGroups.push(e.target.value);
+                    } else {
+                        filters.ageGroups = filters.ageGroups.filter(age => age !== e.target.value);
+                    }
+                    applyFilters();
+                });
+            });
+            
+            // Availability filters
+            document.querySelectorAll('input[type="checkbox"][id="in-stock"], input[type="checkbox"][id="out-of-stock"]').forEach(checkbox => {
+                checkbox.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        filters.availability.push(e.target.value);
+                    } else {
+                        filters.availability = filters.availability.filter(avail => avail !== e.target.value);
+                    }
+                    applyFilters();
+                });
+            });
+        }
+        
+        // Highlight search term
+        function highlightSearchTerm(text, term) {
+            if (!term) return text;
+            const regex = new RegExp(`(${term})`, 'gi');
+            return text.replace(regex, '<mark>$1</mark>');
+        }
+        
+        // Add to cart
+        function addToCart(productId) {
+            // Implementation for add to cart functionality
+            console.log('Adding to cart:', productId);
+            // Show notification or update cart count
+        }
+        
+        // Quick view
+        function quickView(productId) {
+            // Implementation for quick view functionality
+            console.log('Quick view:', productId);
+            // Open modal with product details
+        }
+        
+        // Mock search results for demo
+        function getMockSearchResults() {
+            return [
+                {
+                    id: 1,
+                    name: 'Educational Puzzle Set for Kids',
+                    category: 'Puzzles',
+                    price: 599,
+                    image: 'https://via.placeholder.com/280x200',
+                    in_stock: true,
+                    age_group: '3-5'
+                },
+                {
+                    id: 2,
+                    name: 'Art and Craft Kit with Colors',
+                    category: 'Arts & Crafts',
+                    price: 799,
+                    image: 'https://via.placeholder.com/280x200',
+                    in_stock: true,
+                    age_group: '6-8'
+                },
+                {
+                    id: 3,
+                    name: 'STEM Learning Robot Toy',
+                    category: 'STEM',
+                    price: 1299,
+                    image: 'https://via.placeholder.com/280x200',
+                    in_stock: false,
+                    age_group: '9+'
+                },
+                {
+                    id: 4,
+                    name: 'Board Game Collection Pack',
+                    category: 'Board Games',
+                    price: 999,
+                    image: 'https://via.placeholder.com/280x200',
+                    in_stock: true,
+                    age_group: '6-8'
+                },
+                {
+                    id: 5,
+                    name: 'Toddler Learning Blocks Set',
+                    category: 'Learning',
+                    price: 499,
+                    image: 'https://via.placeholder.com/280x200',
+                    in_stock: true,
+                    age_group: '0-2'
+                },
+                {
+                    id: 6,
+                    name: 'Creative Art Supplies Bundle',
+                    category: 'Arts & Crafts',
+                    price: 899,
+                    image: 'https://via.placeholder.com/280x200',
+                    in_stock: true,
+                    age_group: '3-5'
+                },
+                {
+                    id: 7,
+                    name: 'Science Experiment Kit',
+                    category: 'STEM',
+                    price: 1499,
+                    image: 'https://via.placeholder.com/280x200',
+                    in_stock: true,
+                    age_group: '9+'
+                },
+                {
+                    id: 8,
+                    name: 'Memory Card Game for Kids',
+                    category: 'Puzzles',
+                    price: 399,
+                    image: 'https://via.placeholder.com/280x200',
+                    in_stock: true,
+                    age_group: '3-5'
+                }
+            ].filter(product => 
+                product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                product.category.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+        }
+    </script>
+</body>
+</html>

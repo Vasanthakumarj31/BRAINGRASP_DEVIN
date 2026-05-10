@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <title>Sign in - BrainyGrasp</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/mobile-responsive.css">
+  <style>
+    :root{--bg:#f6fbff;--card:#ffffff;--accent:#0b74ff;--muted:#6b7280}
+    html,body{height:100%}
+    body{margin:0;font-family:Nunito,system-ui,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,#f7fbff 0%, #eef6ff 100%);display:flex;align-items:center;justify-content:center;padding:32px}
+    .auth-shell{width:100%;max-width:920px;display:grid;grid-template-columns:1fr 420px;gap:32px;align-items:center}
+    .auth-hero{display:flex;flex-direction:column;gap:16px;padding:28px;background:transparent}
+    .auth-hero h1{font-size:28px;margin:0;color:#0f172a}
+    .auth-hero p{margin:0;color:var(--muted)}
+    .auth-container{background:var(--card);border-radius:12px;padding:28px;box-shadow:0 10px 30px rgba(12,34,61,0.08)}
+    .brand{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .brand .logo-icon{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#6bc1ff);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
+    .auth-tabs{display:flex;gap:8px;margin:12px 0}
+    .auth-tab{flex:1;padding:10px 12px;text-align:center;cursor:pointer;border:1px solid #eef2ff;border-radius:8px;background:#fbfdff;color:#0f172a}
+    .auth-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+    .input-group{margin-bottom:14px;display:flex;flex-direction:column;gap:6px}
+    .input-group label{font-size:13px;color:#334155}
+    input[type="text"],input[type="email"],input[type="tel"]{padding:12px 14px;border:1px solid #e6eefb;border-radius:8px;font-size:15px}
+    .phone-row{display:flex;gap:8px}
+    .country-code{width:96px}
+    .btn-primary{background:var(--accent);color:#fff;border:none;padding:10px 14px;border-radius:8px;font-weight:600;cursor:pointer}
+    .btn-primary:focus{outline:3px solid rgba(11,116,255,0.2)}
+    .btn-link{background:none;border:none;color:var(--accent);cursor:pointer}
+    .error-msg{color:#c53030;margin-bottom:8px;display:none}
+    .muted{color:var(--muted);font-size:13px}
+    .otp-row{display:flex;gap:10px;justify-content:center;margin:14px 0}
+    .otp-box{width:52px;height:52px;text-align:center;font-size:22px;border:1px solid #e6eefb;border-radius:10px}
+    .footer-note{font-size:13px;color:var(--muted);margin-top:12px;text-align:center}
+    @media (max-width:900px){.auth-shell{grid-template-columns:1fr;max-width:520px}.auth-hero{order:2}}
+  </style>
+</head>
+<body>
+  <div class="auth-shell">
+    <div class="auth-hero">
+      <h1>Welcome back to BrainyGrasp</h1>
+      <p class="muted">Sign in quickly using OTP. No password required — secure, fast, and kid-friendly.</p>
+      <div style="margin-top:10px">
+        <a href="index.html" class="muted">← Back to Home</a>
+      </div>
+    </div>
+
+    <main class="auth-container" aria-labelledby="signinTitle">
+      <div class="brand">
+        <div class="logo-icon">BG</div>
+        <div>
+          <div id="signinTitle" style="font-weight:700">Sign in</div>
+          <div class="muted" style="font-size:13px">Use your email to receive a one-time code</div>
+        </div>
+      </div>
+
+      <form id="loginForm" novalidate>
+        <div id="authStep1">
+          <div id="emailWrap" class="input-group">
+            <label for="emailInput">Email Address</label>
+            <input id="emailInput" name="email" type="email" placeholder="Enter your email address" required aria-required="true">
+          </div>
+
+          <div id="authError" class="error-msg" role="alert"></div>
+          <button type="button" id="requestOTPBtn" class="btn-primary">Send OTP</button>
+
+          <div class="footer-note">By continuing you agree to our <a href="#">Privacy Policy</a>.</div>
+        </div>
+
+        <div id="authStep2" style="display:none">
+          <p id="demoOTPDisplay" class="muted" style="display:none"></p>
+          <p id="otpTimer" class="muted" style="display:none"></p>
+
+          <div class="otp-row" aria-label="Enter OTP">
+            <input class="otp-box" maxlength="1" inputmode="numeric" aria-label="OTP digit 1">
+            <input class="otp-box" maxlength="1" inputmode="numeric" aria-label="OTP digit 2">
+            <input class="otp-box" maxlength="1" inputmode="numeric" aria-label="OTP digit 3">
+            <input class="otp-box" maxlength="1" inputmode="numeric" aria-label="OTP digit 4">
+            <input class="otp-box" maxlength="1" inputmode="numeric" aria-label="OTP digit 5">
+            <input class="otp-box" maxlength="1" inputmode="numeric" aria-label="OTP digit 6">
+          </div>
+
+          <div style="text-align:center">
+            <button type="button" id="verifyOTPBtn" class="btn-primary">Verify & Continue</button>
+            <button type="button" id="resendOTP" style="margin-left:8px" class="btn-link">Resend</button>
+          </div>
+        </div>
+      </form>
+    </main>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/auth-unified.js"></script>
+  <script src="js/mobile-enhancements.js"></script>
+</body>
+</html>

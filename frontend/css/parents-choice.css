@@ -1,0 +1,140 @@
+/* === Parents Choice Page Styles === */
+
+.pc-header {
+  padding: 40px 0 20px 0;
+  text-align: center;
+}
+
+.pc-title {
+  color: #003366;
+  font-family: var(--font-display);
+  font-size: 42px;
+  margin-bottom: 30px;
+}
+
+.pc-quick-filters {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #E2E8F0;
+  padding-bottom: 20px;
+}
+
+.pc-age-pills {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.pc-age-pills span {
+  color: #003366;
+  font-weight: 700;
+  margin-right: 10px;
+}
+
+.age-pill {
+  padding: 8px 24px;
+  border: 1px solid #94A3B8;
+  border-radius: 6px;
+  color: #003366;
+  font-weight: 600;
+  cursor: pointer;
+  background: white;
+  transition: all 0.2s ease;
+}
+
+.age-pill:hover, .age-pill.active {
+  border-color: #003366;
+  background: #EBF5FF;
+}
+
+.pc-sort select {
+  padding: 10px 16px;
+  border: 1px solid #94A3B8;
+  border-radius: 6px;
+  color: #003366;
+  font-weight: 600;
+  background: white;
+  cursor: pointer;
+  outline: none;
+}
+
+/* Sidebar Styles specific to Parents Choice */
+.pc-sidebar .filter-group {
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.pc-sidebar .filter-group h3 {
+  color: #003366;
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+
+.pc-checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pc-checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  font-size: 14px;
+  color: #475569;
+}
+
+.pc-checkbox input {
+  margin-right: 10px;
+}
+
+.pc-count {
+  color: #94A3B8;
+  font-size: 12px;
+}
+
+.pc-price-inputs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pc-price-inputs input {
+  width: 80px;
+  padding: 8px;
+  border: 1px solid #E2E8F0;
+  border-radius: 4px;
+  text-align: center;
+}
+
+/* Utility Banner */
+.utility-banner {
+  background: white;
+  padding: 30px 0;
+  border-top: 1px solid #E2E8F0;
+  margin-top: 60px;
+}
+
+.utility-inner {
+  display: flex;
+  justify-content: center;
+  gap: 60px;
+}
+
+.utility-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: #003366;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.utility-item i {
+  font-size: 24px;
+  color: #0EA5E9;
+}

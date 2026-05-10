@@ -1,0 +1,119 @@
+/* === Gift Finder Section === */
+.gift-finder-section {
+  background: linear-gradient(135deg, var(--bg-purple) 0%, var(--bg-accent) 100%);
+}
+ 
+.gift-finder-wizard {
+  max-width: 800px;
+  margin: 0 auto;
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  padding: 40px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-light);
+}
+ 
+.gift-finder-step {
+  display: none;
+}
+ 
+.gift-finder-step.active {
+  display: block;
+  animation: fadeIn 0.5s ease;
+}
+ 
+.gift-step-title {
+  font-family: var(--font-display);
+  font-size: 24px;
+  text-align: center;
+  margin-bottom: 28px;
+  color: var(--text-primary);
+}
+ 
+.gift-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 14px;
+}
+ 
+.gift-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 12px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  transition: var(--transition);
+  cursor: pointer;
+}
+ 
+.gift-option:hover {
+  border-color: var(--primary-light);
+  background: var(--bg-purple);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+ 
+.gift-option.selected {
+  border-color: var(--primary);
+  background: var(--bg-purple);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+}
+ 
+.gift-option span {
+  font-size: 36px;
+  line-height: 1;
+}
+ 
+.gift-option p {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: center;
+}
+ 
+.gift-finder-result {
+  animation: fadeIn 0.5s ease;
+}
+ 
+.gift-result-grid {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+  margin-bottom: 24px;
+}
+ 
+.gift-finder-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+ 
+.gift-finder-progress {
+  margin-top: 32px;
+  text-align: center;
+}
+ 
+.gift-progress-bar {
+  height: 6px;
+  background: var(--border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+ 
+.gift-progress-fill {
+  height: 100%;
+  width: 25%;
+  background: linear-gradient(90deg, var(--primary), var(--pink));
+  border-radius: var(--radius-full);
+  transition: width 0.4s ease;
+}
+ 
+.gift-progress-text {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+ 
