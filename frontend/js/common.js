@@ -377,9 +377,32 @@ function renderCartSidebar() {
 
   if (!cartItems) return;
 
+  // Update item count label
+  const countLabel = document.getElementById('cartItemCount');
+  if (countLabel) {
+    const totalQty = cart.reduce((s, i) => s + (i.quantity || 1), 0);
+    countLabel.textContent = totalQty;
+  }
+
+  // Update free shipping bar
+  const total = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+  const SHIPPING_THRESHOLD = 999;
+  const shippingFill = document.getElementById('shippingBarFill');
+  const shippingMsg  = document.getElementById('shippingBarMsg');
+  if (shippingFill && shippingMsg) {
+    const pct = Math.min((total / SHIPPING_THRESHOLD) * 100, 100);
+    shippingFill.style.width = pct + '%';
+    if (total >= SHIPPING_THRESHOLD) {
+      shippingMsg.innerHTML = '<strong>🎉 You unlocked FREE shipping!</strong>';
+    } else {
+      const left = SHIPPING_THRESHOLD - total;
+      shippingMsg.innerHTML = `Add <strong>₹${left}</strong> more for FREE shipping!`;
+    }
+  }
+
   if (cart.length === 0) {
 
-    if (cartEmpty) cartEmpty.style.display = 'block';
+    if (cartEmpty) cartEmpty.style.display = 'flex';
 
     cartItems.innerHTML = '';
 
@@ -393,31 +416,29 @@ function renderCartSidebar() {
 
       <div class="cart-item">
 
-        <div class="cart-item-info">
+        ${item.image
+          ? `<img class="cart-item-img" src="${escapeHTML(item.image)}" alt="${escapeHTML(item.name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+          : ''}
+        <div class="cart-item-img-placeholder" style="${item.image ? 'display:none' : ''}">🧸</div>
+
+        <div class="cart-item-body">
 
           <div class="cart-item-name">${escapeHTML(item.name)}</div>
 
-          <div class="cart-item-price">₹${item.price} x ${item.quantity || 1}</div>
+          <div class="cart-item-price">₹${item.price}</div>
 
-        </div>
-
-        <div class="cart-item-actions">
-
-          <button class="quantity-btn minus" data-id="${item.id}">-</button>
-
-          <span class="quantity">${item.quantity || 1}</span>
-
-          <button class="quantity-btn plus" data-id="${item.id}">+</button>
-
-          <button class="remove-btn" data-id="${item.id}">×</button>
+          <div class="cart-item-actions">
+            <button class="quantity-btn minus" data-id="${item.id}">−</button>
+            <span class="quantity">${item.quantity || 1}</span>
+            <button class="quantity-btn plus" data-id="${item.id}">+</button>
+            <button class="remove-btn" data-id="${item.id}" title="Remove">×</button>
+          </div>
 
         </div>
 
       </div>
 
     `).join('');
-
-    const total = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
 
     if (cartTotal) cartTotal.textContent = `₹${total}`;
 
@@ -515,8 +536,12 @@ function initAddToCart() {
 
           const price = parseInt(String(priceAttr).replace(/\D/g, '')) || 0;
 
+          // Capture image from the card
+          const imgEl = card.querySelector('.product-image img, img');
+          const image = imgEl ? imgEl.src : '';
+
           if (id && price > 0) {
-            item = { id, name, price };
+            item = { id, name, price, image };
           } else if (id && price === 0) {
             console.warn(`addToCart: product id=${id} has no valid price. Check data-price attribute.`);
           }
@@ -579,7 +604,8 @@ function initAddToCart() {
 
 function initCommerceRoutes() {
 
-  document.querySelectorAll('.btn-view-cart').forEach(btn => {
+  // View Cart button → cart.html
+  document.querySelectorAll('.btn-view-cart, .btn-view-cart-modern').forEach(btn => {
 
     btn.addEventListener('click', () => {
 
@@ -588,6 +614,23 @@ function initCommerceRoutes() {
     });
 
   });
+
+  // Secure Checkout button → checkout_cod.html
+  const checkoutBtn = document.getElementById('sidebarCheckoutBtn');
+
+  if (checkoutBtn) {
+
+    checkoutBtn.addEventListener('click', () => {
+
+      const cart = typeof getCart === 'function' ? getCart() : [];
+
+      if (!cart.length) return; // don't navigate with empty cart
+
+      window.location.href = 'checkout_cod.html';
+
+    });
+
+  }
 
 }
 

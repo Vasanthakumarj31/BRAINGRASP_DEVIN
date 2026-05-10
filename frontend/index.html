@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Chewy&family=Fredoka:wght@300;400;500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
@@ -41,7 +41,7 @@
         <a href="faqs.html">FAQs</a>
         <a href="blogs.html">Blogs</a>
         <a href="rewards.html"><i class="fas fa-gift"></i> Rewards</a>
-        <a href="#help"><i class="fab fa-whatsapp"></i> Need Help?</a>
+        <a href="https://wa.me/919047773444"><i class="fab fa-whatsapp"></i> Need Help?</a>
       </div>
     </div>
   </div>
@@ -56,9 +56,8 @@
         </button>
 
         <!-- Logo -->
-        <a href="/" class="logo">
-          <img src="images/ChatGPT Image May 9, 2026, 10_43_38 AM.png" alt="BrainyGrasp Logo" class="brand-logo"
-            style="max-height: 55px; width: auto;">
+        <a href="/" class="logo" style="display: flex; align-items: center; gap: 8px; text-decoration: none;">
+          <span class="animated-logo-text" style="font-family: 'Chewy', cursive; font-size: 34px; color: #4280ca; letter-spacing: 1px; padding-top: 5px;">brainy<span style="color: #ffc107;">grasp</span></span>
         </a>
 
         <!-- Navigation -->
@@ -187,7 +186,7 @@
 
         <!-- Header Actions -->
         <div class="header-actions">
-          <a href="#" class="header-action-btn whatsapp-btn" aria-label="Contact via WhatsApp">
+          <a href="https://wa.me/919047773444" class="header-action-btn whatsapp-btn" aria-label="Contact via WhatsApp">
             <i class="fab fa-whatsapp"></i>
           </a>
           <button class="header-action-btn search-btn" id="searchBtn" aria-label="Open search">
@@ -238,33 +237,72 @@
   <!-- Cart Sidebar -->
   <div class="cart-overlay" id="cartOverlay"></div>
   <div class="cart-sidebar" id="cartSidebar">
+
+    <!-- Header -->
     <div class="cart-header">
-      <h3><i class="fas fa-shopping-bag"></i> SHOPPING CART</h3>
-      <button class="cart-close" id="cartClose" aria-label="Close cart"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="cart-offers">
-      <p>Buy any <strong>2</strong> and get <strong>FLAT 10% OFF</strong> | Use Code: <strong>BRAINY10</strong></p>
-      <p>Buy any <strong>3</strong> and get <strong>FLAT 15% OFF</strong> | Use Code: <strong>BRAINY15</strong></p>
-      <p>Get a <strong>FREE GIFT</strong> on all orders above <strong>&#8377;1,499</strong></p>
-      <p><strong>FREE SHIPPING</strong> on order value above &#8377;999</p>
-    </div>
-    <div class="cart-empty" id="cartEmpty">
-      <i class="fas fa-shopping-bag"></i>
-      <p>No Products in the Cart</p>
-    </div>
-    <div class="cart-items" id="cartItems">
-      <!-- Cart items will be dynamically added here -->
-    </div>
-    <div class="cart-footer">
-      <div class="cart-total">
-        <span>TOTAL:</span>
-        <span id="cartTotal">&#8377;0</span>
+      <div class="cart-header-left">
+        <div class="cart-header-icon">
+          <i class="fas fa-shopping-bag"></i>
+        </div>
+        <div>
+          <h3>Your Cart</h3>
+          <span class="cart-item-count-label"><span id="cartItemCount">0</span> items</span>
+        </div>
       </div>
-      <button class="btn-checkout" id="sidebarCheckoutBtn"
-        style="width:100%;padding:14px;margin-top:10px;background:linear-gradient(135deg,#FF6B35,#f7b731);color:#fff;border:none;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;letter-spacing:0.5px">PROCEED
-        TO CHECKOUT &#x2192;</button>
-      <button class="btn-view-cart" style="margin-top:8px">VIEW CART</button>
+      <button class="cart-close" id="cartClose" aria-label="Close cart">
+        <i class="fas fa-times"></i>
+      </button>
     </div>
+
+    <!-- Free Shipping Progress Bar -->
+    <div class="cart-shipping-bar" id="cartShippingBar">
+      <div class="shipping-bar-text">
+        <i class="fas fa-truck"></i>
+        <span id="shippingBarMsg">Add <strong>₹999</strong> more for FREE shipping!</span>
+      </div>
+      <div class="shipping-bar-track">
+        <div class="shipping-bar-fill" id="shippingBarFill" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- Promo Pill -->
+    <div class="cart-promo-strip">
+      <div class="promo-pill"><i class="fas fa-tag"></i> <strong>BRAINY10</strong> — 10% off on 2+ items</div>
+      <div class="promo-pill"><i class="fas fa-gift"></i> FREE gift above ₹1,499</div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="cart-empty" id="cartEmpty">
+      <div class="cart-empty-icon">
+        <i class="fas fa-shopping-bag"></i>
+      </div>
+      <h4>Your cart is empty!</h4>
+      <p>Add some amazing toys to get started.</p>
+      <a href="shop-by-category.html" class="btn-shop-now">Shop Now <i class="fas fa-arrow-right"></i></a>
+    </div>
+
+    <!-- Cart Items -->
+    <div class="cart-items" id="cartItems"></div>
+
+    <!-- Footer -->
+    <div class="cart-footer">
+      <div class="cart-savings-badge" id="cartSavingsBadge" style="display:none;">
+        <i class="fas fa-piggy-bank"></i> You save <span id="cartSavingsAmount">₹0</span> on this order!
+      </div>
+      <div class="cart-subtotal-row">
+        <span>Subtotal</span>
+        <span id="cartTotal">₹0</span>
+      </div>
+      <div class="cart-tax-note">Taxes & shipping calculated at checkout</div>
+      <button class="btn-checkout-modern" id="sidebarCheckoutBtn">
+        <i class="fas fa-lock"></i> Secure Checkout
+        <span class="checkout-arrow">→</span>
+      </button>
+      <button class="btn-view-cart-modern">
+        <i class="fas fa-eye"></i> View Full Cart
+      </button>
+    </div>
+
   </div>
 
   <!-- Hero Section -->
@@ -883,8 +921,8 @@
     <div class="container">
       <div class="footer-grid">
         <div class="footer-col footer-brand">
-          <a href="/" class="footer-logo">
-            <img src="images/ChatGPT Image May 9, 2026, 10_43_38 AM.png" alt="BrainyGrasp Logo" class="brand-logo" style="max-height: 55px; width: auto;">
+          <a href="/" class="footer-logo" style="display: flex; align-items: center; gap: 8px; text-decoration: none; margin-bottom: 15px;">
+            <span class="animated-logo-text" style="font-family: 'Chewy', cursive; font-size: 34px; color: #4280ca; letter-spacing: 1px; padding-top: 5px;">brainy<span style="color: #ffc107;">grasp</span></span>
           </a>
           <p>Where learning meets play! Educational toys designed to spark curiosity and build confidence in every
             child.</p>
@@ -936,7 +974,7 @@
             <li><a href="#">8+ Years</a></li>
           </ul>
           <h4 class="mt-20">Contact</h4>
-          <a href="#" class="footer-whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp Us</a>
+          <a href="https://wa.me/919047773444" class="footer-whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp Us</a>
         </div>
       </div>
       <div class="footer-bottom">
@@ -1041,7 +1079,7 @@
   </button>
 
   <!-- WhatsApp Float -->
-  <a href="#" class="whatsapp-float" aria-label="Contact us on WhatsApp">
+  <a href="https://wa.me/919047773444" class="whatsapp-float" aria-label="Contact us on WhatsApp">
     <i class="fab fa-whatsapp"></i>
   </a>
 
