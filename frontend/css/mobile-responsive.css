@@ -1,8 +1,358 @@
 /* ===================================
-   MOBILE RESPONSIVE DESIGN - FLIPKART STYLE
+   MOBILE RESPONSIVE DESIGN
+   OPTIMIZED FOR ALL DEVICES
    =================================== */
 
-/* Base Mobile Styles */
+/* ==========================================
+   EXTRA SMALL DEVICES (320px - 480px)
+   ========================================== */
+@media screen and (max-width: 480px) {
+    
+    /* Prevent horizontal scrolling */
+    html, body {
+        overflow-x: hidden;
+        width: 100%;
+    }
+    
+    /* Base Elements */
+    body {
+        font-size: 14px;
+    }
+    
+    .container {
+        width: 100%;
+        max-width: 100%;
+        padding: 0 12px;
+    }
+    
+    /* Announcement Bar */
+    .announcement-bar {
+        padding: 6px 12px;
+        font-size: 11px;
+    }
+    
+    .announcement-slide {
+        font-size: 11px;
+    }
+    
+    /* Top Bar - Hide on very small screens */
+    .top-bar {
+        display: none;
+    }
+    
+    /* Header */
+    .main-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        height: 56px;
+    }
+    
+    .header-inner {
+        height: 56px;
+        gap: 8px;
+        padding: 0 10px;
+    }
+    
+    /* Logo sizing */
+    .logo {
+        flex: 0 0 auto;
+    }
+    
+    .animated-logo-text {
+        font-size: 20px !important;
+    }
+    
+    /* Navigation - Hidden on mobile */
+    .main-nav {
+        display: none;
+    }
+    
+    /* Mobile Menu Button */
+    .mobile-menu-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+        color: #333;
+        background: none;
+        border: none;
+        cursor: pointer;
+        order: -1;
+    }
+    
+    /* Header Actions */
+    .header-actions {
+        display: flex;
+        gap: 8px;
+    }
+    
+    .header-actions button,
+    .header-actions a {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        position: relative;
+    }
+    
+    /* Mobile Nav Overlay */
+    .mobile-nav-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 2000;
+        display: none;
+    }
+    
+    .mobile-nav-overlay.active {
+        display: block;
+    }
+    
+    .mobile-nav-sidebar {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        width: 280px;
+        max-width: 80vw;
+        height: 100vh;
+        background: white;
+        z-index: 2001;
+        transition: left 0.3s ease;
+        overflow-y: auto;
+    }
+    
+    .mobile-nav-overlay.active .mobile-nav-sidebar {
+        left: 0;
+    }
+    
+    /* Main Content Adjustment for Fixed Header */
+    main, section, .banner-brand {
+        margin-top: 56px;
+    }
+    
+    main:first-child, .banner-brand {
+        margin-top: 56px;
+    }
+    
+    /* Hero Section */
+    .banner-brand-inner {
+        flex-direction: column;
+        padding: 20px 12px;
+        min-height: auto;
+        gap: 15px;
+    }
+    
+    .brand-text-content {
+        max-width: 100%;
+    }
+    
+    .brand-text-content h1 {
+        font-size: 1.8rem !important;
+        margin-bottom: 12px !important;
+    }
+    
+    .brand-text-content p {
+        font-size: 0.95rem !important;
+        margin-bottom: 15px !important;
+    }
+    
+    .brand-image-container {
+        height: 200px;
+        width: 100%;
+    }
+    
+    .brand-hero-img {
+        max-width: 100%;
+        max-height: 100%;
+    }
+    
+    /* Buttons */
+    .btn {
+        padding: 10px 20px;
+        font-size: 13px;
+        min-height: 44px;
+        width: 100%;
+    }
+    
+    .btn-brand {
+        width: 100%;
+        padding: 12px 20px !important;
+        font-size: 1rem !important;
+    }
+    
+    /* Product Grid - 2 columns */
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        padding: 0;
+    }
+    
+    .product-card {
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .product-image {
+        height: 120px;
+        width: 100%;
+        object-fit: cover;
+    }
+    
+    .product-info {
+        padding: 8px;
+    }
+    
+    .product-name {
+        font-size: 12px;
+        height: 32px;
+        -webkit-line-clamp: 2;
+    }
+    
+    .product-price {
+        gap: 6px;
+        margin-bottom: 6px;
+    }
+    
+    .price-current {
+        font-size: 14px;
+    }
+    
+    .price-original {
+        font-size: 10px;
+    }
+    
+    .price-discount {
+        font-size: 9px;
+        padding: 1px 4px;
+    }
+    
+    .product-rating {
+        font-size: 11px;
+    }
+    
+    .add-to-cart-btn {
+        padding: 6px;
+        font-size: 11px;
+        min-height: 36px;
+    }
+    
+    /* Section Spacing */
+    .section {
+        padding: 20px 12px !important;
+    }
+    
+    .section-header {
+        margin-bottom: 15px;
+    }
+    
+    .section-header h2 {
+        font-size: 18px;
+        margin-bottom: 8px;
+    }
+    
+    .section-header p {
+        font-size: 13px;
+    }
+    
+    /* Cart Sidebar */
+    .cart-sidebar {
+        width: 100vw;
+        max-width: 100%;
+        height: 100vh;
+        border-radius: 0;
+        animation: slideInRight 0.3s ease;
+    }
+    
+    .cart-header h3 {
+        font-size: 16px;
+    }
+    
+    .cart-items {
+        max-height: calc(100vh - 200px);
+    }
+    
+    .cart-item {
+        padding: 12px;
+    }
+    
+    .cart-item-image {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .cart-footer {
+        padding: 12px;
+    }
+    
+    /* Forms */
+    input, textarea, select {
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+    
+    /* Tables - Stack on mobile */
+    table {
+        font-size: 12px;
+    }
+    
+    table th, table td {
+        padding: 8px;
+    }
+    
+    /* Categories Grid */
+    .category-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+    
+    .category-card {
+        padding: 10px;
+        font-size: 11px;
+    }
+    
+    /* Footer */
+    .footer {
+        padding: 20px 12px 15px;
+    }
+    
+    .footer-section {
+        margin-bottom: 15px;
+    }
+    
+    .footer-links a {
+        font-size: 12px;
+    }
+    
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+        }
+        to {
+            transform: translateX(0);
+        }
+    }
+}
+
+/* ==========================================
+   SMALL DEVICES (481px - 768px)
+   ========================================== */
 @media screen and (max-width: 768px) {
     
     /* Prevent horizontal scrolling */

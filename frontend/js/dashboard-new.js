@@ -1,5 +1,5 @@
 /* ============================================================
-   dashboard-new.js – Dashboard Logic
+   dashboard-new.js – Simplified Dashboard (Profile + Orders)
    ============================================================ */
 
 const API_BASE = (window.BG_CONFIG && window.BG_CONFIG.API_BASE) || 'http://localhost:3000';
@@ -11,8 +11,9 @@ const checkAuth = () => {
 
 async function loadData() {
     try {
+        const token = localStorage.getItem('bg_token');
         const res = await fetch(`${API_BASE}/api/auth/me`, {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('bg_token')}` }
+            headers: { 'Authorization': `Bearer ${token}` }
         });
         const user = await res.json();
         
@@ -20,9 +21,9 @@ async function loadData() {
         const dashTitle = document.getElementById('dashboardWelcomeTitle');
         const dashSub = document.getElementById('dashboardWelcomeSub');
         if (dashTitle && user.name) dashTitle.textContent = `Welcome back, ${user.name.split(' ')[0]}! 👋`;
-        if (dashSub) dashSub.textContent = `Here's your account overview – ${user.email}`;
+        if (dashSub) dashSub.textContent = `Manage your profile and track your orders`;
 
-        // Update UI
+        // Update profile UI
         document.getElementById('profileName').textContent = user.name || 'User';
         document.getElementById('profileEmail').textContent = user.email;
         document.getElementById('profilePhone').textContent = user.phone || 'Not set';
@@ -30,37 +31,139 @@ async function loadData() {
         document.getElementById('profileState').textContent = user.state || 'Not set';
         document.getElementById('profileAvatar').textContent = user.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2) : 'U';
 
-        // Completion percentage
-        const fields = [user.name, user.phone, user.city, user.state, user.address, user.gender, user.pincode];
-        const filled = fields.filter(f => f && f.trim() !== '').length;
-        document.getElementById('profileCompletion').textContent = `${Math.round((filled/7)*100)}%`;
-
-        // Days active
-        if (user.created_at) {
-            const days = Math.floor((Date.now() - new Date(user.created_at)) / 86400000);
-            const daysEl = document.getElementById('daysActive');
-            if (daysEl) daysEl.textContent = days;
-        }
-
-        // Activity List
-        document.getElementById('activityList').innerHTML = `
-            <div class="activity-item">
-                <small style="color: #f5576c; font-weight: 800;">JUST NOW</small>
-                <div style="font-weight: 600;">Signed in to BrainyGrasp Dashboard</div>
-            </div>
-            ${user.profile_completed ? `<div class="activity-item">
-                <small style="color: #667eea; font-weight: 800;">EARLIER</small>
-                <div style="font-weight: 600;">Profile completed</div>
-            </div>` : ''}
-            <div class="activity-item">
-                <small style="color: #00b894; font-weight: 800;">${user.created_at ? new Date(user.created_at).toLocaleDateString('en-IN') : 'Recently'}</small>
-                <div style="font-weight: 600;">Account created</div>
-            </div>
-        `;
-
         localStorage.setItem('bg_user', JSON.stringify(user));
+
+        // Load orders
+        await loadOrders(token);
     } catch (err) {
         console.error("Data fetch failed", err);
+        showToast('Failed to load profile', 'error');
+    }
+}
+
+async function loadOrders(token) {
+    try {
+        const res = await fetch(`${API_BASE}/api/orders`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!res.ok) throw new Error('Failed to fetch orders');
+        
+        const orders = await res.json();
+        
+        // Separate orders by status
+        const currentOrders = orders.filter(o => o.status && o.status !== 'Delivered');
+        const historyOrders = orders.filter(o => o.status === 'Delivered' || !o.status);
+
+        renderOrders(currentOrders, 'current');
+        renderOrders(historyOrders, 'history');
+    } catch (err) {
+        console.error('Orders fetch error:', err);
+        document.getElementById('currentOrdersList').innerHTML = '<p style="color:#999;">Unable to load orders. Please try again later.</p>';
+        document.getElementById('historyOrdersList').innerHTML = '<p style="color:#999;">Unable to load order history. Please try again later.</p>';
+    }
+}
+
+function renderOrders(orders, type) {
+    const container = type === 'current' ? document.getElementById('currentOrdersList') : document.getElementById('historyOrdersList');
+    
+    if (!orders || orders.length === 0) {
+        container.innerHTML = `<p style="color: var(--text-light); text-align: center; padding: 30px 0;">
+            <i class="fas fa-inbox" style="font-size: 2rem; color: #ccc; display: block; margin-bottom: 10px;"></i>
+            No ${type === 'current' ? 'current' : 'past'} orders yet.
+        </p>`;
+        return;
+    }
+
+    container.innerHTML = orders.map(order => {
+        const items = order.items ? (typeof order.items === 'string' ? JSON.parse(order.items) : order.items) : [];
+        const statusClass = getStatusClass(order.status);
+        const statusText = order.status || 'Pending';
+        const orderDate = new Date(order.created_at).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
+        
+        return `
+            <div class="order-card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div class="order-id">
+                            Order #${order.id}
+                            <span class="order-status ${statusClass}">${statusText}</span>
+                        </div>
+                        <div class="order-date">
+                            <i class="fas fa-calendar-alt"></i> ${orderDate}
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 1.2rem; font-weight: 800; color: #333;">₹${order.total || 0}</div>
+                        <div style="font-size: 0.8rem; color: #999;">${items.length} item${items.length !== 1 ? 's' : ''}</div>
+                    </div>
+                </div>
+                
+                <div class="order-items">
+                    ${items.map(item => `
+                        <div class="order-item-line">
+                            ${item.name} <span style="color: #999;">x${item.quantity || 1}</span> - <strong>₹${item.price}</strong>
+                        </div>
+                    `).join('')}
+                </div>
+
+                ${order.full_name ? `
+                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #ddd; font-size: 0.85rem; color: #666;">
+                    <i class="fas fa-map-marker-alt" style="color: #667eea;"></i>
+                    <strong>${order.full_name}</strong><br>
+                    ${order.line1}${order.line2 ? ', ' + order.line2 : ''}<br>
+                    ${order.city}, ${order.state} - ${order.pincode}
+                </div>
+                ` : ''}
+            </div>
+        `;
+    }).join('');
+}
+
+function getStatusClass(status) {
+    if (!status) return 'status-placed';
+    if (status === 'Delivered') return 'status-delivered';
+    if (status === 'Shipped') return 'status-shipped';
+    return 'status-placed';
+}
+
+function switchOrderTab(tab) {
+    // Update tab buttons
+    document.querySelectorAll('.order-tab').forEach(btn => {
+        btn.style.color = '#b2bec3';
+        btn.style.borderBottom = 'none';
+    });
+    const activeBtn = document.querySelector(`[data-tab="${tab}"]`);
+    activeBtn.style.color = '#667eea';
+    activeBtn.style.borderBottom = '3px solid #667eea';
+
+    // Update sections
+    if (tab === 'current') {
+        document.getElementById('currentOrdersSection').style.display = 'block';
+        document.getElementById('historyOrdersSection').style.display = 'none';
+    } else {
+        document.getElementById('currentOrdersSection').style.display = 'none';
+        document.getElementById('historyOrdersSection').style.display = 'block';
+    }
+}
+
+function switchOrderTab(tab) {
+    // Update tab buttons
+    document.querySelectorAll('.order-tab').forEach(btn => {
+        btn.style.color = '#b2bec3';
+        btn.style.borderBottom = 'none';
+    });
+    const activeBtn = document.querySelector(`[data-tab="${tab}"]`);
+    activeBtn.style.color = '#667eea';
+    activeBtn.style.borderBottom = '3px solid #667eea';
+
+    // Update sections
+    if (tab === 'current') {
+        document.getElementById('currentOrdersSection').style.display = 'block';
+        document.getElementById('historyOrdersSection').style.display = 'none';
+    } else {
+        document.getElementById('currentOrdersSection').style.display = 'none';
+        document.getElementById('historyOrdersSection').style.display = 'block';
     }
 }
 
@@ -114,7 +217,7 @@ document.getElementById('profileEditForm').onsubmit = async (e) => {
 
     try {
         const res = await fetch(`${API_BASE}/api/auth/profile`, {
-            method: 'POST',
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${localStorage.getItem('bg_token')}`
@@ -128,7 +231,7 @@ document.getElementById('profileEditForm').onsubmit = async (e) => {
             // Update cached user
             if (data.user) localStorage.setItem('bg_user', JSON.stringify(data.user));
             closeModal();
-            await loadData();           // Refresh all dashboard fields
+            await loadData();
             showToast('✅ Profile updated successfully!');
         } else {
             showToast(data.error || 'Update failed. Please try again.', 'error');
@@ -146,9 +249,6 @@ document.getElementById('profileEditForm').onsubmit = async (e) => {
 document.getElementById('editProfileBtn').onclick = openModal;
 document.getElementById('refreshBtn').onclick = loadData;
 document.getElementById('logoutBtn').onclick = () => {
-    // We already have a custom modal logic, but dashboard uses standard confirm. Let's upgrade it to not use confirm.
-    // Instead of doing another modal right here, let's just make it sign out nicely. We'll show a toast.
-    // However, keeping standard confirm is okay for logout, or we can just log them out directly. Let's log them out directly on click.
     localStorage.removeItem('bg_token');
     localStorage.removeItem('bg_user');
     localStorage.removeItem('bg_cart');

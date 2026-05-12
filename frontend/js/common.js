@@ -464,6 +464,8 @@ function initCartSidebarActions() {
 
       if (!isNaN(id) && typeof updateQuantityInCart === 'function') updateQuantityInCart(id, -1);
 
+      if (typeof renderCartSidebar === 'function') renderCartSidebar();
+
       return;
 
     }
@@ -478,6 +480,8 @@ function initCartSidebarActions() {
 
       if (!isNaN(id) && typeof updateQuantityInCart === 'function') updateQuantityInCart(id, +1);
 
+      if (typeof renderCartSidebar === 'function') renderCartSidebar();
+
       return;
 
     }
@@ -491,6 +495,8 @@ function initCartSidebarActions() {
       const id = parseInt(removeBtn.dataset.id, 10);
 
       if (!isNaN(id) && typeof removeFromCart === 'function') removeFromCart(id);
+
+      if (typeof renderCartSidebar === 'function') renderCartSidebar();
 
       return;
 
