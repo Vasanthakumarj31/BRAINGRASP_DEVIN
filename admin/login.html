@@ -1,33 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login - BrainyGrasp</title>
-    <link rel="stylesheet" href="css/admin.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login — BrainGrasp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/admin.css">
 </head>
-<body class="login-body">
-    <div class="login-container">
-        <div class="login-card">
-            <h2>Admin Login</h2>
-            <p>Enter your credentials to access the dashboard.</p>
-            <form id="loginForm">
-                <div class="input-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username" required>
-                </div>
-                <div class="input-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required>
-                </div>
-                <div id="loginError" class="error-msg" style="display: none;"></div>
-                <button type="submit" class="btn-primary">Log In</button>
-            </form>
+<body>
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-logo">🧠 BrainGrasp Admin</div>
+      <p class="login-tagline">Sign in to manage your store</p>
+
+      <form id="loginForm">
+        <div class="input-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" required placeholder="admin" autocomplete="username">
         </div>
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <div id="loginError" class="login-error"></div>
+        <button type="submit" class="btn-primary">Sign In →</button>
+      </form>
+
+      <p style="text-align:center;margin-top:20px;font-size:0.78rem;color:var(--muted);">
+        Default: <strong style="color:var(--text)">admin</strong> / <strong style="color:var(--text)">admin123</strong>
+      </p>
     </div>
-    <script src="js/admin.js"></script>
+  </div>
+  <script src="js/admin.js"></script>
 </body>
 </html>

@@ -1,0 +1,470 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Your Profile - BrainyGrasp</title>
+    <!-- External Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #667eea;
+            --primary-dark: #764ba2;
+            --bg-light: #f4f7f6;
+            --white: #ffffff;
+            --text-main: #2d3436;
+            --text-muted: #636e72;
+            --error: #ff7675;
+            --success: #55efc4;
+            --shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            font-family: 'Nunito', sans-serif;
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .profile-setup-container {
+            max-width: 650px;
+            width: 100%;
+            background: var(--white);
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .profile-setup-header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .profile-setup-header h1 {
+            font-family: 'Fredoka', cursive;
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
+        }
+
+        .profile-setup-header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        /* Progress Bar Section */
+        .progress-container {
+            margin-bottom: 30px;
+        }
+        
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
+            width: 0%;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Form Styling */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #f1f3f5;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: var(--white);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Gender Radio Buttons */
+        .gender-options {
+            display: flex;
+            gap: 15px;
+            margin-top: 5px;
+        }
+
+        .gender-card {
+            flex: 1;
+            position: relative;
+        }
+
+        .gender-card input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .gender-label {
+            display: block;
+            text-align: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border: 2px solid #f1f3f5;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .gender-card input:checked + .gender-label {
+            border-color: var(--primary);
+            background: rgba(102, 126, 234, 0.05);
+            color: var(--primary);
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 16px;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 10px 20px rgba(118, 75, 162, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(118, 75, 162, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .skip-text {
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        .skip-text a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .skip-text a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        .required { color: var(--error); }
+
+        .error-message {
+            color: var(--error);
+            font-size: 0.8rem;
+            margin-top: 6px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .success-message {
+            background: rgba(85, 239, 196, 0.2);
+            color: #00b894;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 700;
+            margin-top: 20px;
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .profile-setup-container { padding: 25px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-setup-container">
+        <div class="profile-setup-header">
+            <h1>Create Your Profile</h1>
+            <p>Help us customize your dashboard and experience</p>
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-text">
+                <span>Profile Completion</span>
+                <span id="progressPercent">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+        
+        <form id="profileSetupForm">
+            <div class="form-grid">
+                <!-- Full Name -->
+                <div class="form-group full-width">
+                    <label for="fullName">Full Name <span class="required">*</span></label>
+                    <input type="text" id="fullName" name="fullName" required placeholder="e.g. Vasanth Kumar">
+                    <div class="error-message" id="nameError"></div>
+                </div>
+                
+                <!-- Gender -->
+                <div class="form-group full-width">
+                    <label>Gender <span class="required">*</span></label>
+                    <div class="gender-options">
+                        <label class="gender-card">
+                            <input type="radio" name="gender" value="male" required>
+                            <span class="gender-label">Male</span>
+                        </label>
+                        <label class="gender-card">
+                            <input type="radio" name="gender" value="female">
+                            <span class="gender-label">Female</span>
+                        </label>
+                        <label class="gender-card">
+                            <input type="radio" name="gender" value="other">
+                            <span class="gender-label">Other</span>
+                        </label>
+                    </div>
+                    <div class="error-message" id="genderError"></div>
+                </div>
+                
+                <!-- Phone -->
+                <div class="form-group full-width">
+                    <label for="phone">Phone Number <span class="required">*</span></label>
+                    <input type="tel" id="phone" name="phone" required placeholder="Enter 10-digit number">
+                    <div class="error-message" id="phoneError"></div>
+                </div>
+                
+                <!-- Address -->
+                <div class="form-group full-width">
+                    <label for="address">Street Address <span class="required">*</span></label>
+                    <textarea id="address" name="address" rows="2" required placeholder="Door No, Street Name..."></textarea>
+                    <div class="error-message" id="addressError"></div>
+                </div>
+                
+                <!-- City -->
+                <div class="form-group">
+                    <label for="city">City <span class="required">*</span></label>
+                    <input type="text" id="city" name="city" required placeholder="City">
+                    <div class="error-message" id="cityError"></div>
+                </div>
+                
+                <!-- State -->
+                <div class="form-group">
+                    <label for="state">State <span class="required">*</span></label>
+                    <input type="text" id="state" name="state" required placeholder="State">
+                    <div class="error-message" id="stateError"></div>
+                </div>
+                
+                <!-- PIN -->
+                <div class="form-group">
+                    <label for="pincode">PIN Code <span class="required">*</span></label>
+                    <input type="text" id="pincode" name="pincode" required placeholder="6-digit PIN">
+                    <div class="error-message" id="pincodeError"></div>
+                </div>
+                
+                <!-- Country -->
+                <div class="form-group">
+                    <label for="country">Country</label>
+                    <input type="text" id="country" name="country" value="India" readonly>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn-primary" id="saveProfileBtn">
+                Save & Continue
+            </button>
+            
+            <div class="success-message" id="successMessage">
+                ✨ Profile saved! Redirecting you now...
+            </div>
+            
+            <div class="skip-text">
+                <a href="#" id="skipLink">I'll do this later</a>
+            </div>
+        </form>
+    </div>
+
+    <script src="js/config.js"></script>
+  <script src="js/auth-unified.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('profileSetupForm');
+            const progressFill = document.getElementById('progressFill');
+            const progressPercent = document.getElementById('progressPercent');
+            
+            // Auth guard
+            const token = localStorage.getItem('bg_token');
+            if (!token) { window.location.href = 'login.html'; return; }
+
+            // Determine where to go after profile save
+            // postProfileRedirect is set by auth-unified.js during login
+            const postRedirect = localStorage.getItem('postProfileRedirect') || 'dashboard-new.html';
+
+            // Update skip link to go to postRedirect too
+            const skipLink = document.getElementById('skipLink');
+            if (skipLink) {
+                skipLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    localStorage.removeItem('postProfileRedirect');
+                    window.location.href = postRedirect;
+                });
+            }
+            
+            // Progress Tracker
+            function updateProgress() {
+                const requiredFields = form.querySelectorAll('[required]');
+                let filled = 0;
+                
+                requiredFields.forEach(field => {
+                    if (field.type === 'radio') {
+                        if (form.querySelector(`input[name="${field.name}"]:checked`)) filled++;
+                    } else {
+                        if (field.value.trim() !== '') filled++;
+                    }
+                });
+
+                // Deduplicate radio groups for count
+                const totalSteps = requiredFields.length - 2; // Adjusting for 3 radios = 1 choice
+                const percentage = Math.min(Math.round((filled / 7) * 100), 100);
+                
+                progressFill.style.width = percentage + '%';
+                progressPercent.textContent = percentage + '%';
+            }
+            
+            form.querySelectorAll('input, textarea').forEach(input => {
+                input.addEventListener('input', updateProgress);
+                input.addEventListener('change', updateProgress);
+            });
+
+            // Handle Submit (Simplified for your existing logic)
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const saveBtn = document.getElementById('saveProfileBtn');
+                saveBtn.disabled = true;
+                saveBtn.textContent = 'Saving...';
+
+                // Collecting Data
+                const formData = {
+                    name: document.getElementById('fullName').value.trim(),
+                    gender: form.querySelector('input[name="gender"]:checked').value,
+                    phone: document.getElementById('phone').value.trim(),
+                    address: document.getElementById('address').value.trim(),
+                    city: document.getElementById('city').value.trim(),
+                    state: document.getElementById('state').value.trim(),
+                    pincode: document.getElementById('pincode').value.trim(),
+                    country: "India"
+                };
+
+                try {
+                    const response = await fetch('http://localhost:3000/api/auth/profile', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(formData)
+                    });
+                    
+                    const data = await response.json();
+                    if (data.success) {
+                        // Update local user data
+                        if (data.user) {
+                            localStorage.setItem('bg_user', JSON.stringify(data.user));
+                        }
+                        const successMsg = document.getElementById('successMessage');
+                        if (successMsg) {
+                            successMsg.textContent = postRedirect.includes('checkout')
+                                ? '✨ Profile saved! Taking you to checkout...'
+                                : '✨ Profile saved! Taking you to your dashboard...';
+                            successMsg.style.display = 'block';
+                        }
+                        localStorage.removeItem('postProfileRedirect');
+                        setTimeout(() => window.location.href = postRedirect, 1800);
+                    } else {
+                        throw new Error(data.error || 'Save failed');
+                    }
+                } catch (err) {
+                    alert('Error saving profile. Please try again.');
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = 'Save & Continue';
+                }
+            });
+
+            // Initial call
+            updateProgress();
+        });
+    </script>
+</body>
+</html>

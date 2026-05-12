@@ -1,105 +1,224 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - BrainyGrasp</title>
-    <link rel="stylesheet" href="css/admin.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — BrainGrasp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
-    <div class="admin-layout">
-        <aside class="sidebar">
-            <div class="logo">BrainyGrasp Admin</div>
-            <nav>
-                <a href="#" class="active">Products</a>
-                <a href="#" id="logoutBtn">Logout</a>
-            </nav>
-        </aside>
+  <div class="admin-layout">
 
-        <main class="content">
-            <header>
-                <h1>Manage Products</h1>
-                <button id="showAddFormBtn" class="btn-primary">+ Add Product</button>
-            </header>
+    <!-- ── Sidebar ─────────────────────────────────────────────────────── -->
+    <aside class="sidebar">
+      <div class="logo">
+        <span class="logo-icon">🧠</span>
+        <span>BrainGrasp</span>
+      </div>
+      <nav>
+        <a href="dashboard.html" id="navDashboard">
+          <span class="nav-icon">📊</span> Dashboard
+        </a>
+        <a href="index.html" class="active" id="navProducts">
+          <span class="nav-icon">📦</span> Products
+        </a>
+        <a href="orders.html" id="navOrders">
+          <span class="nav-icon">🧾</span> Orders
+        </a>
+        <a href="login.html" id="logoutBtn" class="logout-link">
+          <span class="nav-icon">🚪</span> Logout
+        </a>
+      </nav>
+    </aside>
 
-            <!-- Add Product Form (Hidden by default) -->
-            <section id="addProductSection" class="card" style="display: none;">
-                <h2>Add New Product</h2>
-                <form id="addProductForm">
-                    <div class="form-grid">
-                        <div class="input-group">
-                            <label>Product Name *</label>
-                            <input type="text" name="name" required>
-                        </div>
-                        <div class="input-group">
-                            <label>Group / Tab *</label>
-                            <select name="group_name" required>
-                                <option value="trending">Trending</option>
-                                <option value="bestsellers">Bestsellers</option>
-                                <option value="newlaunches">New Launches</option>
-                                <option value="bundles">Bundles</option>
-                            </select>
-                        </div>
-                        <div class="input-group">
-                            <label>Price (₹) *</label>
-                            <input type="number" name="price" required>
-                        </div>
-                        <div class="input-group">
-                            <label>Original Price (₹)</label>
-                            <input type="number" name="originalPrice">
-                        </div>
-                        <div class="input-group">
-                            <label>Age Text (e.g. 3-7 Years)</label>
-                            <input type="text" name="age">
-                        </div>
-                        <div class="input-group">
-                            <label>Age Group (e.g. 3+)</label>
-                            <input type="text" name="ageGroup">
-                        </div>
-                        <div class="input-group">
-                            <label>Badge</label>
-                            <select name="badge">
-                                <option value="">None</option>
-                                <option value="bestseller">Bestseller</option>
-                                <option value="new">New</option>
-                                <option value="bundle">Bundle</option>
-                            </select>
-                        </div>
-                        <div class="input-group">
-                            <label>Image URL *</label>
-                            <input type="url" name="image" required>
-                        </div>
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" id="cancelAddBtn" class="btn-secondary">Cancel</button>
-                        <button type="submit" class="btn-primary">Save Product</button>
-                    </div>
-                </form>
-            </section>
 
-            <!-- Product Table -->
-            <section class="card">
-                <table id="productsTable">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Image</th>
-                            <th>Name</th>
-                            <th>Group</th>
-                            <th>Price</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Populated by JS -->
-                    </tbody>
-                </table>
-            </section>
-        </main>
-    </div>
-    <script src="js/admin.js"></script>
+    <!-- ── Main Content ───────────────────────────────────────────────── -->
+    <main class="content">
+      <header class="page-header">
+        <div>
+          <h1>Manage Products</h1>
+          <p class="page-subtitle" id="productCount">Loading products…</p>
+        </div>
+        <button id="showAddFormBtn" class="btn-primary">+ Add Product</button>
+      </header>
+
+      <!-- ── Add / Edit Product Form ──────────────────────────────────── -->
+      <section id="productFormSection" class="card" style="display:none;">
+        <h2 id="formTitle">Add New Product</h2>
+        <form id="productForm">
+          <input type="hidden" id="editProductId">
+
+          <div class="form-grid">
+
+            <!-- Row 1 -->
+            <div class="input-group span-2">
+              <label>Product Name <span class="req">*</span></label>
+              <input type="text" id="f_name" required placeholder="e.g. Brain Builder Puzzle Set">
+            </div>
+
+            <!-- Row 2 -->
+            <div class="input-group">
+              <label>Group / Tab <span class="req">*</span></label>
+              <select id="f_group_name" required>
+                <option value="trending">Trending</option>
+                <option value="bestsellers">Bestsellers</option>
+                <option value="newlaunches">New Launches</option>
+                <option value="bundles">Bundles</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label>Badge</label>
+              <select id="f_badge">
+                <option value="">None</option>
+                <option value="bestseller">Bestseller</option>
+                <option value="new">New Launch</option>
+                <option value="bundle">Bundle</option>
+              </select>
+            </div>
+
+            <!-- Row 3 – Pricing -->
+            <div class="input-group">
+              <label>Sale Price (₹) <span class="req">*</span></label>
+              <input type="number" id="f_price" required placeholder="649" min="1">
+            </div>
+            <div class="input-group">
+              <label>Original / MRP (₹)</label>
+              <input type="number" id="f_original_price" placeholder="699" min="1">
+            </div>
+            <div class="input-group">
+              <label>Save Text (e.g. 7%)</label>
+              <input type="text" id="f_save" placeholder="7%">
+            </div>
+            <div class="input-group">
+              <label>Initial Reviews Count</label>
+              <input type="number" id="f_reviews" placeholder="0" min="0">
+            </div>
+
+            <!-- Row 4 – Age -->
+            <div class="input-group">
+              <label>Age Label (e.g. 3-7 Years)</label>
+              <input type="text" id="f_age" placeholder="3-7 Years">
+            </div>
+            <div class="input-group">
+              <label>Age Group</label>
+              <select id="f_age_group">
+                <option value="">— Select —</option>
+                <option value="0-3">0-3 Years</option>
+                <option value="3+">3+ Years</option>
+                <option value="6+">6+ Years</option>
+                <option value="8+">8+ Years</option>
+              </select>
+            </div>
+
+            <!-- Row 5 – Category / Type -->
+            <div class="input-group">
+              <label>Category</label>
+              <select id="f_category">
+                <option value="">— Select —</option>
+                <option value="Puzzles &amp; Pretend">Puzzles &amp; Pretend</option>
+                <option value="Learning Products">Learning Products</option>
+                <option value="Infant Toys">Infant Toys</option>
+                <option value="Arts &amp; Crafts">Arts &amp; Crafts</option>
+                <option value="Card &amp; Board Games">Card &amp; Board Games</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label>Type</label>
+              <select id="f_type">
+                <option value="Single Products">Single Products</option>
+                <option value="Bundles">Bundles</option>
+              </select>
+            </div>
+
+            <!-- Row 6 – Theme / Launch Date / Sales -->
+            <div class="input-group">
+              <label>Theme</label>
+              <select id="f_theme">
+                <option value="">— Select —</option>
+                <option value="Animals">Animals</option>
+                <option value="Science">Science</option>
+                <option value="Magic">Magic</option>
+                <option value="Ocean">Ocean</option>
+                <option value="Classics">Classics</option>
+                <option value="Rainbow">Rainbow</option>
+                <option value="Space">Space</option>
+                <option value="Dinosaurs">Dinosaurs</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label>Launch Date</label>
+              <input type="date" id="f_launch_date">
+            </div>
+            <div class="input-group">
+              <label>Initial Sales Count</label>
+              <input type="number" id="f_sales" placeholder="0" min="0">
+            </div>
+
+            <!-- Row 7 – Skills -->
+            <div class="input-group span-2">
+              <label>Skills (comma-separated)</label>
+              <input type="text" id="f_skills" placeholder="Logical Reasoning, Fine Motor, Creativity">
+              <small class="field-hint">e.g. Logical Reasoning, Fine Motor, Creativity, Sensory Development, Focus &amp; Attention, Social &amp; Communication</small>
+            </div>
+
+            <!-- Row 8 – Offer -->
+            <div class="input-group span-2">
+              <label>Offer Text</label>
+              <input type="text" id="f_offer" placeholder="Buy any 2 | Get FLAT 10% OFF">
+            </div>
+
+            <!-- Row 9 – Image URL -->
+            <div class="input-group span-2">
+              <label>Image URL <span class="req">*</span></label>
+              <input type="url" id="f_image" required placeholder="https://…">
+              <div id="imagePreview" class="image-preview" style="display:none;">
+                <img id="previewImg" src="" alt="Preview">
+              </div>
+            </div>
+
+          </div><!-- /.form-grid -->
+
+          <div class="form-actions">
+            <button type="button" id="cancelFormBtn" class="btn-secondary">Cancel</button>
+            <button type="submit" class="btn-primary" id="submitBtn">💾 Save Product</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- ── Toast Notification ──────────────────────────────────────── -->
+      <div id="toast" class="toast"></div>
+
+      <!-- ── Products Table ──────────────────────────────────────────── -->
+      <section class="card">
+        <div class="table-toolbar">
+          <input type="text" id="searchInput" placeholder="🔍  Search products…" class="table-search">
+        </div>
+        <div class="table-wrap">
+          <table id="productsTable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Group</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Badge</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="productsTableBody">
+              <tr><td colspan="8" class="loading-row">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="js/admin.js"></script>
 </body>
 </html>

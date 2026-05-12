@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — BrainGrasp Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    :root {
+      --bg:#0d1117; --surface:#161b27; --card:#1c2333; --border:rgba(255,255,255,.08);
+      --blue:#4f7ef7; --orange:#f97316; --purple:#8b5cf6; --green:#22c55e;
+      --yellow:#eab308; --teal:#14b8a6; --red:#ef4444;
+      --text:#e2e8f0; --muted:#64748b; --font:'Inter',sans-serif;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;min-height:100vh}
+
+    /* ── Sidebar ── */
+    .sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh}
+    .sidebar-logo{display:flex;align-items:center;gap:10px;padding:24px 20px;font-size:18px;font-weight:700;border-bottom:1px solid var(--border)}
+    .sidebar-logo i{color:var(--blue);font-size:20px}
+    .sidebar-nav{display:flex;flex-direction:column;padding:16px 12px;gap:4px;flex:1}
+    .sidebar-nav a{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;transition:.15s}
+    .sidebar-nav a:hover{background:rgba(255,255,255,.05);color:var(--text)}
+    .sidebar-nav a.active{background:rgba(79,126,247,.15);color:var(--blue)}
+    .sidebar-nav a i{width:16px;text-align:center}
+    .sidebar-nav .logout{color:#ef4444;margin-top:auto}
+    .sidebar-nav .logout:hover{background:rgba(239,68,68,.1);color:#ef4444}
+
+    /* ── Main ── */
+    .main{flex:1;padding:28px 32px;overflow-y:auto}
+
+    /* ── Topbar ── */
+    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+    .topbar-title{font-size:22px;font-weight:700}
+    .topbar-sub{font-size:13px;color:var(--muted);margin-top:3px}
+    .topbar-right{display:flex;align-items:center;gap:12px}
+    .btn-refresh{width:36px;height:36px;background:var(--card);border:1px solid var(--border);border-radius:9px;display:grid;place-items:center;cursor:pointer;color:var(--muted);transition:.2s}
+    .btn-refresh:hover{background:var(--blue);color:#fff;transform:rotate(180deg)}
+    .avatar{width:36px;height:36px;background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:9px;display:grid;place-items:center;font-weight:700;font-size:15px}
+
+    /* ── KPI Grid ── */
+    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin-bottom:24px}
+    .kpi{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;display:flex;align-items:center;gap:14px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;cursor:default}
+    .kpi:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,0,0,.4)}
+    .kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0}
+    .kpi.blue::after{background:var(--blue)} .kpi.orange::after{background:var(--orange)}
+    .kpi.purple::after{background:var(--purple)} .kpi.yellow::after{background:var(--yellow)}
+    .kpi.green::after{background:var(--green)} .kpi.teal::after{background:var(--teal)}
+    .kpi-ico{width:44px;height:44px;border-radius:11px;display:grid;place-items:center;font-size:18px;flex-shrink:0}
+    .kpi.blue .kpi-ico{background:rgba(79,126,247,.15);color:var(--blue)}
+    .kpi.orange .kpi-ico{background:rgba(249,115,22,.15);color:var(--orange)}
+    .kpi.purple .kpi-ico{background:rgba(139,92,246,.15);color:var(--purple)}
+    .kpi.yellow .kpi-ico{background:rgba(234,179,8,.15);color:var(--yellow)}
+    .kpi.green .kpi-ico{background:rgba(34,197,94,.15);color:var(--green)}
+    .kpi.teal .kpi-ico{background:rgba(20,184,166,.15);color:var(--teal)}
+    .kpi-body{flex:1;min-width:0}
+    .kpi-val{font-size:24px;font-weight:800;line-height:1}
+    .kpi-lbl{font-size:11px;color:var(--muted);margin-top:4px;font-weight:500;text-transform:uppercase;letter-spacing:.4px}
+    .kpi-note{font-size:11px;color:var(--muted);margin-top:2px}
+
+    /* ── Two-col row ── */
+    .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+    .row2-wide{display:grid;grid-template-columns:1fr 1.6fr;gap:14px}
+    @media(max-width:900px){.row2,.row2-wide{grid-template-columns:1fr}}
+
+    /* ── Panel ── */
+    .panel{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px}
+    .panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    .panel-title{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+    .panel-title i{font-size:13px}
+    .panel-badge{font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;background:rgba(79,126,247,.15);color:var(--blue)}
+    .panel-badge.warn{background:rgba(234,179,8,.12);color:var(--yellow)}
+
+    /* ── Product insight list ── */
+    .pi-list{display:flex;flex-direction:column;gap:8px}
+    .pi-item{display:flex;align-items:center;gap:10px;padding:10px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;transition:background .15s}
+    .pi-item:hover{background:rgba(255,255,255,.06)}
+    .pi-rank{width:22px;height:22px;border-radius:6px;font-size:10px;font-weight:700;display:grid;place-items:center;flex-shrink:0;background:rgba(79,126,247,.15);color:var(--blue)}
+    .pi-rank.r1{background:rgba(234,179,8,.2);color:var(--yellow)}
+    .pi-rank.r2{background:rgba(148,163,184,.15);color:#94a3b8}
+    .pi-rank.r3{background:rgba(249,115,22,.15);color:var(--orange)}
+    .pi-rank.warn{background:rgba(234,179,8,.1);color:var(--yellow)}
+    .pi-img{width:40px;height:40px;border-radius:8px;object-fit:cover;background:var(--surface);flex-shrink:0}
+    .pi-info{flex:1;min-width:0}
+    .pi-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .pi-cat{font-size:11px;color:var(--muted);margin-top:1px}
+    .pi-sales{font-size:12px;font-weight:700;white-space:nowrap}
+    .hi{color:var(--green)} .lo{color:var(--yellow)} .zero{color:var(--red)}
+    .skel{height:58px;border-radius:10px;background:linear-gradient(90deg,var(--surface) 25%,rgba(255,255,255,.04) 50%,var(--surface) 75%);background-size:200%;animation:shim 1.3s infinite}
+    @keyframes shim{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+    /* ── Status bars ── */
+    .sbar-list{display:flex;flex-direction:column;gap:16px}
+    .sbar-row{display:flex;flex-direction:column;gap:5px}
+    .sbar-label{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);font-weight:500}
+    .sbar-count{margin-left:auto;font-weight:700;color:var(--text);font-size:13px}
+    .dot{width:7px;height:7px;border-radius:50%}
+    .dot-o{background:var(--orange)} .dot-p{background:var(--purple)}
+    .dot-y{background:var(--yellow)} .dot-g{background:var(--green)}
+    .sbar-track{height:5px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden}
+    .sbar-fill{height:100%;border-radius:4px;width:0%;transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+    .fo{background:var(--orange)} .fp{background:var(--purple)}
+    .fy{background:var(--yellow)} .fg{background:linear-gradient(90deg,var(--teal),var(--green))}
+
+    /* ── Recent orders table ── */
+    .tbl-wrap{overflow-x:auto}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    th{text-align:left;padding:8px 10px;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+    td{padding:11px 10px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:rgba(255,255,255,.02)}
+    .oid{font-weight:700;color:var(--blue)}
+    .badge{display:inline-block;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+    .b-placed,.b-confirmed{background:rgba(139,92,246,.15);color:var(--purple)}
+    .b-shipped,.b-processing{background:rgba(234,179,8,.12);color:var(--yellow)}
+    .b-delivered{background:rgba(34,197,94,.12);color:var(--green)}
+    .b-cancelled{background:rgba(239,68,68,.12);color:var(--red)}
+    .no-data{text-align:center;padding:28px;color:var(--muted);font-size:13px}
+
+    /* ── Toast ── */
+    .toast{position:fixed;bottom:20px;right:20px;background:var(--card);border:1px solid var(--border);color:var(--text);padding:12px 20px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,.5);opacity:0;pointer-events:none;transform:translateY(10px);transition:.3s;z-index:999}
+    .toast.show{opacity:1;pointer-events:all;transform:none}
+    .toast.ok{border-color:var(--green)} .toast.err{border-color:var(--red)}
+
+    /* ── Fade-in ── */
+    .fade{animation:fadeUp .4s ease both}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+    .kpi:nth-child(1){animation-delay:.04s}.kpi:nth-child(2){animation-delay:.08s}
+    .kpi:nth-child(3){animation-delay:.12s}.kpi:nth-child(4){animation-delay:.16s}
+    .kpi:nth-child(5){animation-delay:.20s}.kpi:nth-child(6){animation-delay:.24s}
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <i class="fas fa-brain"></i><span>BrainGrasp</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="active"><i class="fas fa-chart-pie"></i> Dashboard</a>
+      <a href="index.html"><i class="fas fa-box-open"></i> Products</a>
+      <a href="orders.html"><i class="fas fa-receipt"></i> Orders</a>
+      <a href="#" class="logout" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </nav>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">📊 Dashboard</div>
+        <div class="topbar-sub" id="dateLabel"></div>
+      </div>
+      <div class="topbar-right">
+        <div class="btn-refresh" id="refreshBtn" title="Refresh"><i class="fas fa-sync-alt"></i></div>
+        <div class="avatar">A</div>
+      </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi blue fade"><div class="kpi-ico"><i class="fas fa-boxes"></i></div><div class="kpi-body"><div class="kpi-val" id="kTotal">—</div><div class="kpi-lbl">Total Products</div></div></div>
+      <div class="kpi orange fade"><div class="kpi-ico"><i class="fas fa-shopping-cart"></i></div><div class="kpi-body"><div class="kpi-val" id="kCart">—</div><div class="kpi-lbl">Items in Carts</div><div class="kpi-note" id="kCartNote"></div></div></div>
+      <div class="kpi purple fade"><div class="kpi-ico"><i class="fas fa-check-circle"></i></div><div class="kpi-body"><div class="kpi-val" id="kConfirmed">—</div><div class="kpi-lbl">Confirmed Orders</div></div></div>
+      <div class="kpi yellow fade"><div class="kpi-ico"><i class="fas fa-truck"></i></div><div class="kpi-body"><div class="kpi-val" id="kPending">—</div><div class="kpi-lbl">Delivery Pending</div></div></div>
+      <div class="kpi green fade"><div class="kpi-ico"><i class="fas fa-check-double"></i></div><div class="kpi-body"><div class="kpi-val" id="kDelivered">—</div><div class="kpi-lbl">Delivered</div></div></div>
+      <div class="kpi teal fade"><div class="kpi-ico"><i class="fas fa-rupee-sign"></i></div><div class="kpi-body"><div class="kpi-val" id="kRevenue">—</div><div class="kpi-lbl">Total Revenue</div><div class="kpi-note" id="kOrdersNote"></div></div></div>
+    </div>
+
+    <!-- Product Insights -->
+    <div class="row2" style="margin-bottom:14px">
+      <!-- Top Selling -->
+      <div class="panel fade">
+        <div class="panel-head">
+          <div class="panel-title"><i class="fas fa-fire" style="color:var(--orange)"></i> Top Selling Products</div>
+          <span class="panel-badge">Top 5</span>
+        </div>
+        <div class="pi-list" id="topList">
+          <div class="skel"></div><div class="skel"></div><div class="skel"></div>
+        </div>
+      </div>
+      <!-- Low Selling -->
+      <div class="panel fade">
+        <div class="panel-head">
+          <div class="panel-title"><i class="fas fa-exclamation-triangle" style="color:var(--yellow)"></i> Needs Attention</div>
+          <span class="panel-badge warn">Low Sales</span>
+        </div>
+        <div class="pi-list" id="lowList">
+          <div class="skel"></div><div class="skel"></div><div class="skel"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Bars + Recent Orders -->
+    <div class="row2-wide">
+      <!-- Order Status -->
+      <div class="panel fade">
+        <div class="panel-head">
+          <div class="panel-title"><i class="fas fa-chart-bar" style="color:var(--blue)"></i> Order Status Breakdown</div>
+        </div>
+        <div class="sbar-list">
+          <div class="sbar-row">
+            <div class="sbar-label"><span class="dot dot-o"></span>Items in Cart<span class="sbar-count" id="bCart">—</span></div>
+            <div class="sbar-track"><div class="sbar-fill fo" id="fCart"></div></div>
+          </div>
+          <div class="sbar-row">
+            <div class="sbar-label"><span class="dot dot-p"></span>Confirmed<span class="sbar-count" id="bConf">—</span></div>
+            <div class="sbar-track"><div class="sbar-fill fp" id="fConf"></div></div>
+          </div>
+          <div class="sbar-row">
+            <div class="sbar-label"><span class="dot dot-y"></span>Delivery Pending<span class="sbar-count" id="bPend">—</span></div>
+            <div class="sbar-track"><div class="sbar-fill fy" id="fPend"></div></div>
+          </div>
+          <div class="sbar-row">
+            <div class="sbar-label"><span class="dot dot-g"></span>Delivered<span class="sbar-count" id="bDel">—</span></div>
+            <div class="sbar-track"><div class="sbar-fill fg" id="fDel"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Orders -->
+      <div class="panel fade">
+        <div class="panel-head">
+          <div class="panel-title"><i class="fas fa-receipt" style="color:var(--purple)"></i> Recent Orders</div>
+          <span class="panel-badge">Last 5</span>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Customer</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody id="ordersTbody"><tr><td colspan="5" class="no-data">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const API = 'http://localhost:3000';
+    const token = localStorage.getItem('adminToken');
+    if (!token) location.href = 'login.html';
+
+    // Date
+    document.getElementById('dateLabel').textContent = new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+    // Logout
+    document.getElementById('logoutBtn').onclick = e => { e.preventDefault(); localStorage.removeItem('adminToken'); location.href = 'login.html'; };
+
+    // Refresh
+    document.getElementById('refreshBtn').onclick = () => { loadDashboard(); };
+
+    function toast(msg, type='ok') {
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.className = `toast show ${type}`;
+      setTimeout(() => t.className = 'toast', 3500);
+    }
+
+    function animNum(el, target, prefix='') {
+      if (!el) return;
+      let v = 0, step = target / 40;
+      const t = setInterval(() => {
+        v += step; if (v >= target) { v = target; clearInterval(t); }
+        el.textContent = prefix + Math.floor(v).toLocaleString('en-IN');
+      }, 16);
+    }
+
+    function rankClass(i) { return i===0?'r1':i===1?'r2':i===2?'r3':''; }
+
+    function renderProducts(listId, items, isLow) {
+      const c = document.getElementById(listId);
+      if (!c) return;
+      if (!items || items.length === 0) { c.innerHTML = '<p style="color:var(--muted);font-size:13px;padding:10px 0">No data yet.</p>'; return; }
+      c.innerHTML = items.map((p,i) => {
+        const sales = p.sales ?? 0;
+        const cls = isLow ? (sales===0?'zero':'lo') : 'hi';
+        const ico = isLow ? (sales===0?'fa-times-circle':'fa-arrow-down') : 'fa-arrow-up';
+        const lbl = sales===0 ? 'No sales' : `${Number(sales).toLocaleString('en-IN')} sold`;
+        return `<div class="pi-item">
+          <div class="pi-rank ${isLow?'warn':rankClass(i)}">${isLow?'!':'#'+(i+1)}</div>
+          <img class="pi-img" src="${p.image||''}" alt="${p.name}" onerror="this.src='https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=80&h=80&fit=crop'">
+          <div class="pi-info"><div class="pi-name" title="${p.name}">${p.name}</div><div class="pi-cat">${p.category||'—'} · ₹${Number(p.price).toLocaleString('en-IN')}</div></div>
+          <div class="pi-sales ${cls}"><i class="fas ${ico}" style="font-size:9px;margin-right:3px"></i>${lbl}</div>
+        </div>`;
+      }).join('');
+    }
+
+    function renderBars(kpis) {
+      const vals = { bCart: kpis.cartItems, bConf: kpis.confirmed, bPend: kpis.deliveryPending, bDel: kpis.delivered };
+      const fills = { fCart: kpis.cartItems, fConf: kpis.confirmed, fPend: kpis.deliveryPending, fDel: kpis.delivered };
+      const total = Math.max(Object.values(vals).reduce((a,b)=>a+b,0), 1);
+      Object.entries(vals).forEach(([id,v]) => { const el=document.getElementById(id); if(el) el.textContent=Number(v).toLocaleString('en-IN'); });
+      requestAnimationFrame(() => setTimeout(() => {
+        Object.entries(fills).forEach(([id,v]) => { const el=document.getElementById(id); if(el) el.style.width=`${Math.round(v/total*100)}%`; });
+      }, 300));
+    }
+
+    function renderOrders(orders) {
+      const tbody = document.getElementById('ordersTbody');
+      if (!orders || orders.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="no-data">No orders yet. They will appear here once customers place them.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = orders.map(o => {
+        const slug = (o.status||'placed').toLowerCase().replace(/\s+/g,'-');
+        const date = new Date(o.created_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+        return `<tr>
+          <td><span class="oid">#${o.id}</span></td>
+          <td><div style="font-weight:600">${o.customer_name||'Guest'}</div><div style="font-size:11px;color:var(--muted)">${o.customer_email||'—'}</div></td>
+          <td style="font-weight:700;color:var(--green)">₹${Number(o.total).toLocaleString('en-IN')}</td>
+          <td><span class="badge b-${slug}">${o.status||'Placed'}</span></td>
+          <td style="color:var(--muted);font-size:12px">${date}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    async function loadDashboard() {
+      const btn = document.getElementById('refreshBtn');
+      if (btn) btn.style.transform = 'rotate(360deg)';
+      try {
+        const res = await fetch(`${API}/api/admin/dashboard`, { headers: { Authorization: `Bearer ${token}` } });
+        if (res.status === 401 || res.status === 403) { localStorage.removeItem('adminToken'); location.href='login.html'; return; }
+        if (!res.ok) throw new Error(`Server error ${res.status}`);
+        const { kpis, topSelling, lowSelling, recentOrders } = await res.json();
+
+        animNum(document.getElementById('kTotal'), kpis.totalProducts);
+        animNum(document.getElementById('kCart'), kpis.cartItems);
+        animNum(document.getElementById('kConfirmed'), kpis.confirmed);
+        animNum(document.getElementById('kPending'), kpis.deliveryPending);
+        animNum(document.getElementById('kDelivered'), kpis.delivered);
+        animNum(document.getElementById('kRevenue'), kpis.totalRevenue, '₹');
+
+        const cn = document.getElementById('kCartNote');
+        if (cn) cn.textContent = `${kpis.usersWithCart} users with active cart`;
+        const on = document.getElementById('kOrdersNote');
+        if (on) on.textContent = `${kpis.totalOrders} total orders`;
+
+        renderBars(kpis);
+        renderProducts('topList', topSelling, false);
+        renderProducts('lowList', lowSelling, true);
+        renderOrders(recentOrders);
+        toast('Dashboard refreshed ✓', 'ok');
+      } catch (err) {
+        console.error(err);
+        toast('Failed to load data: ' + err.message, 'err');
+      } finally {
+        setTimeout(() => { if(btn) btn.style.transform=''; }, 600);
+      }
+    }
+
+    loadDashboard();
+  </script>
+</body>
+</html>
