@@ -1,24 +1,30 @@
-/**
- * BrainyGrasp – Shared Frontend Configuration
+﻿/**
+ * BrainyGrasp — Shared Frontend Configuration
  *
- * Load this script BEFORE any other BrainyGrasp JS files so that
- * all modules read the API base URL from a single source of truth.
+ * HOW TO SET THE API URL FOR PRODUCTION:
+ *   Option A (recommended): Add a <script> tag BEFORE this file in every HTML page:
+ *     <script>window.BG_API_BASE = 'https://brainygrasp-api.onrender.com';</script>
  *
- * Dev:  script auto-detects localhost and uses http://localhost:3000
- * Prod: set window.BG_API_BASE on the server (via a <meta> tag or
- *       server-rendered inline script) OR update the fallback URL below.
+ *   Option B: Update PRODUCTION_API_URL below directly before deploying to Vercel.
+ *
+ * Do NOT change the localhost detection logic — it ensures local dev works without config.
  */
+
+// ── CHANGE THIS to your Render/Railway backend URL before deploying ──
+const PRODUCTION_API_URL = 'https://brainygrasp-api.onrender.com';
+
 window.BG_CONFIG = {
   API_BASE: (() => {
-    // 1. Allow server to inject the production URL at runtime
+    // 1. Allow a page-level override (most flexible, set via meta script)
     if (window.BG_API_BASE) return window.BG_API_BASE;
+
     // 2. Auto-detect local development
     const host = window.location.hostname;
     if (host === 'localhost' || host === '127.0.0.1' || host === '') {
       return 'http://localhost:3000';
     }
-    // 3. Production: same-origin API (assumes backend serves /api/* on same domain)
-    //    Override this with your actual API domain if backend is on a subdomain.
-    return window.location.origin;
+
+    // 3. Production: use the configured backend URL
+    return PRODUCTION_API_URL;
   })()
 };

@@ -1,0 +1,321 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Refund &amp; Replacement Policy | BrainyGrasp</title>
+  <meta name="description" content="Read BrainyGrasp's refund and replacement policy. We offer replacements for damaged or defective products. No cash refunds for change of mind.">
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    .policy-hero {
+      background: linear-gradient(135deg, #FF6B35 0%, #ff8c5a 100%);
+      padding: 60px 0 50px;
+      text-align: center;
+      color: #fff;
+    }
+    .policy-hero h1 { font-family: 'Fredoka', sans-serif; font-size: 42px; margin: 0 0 10px; }
+    .policy-hero p { font-size: 16px; opacity: 0.9; margin: 0; }
+    .policy-hero .breadcrumb { font-size: 13px; opacity: 0.75; margin-bottom: 16px; }
+    .policy-hero .breadcrumb a { color: #fff; text-decoration: none; }
+    .policy-hero .breadcrumb a:hover { text-decoration: underline; }
+    .policy-body { max-width: 860px; margin: 0 auto; padding: 60px 24px 80px; }
+    .policy-updated { display: inline-block; background: #fff3cd; color: #856404; font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 20px; margin-bottom: 40px; border: 1px solid #ffc107; }
+    .policy-section { margin-bottom: 44px; }
+    .policy-section h2 { font-family: 'Fredoka', sans-serif; font-size: 24px; color: #1e1e1e; margin: 0 0 14px; display: flex; align-items: center; gap: 10px; }
+    .policy-section h2 .sec-icon { width: 36px; height: 36px; background: #fff0e8; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #FF6B35; font-size: 15px; flex-shrink: 0; }
+    .policy-section p { color: #4b5563; line-height: 1.8; font-size: 15px; margin: 0 0 12px; }
+    .policy-card { background: #f9fafb; border-left: 4px solid #FF6B35; border-radius: 0 12px 12px 0; padding: 18px 22px; margin: 18px 0; }
+    .policy-card p { margin: 0; }
+    .policy-table { width: 100%; border-collapse: collapse; margin: 20px 0; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+    .policy-table th { background: #FF6B35; color: #fff; padding: 14px 18px; text-align: left; font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 500; }
+    .policy-table td { padding: 13px 18px; border-bottom: 1px solid #f0f0f0; color: #374151; font-size: 14px; line-height: 1.6; vertical-align: top; }
+    .policy-table tr:last-child td { border-bottom: none; }
+    .policy-table tr:nth-child(even) td { background: #fafafa; }
+    .badge-yes { background: #d1fae5; color: #065f46; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+    .badge-no { background: #fee2e2; color: #991b1b; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+    .badge-cond { background: #fef3c7; color: #92400e; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+    .highlight-box { background: linear-gradient(135deg, #fff0e8, #fff8f3); border: 1px solid #ffcdb2; border-radius: 14px; padding: 22px 26px; margin: 24px 0; }
+    .highlight-box h3 { font-family: 'Fredoka', sans-serif; font-size: 18px; color: #c2410c; margin: 0 0 10px; }
+    .highlight-box ul { margin: 0; padding-left: 20px; color: #4b5563; font-size: 14px; line-height: 1.9; }
+    .contact-box { background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 16px; padding: 30px; text-align: center; color: #fff; margin-top: 50px; }
+    .contact-box h3 { font-family: 'Fredoka', sans-serif; font-size: 24px; margin: 0 0 10px; }
+    .contact-box p { opacity: 0.9; margin: 0 0 20px; }
+    .contact-box .contact-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .contact-box a { display: inline-flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: 30px; font-weight: 700; font-size: 15px; text-decoration: none; transition: transform 0.2s; }
+    .contact-box a:hover { transform: translateY(-2px); }
+    .btn-wa { background: #25d366; color: #fff; }
+    .btn-mail { background: #fff; color: #667eea; }
+    .steps-list { counter-reset: step-counter; list-style: none; padding: 0; margin: 0; }
+    .steps-list li { counter-increment: step-counter; display: flex; align-items: flex-start; gap: 14px; padding: 14px 0; border-bottom: 1px dashed #e5e7eb; }
+    .steps-list li:last-child { border-bottom: none; }
+    .steps-list li::before { content: counter(step-counter); display: flex; align-items: center; justify-content: center; min-width: 32px; height: 32px; background: #FF6B35; color: #fff; border-radius: 50%; font-weight: 700; font-size: 14px; margin-top: 1px; }
+    .steps-list li span { color: #374151; font-size: 14px; line-height: 1.7; }
+  </style>
+</head>
+<body>
+
+  <!-- Announcement Bar -->
+  <div class="announcement-bar">
+    <div class="announcement-slider">
+      <div class="announcement-slide active">Buy any <strong>2</strong> and get <strong>FLAT 10% OFF</strong> | Use Code: <strong>BRAINY10</strong></div>
+      <div class="announcement-slide">Buy any <strong>3</strong> and get <strong>FLAT 15% OFF</strong> | Use Code: <strong>BRAINY15</strong></div>
+      <div class="announcement-slide"><strong>FREE SHIPPING</strong> on orders above &#8377;999</div>
+    </div>
+  </div>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="container">
+      <div class="top-bar-links">
+        <a href="faqs.html">FAQs</a>
+        <a href="blogs.html">Blogs</a>
+        <a href="rewards.html"><i class="fas fa-gift"></i> Rewards</a>
+        <a href="refund-policy.html"><i class="fas fa-undo-alt"></i> Refund Policy</a>
+        <a href="privacy-policy.html"><i class="fas fa-shield-alt"></i> Privacy</a>
+        <a href="terms.html"><i class="fas fa-file-contract"></i> Terms</a>
+        <a href="https://wa.me/919677406373"><i class="fab fa-whatsapp"></i> Need Help?</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Header -->
+  <header class="main-header" id="mainHeader">
+    <div class="container">
+      <div class="header-inner">
+        <button class="mobile-menu-btn" id="mobileMenuBtn"><i class="fas fa-bars"></i></button>
+        <a href="index.html" class="logo" style="display:flex;align-items:center;gap:8px;text-decoration:none;">
+          <span style="font-family:'Chewy',cursive;font-size:34px;color:#4280ca;letter-spacing:1px;padding-top:5px;">brainy<span style="color:#ffc107;">grasp</span></span>
+        </a>
+        <nav class="main-nav" id="mainNav">
+          <ul class="nav-list">
+            <li class="nav-item"><a href="shop-by-age.html" class="nav-link">Shop by Age</a></li>
+            <li class="nav-item"><a href="shop-by-category.html" class="nav-link">Shop by Category</a></li>
+            <li class="nav-item"><a href="collections.html" class="nav-link">Collections</a></li>
+            <li class="nav-item"><a href="collections.html?collection=bestsellers" class="nav-link nav-link-highlight">Bestsellers</a></li>
+            <li class="nav-item"><a href="collections.html?collection=newlaunches" class="nav-link nav-link-new">New Launches</a></li>
+          </ul>
+        </nav>
+        <div class="header-actions">
+          <a href="https://wa.me/919677406373" class="header-action-btn whatsapp-btn" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+          <button class="header-action-btn search-btn" id="searchBtn" aria-label="Open search"><i class="fas fa-search"></i></button>
+          <div class="cart-btn-wrapper" style="position:relative;display:inline-flex;align-items:center;margin-right:6px;">
+            <button class="header-action-btn cart-btn" id="cartBtn" aria-label="Open cart"><i class="fas fa-shopping-bag"></i></button>
+            <span class="cart-count" style="position:absolute;top:-6px;right:-6px;z-index:1;pointer-events:none;">0</span>
+          </div>
+          <div id="profileWrapper"><a id="userBtn" href="login.html" class="header-action-btn user-btn" title="Sign In"><i class="fas fa-user"></i></a></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <div class="policy-hero">
+    <div class="container">
+      <div class="breadcrumb"><a href="index.html">Home</a> &rsaquo; Refund &amp; Replacement Policy</div>
+      <h1><i class="fas fa-undo-alt" style="margin-right:12px;"></i>Refund &amp; Replacement Policy</h1>
+      <p>Transparent policies built on trust — because every child deserves the best.</p>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="policy-body">
+    <span class="policy-updated"><i class="fas fa-calendar-alt" style="margin-right:6px;"></i>Last Updated: May 2026</span>
+
+    <!-- Overview -->
+    <div class="policy-section">
+      <h2><span class="sec-icon"><i class="fas fa-info"></i></span>Overview</h2>
+      <p>At <strong>BrainyGrasp Learning Pvt. Ltd.</strong>, customer satisfaction is central to everything we do. We stand fully behind the quality of our educational toys and want every purchase to be a joyful experience for your child.</p>
+      <p>This policy outlines the conditions under which replacements and refunds are provided. Please read it carefully before making a purchase.</p>
+    </div>
+
+    <!-- Replacement Policy -->
+    <div class="policy-section">
+      <h2><span class="sec-icon"><i class="fas fa-exchange-alt"></i></span>Replacement Policy</h2>
+      <div class="policy-card">
+        <p><strong>We offer free replacements</strong> for products that arrive damaged, defective, or differ from what was ordered. A brand-new unit will be dispatched at no extra charge to the customer.</p>
+      </div>
+      <p>We do <strong>not</strong> offer replacements for:</p>
+      <ul style="color:#4b5563;line-height:1.9;font-size:15px;padding-left:20px;">
+        <li>Products damaged due to misuse, accidents, or normal wear &amp; tear</li>
+        <li>Change of mind or personal preference after delivery</li>
+        <li>Claims made beyond the 48-hour / 7-day reporting window</li>
+        <li>Products with missing or tampered packaging reported after use</li>
+      </ul>
+    </div>
+
+    <!-- How to Report -->
+    <div class="policy-section">
+      <h2><span class="sec-icon"><i class="fas fa-clock"></i></span>Reporting a Damaged / Defective Product</h2>
+      <p>Customers must report any damage or defect within <strong>48 hours of delivery</strong> (or up to 7 days for hidden manufacturing defects). Claims reported after this window will not be eligible for replacement.</p>
+
+      <div class="highlight-box">
+        <h3><i class="fas fa-camera" style="margin-right:8px;"></i>Required Proof</h3>
+        <ul>
+          <li>Clear photographs of the damaged / defective product</li>
+          <li>Unboxing video clearly showing the product condition upon receipt (strongly recommended)</li>
+          <li>Your Order ID and registered email / phone number</li>
+        </ul>
+      </div>
+
+      <h3 style="font-family:'Fredoka',sans-serif;font-size:18px;color:#374151;margin:24px 0 14px;">How to Raise a Request — Step by Step</h3>
+      <ol class="steps-list">
+        <li><span>Take clear photographs or an unboxing video immediately upon receiving a damaged product.</span></li>
+        <li><span>Contact us via WhatsApp at <a href="https://wa.me/919677406373" style="color:#FF6B35;font-weight:700;">+91 96774 06373</a> or email us at <a href="https://mail.google.com/mail/?view=cm&to=brainygrasp@gmail.com&subject=BrainyGrasp%20Support" target="_blank" rel="noopener" style="color:#FF6B35;font-weight:700;">brainygrasp@gmail.com</a> within 48 hours of delivery.</span></li>
+        <li><span>Share your Order ID, photographs / video, and a brief description of the issue.</span></li>
+        <li><span>Our team will review your request within 2 business days and confirm the replacement.</span></li>
+        <li><span>The replacement unit will be dispatched within 5–7 business days after approval.</span></li>
+      </ol>
+    </div>
+
+    <!-- Refund Policy -->
+    <div class="policy-section">
+      <h2><span class="sec-icon"><i class="fas fa-rupee-sign"></i></span>Refund Policy</h2>
+      <div class="policy-card">
+        <p><strong>We do not offer cash refunds</strong> for "change of mind" or buyer's remorse. Our default resolution for eligible issues is a product replacement.</p>
+      </div>
+      <p>A <strong>full refund to the original payment source</strong> will be processed <em>only</em> in the following exceptional circumstances:</p>
+
+      <table class="policy-table">
+        <thead>
+          <tr><th>Scenario</th><th>Resolution</th><th>Timeline</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Replacement item is out of stock and no equivalent is available</td>
+            <td><span class="badge-yes">Full Refund</span></td>
+            <td>5–7 business days</td>
+          </tr>
+          <tr>
+            <td>Product not delivered within 30 days of order date</td>
+            <td><span class="badge-yes">Full Refund</span></td>
+            <td>5–7 business days</td>
+          </tr>
+          <tr>
+            <td>Damaged product (within reporting window, with proof)</td>
+            <td><span class="badge-cond">Replacement First</span></td>
+            <td>Replacement in 5–7 days</td>
+          </tr>
+          <tr>
+            <td>Change of mind / personal preference</td>
+            <td><span class="badge-no">Not Eligible</span></td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td>Used or opened products without defect</td>
+            <td><span class="badge-no">Not Eligible</span></td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td>Damage due to misuse or negligence</td>
+            <td><span class="badge-no">Not Eligible</span></td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p style="font-size:13px;color:#6b7280;margin-top:8px;"><i class="fas fa-info-circle" style="color:#FF6B35;margin-right:4px;"></i>Refunds are credited to the original payment method (credit/debit card, UPI, net banking, or wallet). For COD orders, refunds are processed as bank transfers. Bank processing may take an additional 2–5 business days.</p>
+    </div>
+
+    <!-- Cancellations -->
+    <div class="policy-section">
+      <h2><span class="sec-icon"><i class="fas fa-times-circle"></i></span>Order Cancellations</h2>
+      <p>Orders can be cancelled <strong>within 12 hours of placement</strong> provided the item has not been dispatched. To cancel, contact us immediately via WhatsApp or email.</p>
+      <p>Once an order has been picked up by our courier partner, cancellation is no longer possible. You may raise a replacement request after delivery if applicable.</p>
+    </div>
+
+    <!-- Shipping -->
+    <div class="policy-section">
+      <h2><span class="sec-icon"><i class="fas fa-truck"></i></span>Return Shipping</h2>
+      <p>For approved replacements, BrainyGrasp will arrange reverse pickup at <strong>no cost to the customer</strong>. You do not need to ship the product yourself.</p>
+      <p>Please ensure the product is securely repacked in its original packaging before the pickup.</p>
+    </div>
+
+    <!-- Contact -->
+    <div class="contact-box">
+      <h3><i class="fas fa-headset" style="margin-right:10px;"></i>Need Help With a Return?</h3>
+      <p>Our support team is available Monday–Saturday, 9 AM – 6 PM IST</p>
+      <div class="contact-btns">
+        <a href="https://wa.me/919677406373" class="btn-wa"><i class="fab fa-whatsapp"></i> WhatsApp Us</a>
+        <a href="https://mail.google.com/mail/?view=cm&to=brainygrasp@gmail.com&subject=BrainyGrasp%20Support" target="_blank" rel="noopener" class="btn-mail"><i class="fas fa-envelope"></i> Email Support</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col footer-brand">
+          <a href="index.html" class="footer-logo" style="font-family:'Chewy',cursive;font-size:28px;color:#4280ca;text-decoration:none;">brainy<span style="color:#ffc107;">grasp</span></a>
+          <p>Where learning meets play! Educational toys designed to spark curiosity in every child.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Policies</h4>
+          <ul>
+            <li><a href="refund-policy.html">Refund &amp; Replacement</a></li>
+            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+            <li><a href="terms.html">Terms &amp; Conditions</a></li>
+            <li><a href="faqs.html">FAQs</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Shop</h4>
+          <ul>
+            <li><a href="shop-by-age.html">Shop by Age</a></li>
+            <li><a href="shop-by-category.html">Shop by Category</a></li>
+            <li><a href="collections.html?collection=bestsellers">Bestsellers</a></li>
+            <li><a href="collections.html?collection=newlaunches">New Launches</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Contact</h4>
+          <ul>
+            <li><a href="https://wa.me/919677406373"><i class="fab fa-whatsapp"></i> +91 96774 06373</a></li>
+            <li><a href="https://mail.google.com/mail/?view=cm&to=brainygrasp@gmail.com&subject=BrainyGrasp%20Support" target="_blank" rel="noopener"><i class="fas fa-envelope"></i> brainygrasp@gmail.com</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="footer-bottom-inner">
+          <p>&copy; 2026 BrainyGrasp Learning Pvt. Ltd. All rights reserved.</p>
+          <div class="payment-icons">
+            <span>Secure Payments via</span>
+            <div class="payment-methods">
+              <i class="fab fa-cc-visa"></i>
+              <i class="fab fa-cc-mastercard"></i>
+              <i class="fab fa-cc-amex"></i>
+              <i class="fab fa-google-pay"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Cart Sidebar -->
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <div class="cart-sidebar" id="cartSidebar">
+    <div class="cart-header">
+      <h3>My Cart <span class="cart-item-count" id="cartItemCount">0</span></h3>
+      <button class="cart-close" id="cartClose"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="cart-body">
+      <div class="cart-empty" id="cartEmpty"><i class="fas fa-shopping-bag"></i><p>Your cart is empty</p><a href="collections.html" class="btn btn-primary">Start Shopping</a></div>
+      <div class="cart-items" id="cartItems"></div>
+    </div>
+    <div class="cart-footer">
+      <div class="cart-total-row"><span>Total:</span><span id="cartTotal">&#8377;0</span></div>
+      <button class="btn btn-primary btn-full" id="sidebarCheckoutBtn">Secure Checkout</button>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/auth-unified.js"></script>
+  <script src="js/modern-search.js"></script>
+</body>
+</html>

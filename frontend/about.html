@@ -1,0 +1,430 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Us | BrainyGrasp</title>
+  <meta name="description"
+    content="Discover the story of BrainyGrasp. We design premium, non-toxic, and educational toys to spark curiosity and learning in every child.">
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    .about-hero {
+      background: linear-gradient(135deg, #4280ca 0%, #3569a7 100%);
+      padding: 70px 0 60px;
+      text-align: center;
+      color: #fff;
+    }
+
+    .about-hero h1 {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 46px;
+      margin: 0 0 12px;
+    }
+
+    .about-hero p {
+      font-size: 18px;
+      opacity: 0.95;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .about-hero .breadcrumb {
+      font-size: 13px;
+      opacity: 0.8;
+      margin-bottom: 16px;
+    }
+
+    .about-hero .breadcrumb a {
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .about-hero .breadcrumb a:hover {
+      text-decoration: underline;
+    }
+
+    .about-section {
+      padding: 80px 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .story-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    .story-content h2 {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 32px;
+      color: #1e1e1e;
+      margin: 0 0 20px;
+    }
+
+    .story-content p {
+      color: #4b5563;
+      font-size: 16px;
+      line-height: 1.8;
+      margin-bottom: 18px;
+    }
+
+    .story-image {
+      position: relative;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .story-image img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .pillars-section {
+      background: #f8fafc;
+      padding: 80px 24px;
+      border-top: 1px solid #e2e8f0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .pillars-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .pillars-container h2 {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 32px;
+      color: #1e1e1e;
+      margin-bottom: 40px;
+    }
+
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+    }
+
+    .pillar-card {
+      background: #fff;
+      padding: 40px 30px;
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+      border: 1px solid #edf2f7;
+      transition: transform 0.2s;
+    }
+
+    .pillar-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .pillar-icon {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      font-size: 28px;
+    }
+
+    .pillar-card h3 {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 20px;
+      color: #2d3748;
+      margin-bottom: 12px;
+    }
+
+    .pillar-card p {
+      color: #718096;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .blue-icon {
+      background: #ebf8ff;
+      color: #3182ce;
+    }
+
+    .orange-icon {
+      background: #fffaf0;
+      color: #dd6b20;
+    }
+
+    .green-icon {
+      background: #f0fff4;
+      color: #38a169;
+    }
+
+    .cta-box {
+      background: linear-gradient(135deg, #FF6B35 0%, #ff8c5a 100%);
+      border-radius: 24px;
+      padding: 50px 40px;
+      text-align: center;
+      color: #fff;
+      margin-top: 80px;
+      box-shadow: 0 10px 25px rgba(255, 107, 53, 0.2);
+    }
+
+    .cta-box h3 {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 30px;
+      margin: 0 0 12px;
+    }
+
+    .cta-box p {
+      opacity: 0.95;
+      font-size: 16px;
+      margin: 0 0 26px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .cta-btn {
+      display: inline-block;
+      background: #fff;
+      color: #FF6B35;
+      padding: 14px 32px;
+      border-radius: 30px;
+      font-weight: 700;
+      font-size: 16px;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .cta-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    @media (max-width: 768px) {
+      .story-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+
+      .about-hero h1 {
+        font-size: 34px;
+      }
+
+      .about-hero p {
+        font-size: 15px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Announcement Bar -->
+  <div class="announcement-bar">
+    <div class="announcement-slider">
+      <div class="announcement-slide active">Buy any <strong>2</strong> and get <strong>FLAT 10% OFF</strong> | Use
+        Code: <strong>BRAINY10</strong></div>
+      <div class="announcement-slide"><strong>FREE SHIPPING</strong> on orders above &#8377;999</div>
+    </div>
+  </div>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="container">
+      <div class="top-bar-links">
+        <a href="faqs.html">FAQs</a>
+        <a href="blogs.html">Blogs</a>
+        <a href="rewards.html"><i class="fas fa-gift"></i> Rewards</a>
+        <a href="refund-policy.html"><i class="fas fa-undo-alt"></i> Refund Policy</a>
+        <a href="privacy-policy.html"><i class="fas fa-shield-alt"></i> Privacy</a>
+        <a href="terms.html"><i class="fas fa-file-contract"></i> Terms</a>
+        <a href="https://wa.me/919677406373"><i class="fab fa-whatsapp"></i> Need Help?</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Header -->
+  <header class="main-header" id="mainHeader">
+    <div class="container">
+      <div class="header-inner">
+        <button class="mobile-menu-btn" id="mobileMenuBtn"><i class="fas fa-bars"></i></button>
+        <a href="index.html" class="logo" style="display:flex;align-items:center;gap:8px;text-decoration:none;">
+          <span
+            style="font-family:'Chewy',cursive;font-size:34px;color:#4280ca;letter-spacing:1px;padding-top:5px;">brainy<span
+              style="color:#ffc107;">grasp</span></span>
+        </a>
+        <nav class="main-nav" id="mainNav">
+          <ul class="nav-list">
+            <li class="nav-item"><a href="shop-by-age.html" class="nav-link">Shop by Age</a></li>
+            <li class="nav-item"><a href="shop-by-category.html" class="nav-link">Shop by Category</a></li>
+            <li class="nav-item"><a href="collections.html" class="nav-link">Collections</a></li>
+            <li class="nav-item"><a href="collections.html?collection=bestsellers"
+                class="nav-link nav-link-highlight">Bestsellers</a></li>
+            <li class="nav-item"><a href="collections.html?collection=newlaunches" class="nav-link nav-link-new">New
+                Launches</a></li>
+          </ul>
+        </nav>
+        <div class="header-actions">
+          <a href="https://wa.me/919677406373" class="header-action-btn whatsapp-btn" aria-label="WhatsApp"><i
+              class="fab fa-whatsapp"></i></a>
+          <button class="header-action-btn search-btn" id="searchBtn" aria-label="Open search"><i
+              class="fas fa-search"></i></button>
+          <div class="cart-btn-wrapper"
+            style="position:relative;display:inline-flex;align-items:center;margin-right:6px;">
+            <button class="header-action-btn cart-btn" id="cartBtn" aria-label="Open cart"><i
+                class="fas fa-shopping-bag"></i></button>
+            <span class="cart-count"
+              style="position:absolute;top:-6px;right:-6px;z-index:1;pointer-events:none;">0</span>
+          </div>
+          <div id="profileWrapper"><a id="userBtn" href="login.html" class="header-action-btn user-btn"
+              title="Sign In"><i class="fas fa-user"></i></a></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <div class="about-hero">
+    <div class="container">
+      <div class="breadcrumb"><a href="index.html">Home</a> &rsaquo; About Us</div>
+      <h1>About BrainyGrasp</h1>
+      <p>Where learning meets play! We design premium, screen-free educational toys that nurture developing minds.</p>
+    </div>
+  </div>
+
+  <!-- Core Story Section -->
+  <div class="about-section">
+    <div class="story-grid">
+      <div class="story-content">
+        <h2>Our Mission &amp; Vision</h2>
+        <p>At <strong>BrainyGrasp</strong>, we believe that childhood is a magical window of discovery. Every toy a
+          child interacts with should not just entertain them, but also inspire, educate, and empower them to build
+          confidence in their own abilities.</p>
+        <p>Founded with the core goal of reducing screen-time and encouraging tactile, active learning, we create
+          products that seamlessly blend curriculum concepts with hands-on joy. Our toys are designed in collaboration
+          with early childhood development experts to ensure they are age-appropriate and skill-aligned.</p>
+        <p>From high-contrast baby sensory cards to creative arts &amp; crafts, floor puzzles, and STEM kits, our
+          collection supports essential motor, cognitive, and logical skills at every developmental stage.</p>
+      </div>
+      <div class="story-image">
+        <img src="https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=600&h=500&fit=crop"
+          alt="Children playing with educational blocks">
+      </div>
+    </div>
+  </div>
+
+  <!-- Pillars Section -->
+  <div class="pillars-section">
+    <div class="pillars-container">
+      <h2>Why Parents Trust Us</h2>
+      <div class="pillars-grid">
+        <div class="pillar-card">
+          <div class="pillar-icon blue-icon"><i class="fas fa-shield-alt"></i></div>
+          <h3>100% Safe &amp; Non-Toxic</h3>
+          <p>Every single product is strictly crafted from eco-friendly, premium wood, cotton, and certified child-safe
+            materials. Zero toxins, zero risk.</p>
+        </div>
+        <div class="pillar-card">
+          <div class="pillar-icon orange-icon"><i class="fas fa-brain"></i></div>
+          <h3>Skill-Aligned Play</h3>
+          <p>We target core cognitive milestones: fine motor skills, spatial reasoning, STEM learning, and logical
+            tracking, making developmental gains natural and easy.</p>
+        </div>
+        <div class="pillar-card">
+          <div class="pillar-icon green-icon"><i class="fas fa-mobile-alt-slash"></i></div>
+          <h3>Healthy Screen-Free Time</h3>
+          <p>Our toys are designed to captivate your child's interest entirely, offering satisfying, interactive play
+            that keeps them away from screens.</p>
+        </div>
+      </div>
+
+      <!-- CTA Inside About Page -->
+      <div class="cta-box">
+        <h3>Join the BrainyGrasp Family</h3>
+        <p>Start your child's journey of discovery today with our premium range of interactive learning toys.</p>
+        <a href="collections.html" class="cta-btn">Explore Our Collection</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col footer-brand">
+          <a href="index.html" class="footer-logo"
+            style="font-family:'Chewy',cursive;font-size:28px;color:#4280ca;text-decoration:none;">brainy<span
+              style="color:#ffc107;">grasp</span></a>
+          <p>Where learning meets play! Educational toys designed to spark curiosity in every child.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Policies</h4>
+          <ul>
+            <li><a href="refund-policy.html">Refund &amp; Replacement</a></li>
+            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+            <li><a href="terms.html">Terms &amp; Conditions</a></li>
+            <li><a href="faqs.html">FAQs</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Shop</h4>
+          <ul>
+            <li><a href="shop-by-age.html">Shop by Age</a></li>
+            <li><a href="shop-by-category.html">Shop by Category</a></li>
+            <li><a href="collections.html?collection=bestsellers">Bestsellers</a></li>
+            <li><a href="collections.html?collection=newlaunches">New Launches</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Contact</h4>
+          <ul>
+            <li><a href="https://wa.me/919677406373"><i class="fab fa-whatsapp"></i> +91 96774 06373</a></li>
+            <li><a href="https://mail.google.com/mail/?view=cm&to=brainygrasp@gmail.com&subject=BrainyGrasp%20Support" target="_blank" rel="noopener"><i class="fas fa-envelope"></i> brainygrasp@gmail.com</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="footer-bottom-inner">
+          <p>&copy; 2026 BrainyGrasp Learning Pvt. Ltd. All rights reserved.</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Cart Sidebar -->
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <div class="cart-sidebar" id="cartSidebar">
+    <div class="cart-header">
+      <h3>My Cart <span class="cart-item-count" id="cartItemCount">0</span></h3>
+      <button class="cart-close" id="cartClose"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="cart-body">
+      <div class="cart-empty" id="cartEmpty"><i class="fas fa-shopping-bag"></i>
+        <p>Your cart is empty</p><a href="collections.html" class="btn btn-primary">Start Shopping</a>
+      </div>
+      <div class="cart-items" id="cartItems"></div>
+    </div>
+    <div class="cart-footer">
+      <div class="cart-total-row"><span>Total:</span><span id="cartTotal">&#8377;0</span></div>
+      <button class="btn btn-primary btn-full" id="sidebarCheckoutBtn">Secure Checkout</button>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/auth-unified.js"></script>
+  <script src="js/modern-search.js"></script>
+</body>
+
+</html>

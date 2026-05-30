@@ -1,0 +1,39 @@
+﻿# Render.com Deployment Configuration
+# Deploy this repo on render.com → New Web Service → Connect GitHub
+# Set Root Directory to: BRAINGRASP_DEVIN/backend
+
+services:
+  - type: web
+    name: brainygrasp-api
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      # ── Set these in Render Dashboard → Environment ──────────
+      # Do NOT hardcode secrets here. Add them in the Render UI.
+      - key: JWT_SECRET
+        sync: false
+      - key: DATABASE_URL
+        sync: false          # Paste your Neon/Supabase connection string
+      - key: REDIS_URL
+        sync: false          # Paste your Upstash Redis URL
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false          # e.g. https://brainygrasp.vercel.app

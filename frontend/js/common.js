@@ -1,4 +1,4 @@
-// === Announcement Bar Slider ===
+﻿// === Announcement Bar Slider ===
 
 function initAnnouncementSlider() {
 
@@ -388,7 +388,7 @@ function renderCartSidebar() {
   const total = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
   const SHIPPING_THRESHOLD = 999;
   const shippingFill = document.getElementById('shippingBarFill');
-  const shippingMsg  = document.getElementById('shippingBarMsg');
+  const shippingMsg = document.getElementById('shippingBarMsg');
   if (shippingFill && shippingMsg) {
     const pct = Math.min((total / SHIPPING_THRESHOLD) * 100, 100);
     shippingFill.style.width = pct + '%';
@@ -417,8 +417,8 @@ function renderCartSidebar() {
       <div class="cart-item">
 
         ${item.image
-          ? `<img class="cart-item-img" src="${escapeHTML(item.image)}" alt="${escapeHTML(item.name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
-          : ''}
+        ? `<img class="cart-item-img" src="${escapeHTML(item.image)}" alt="${escapeHTML(item.name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+        : ''}
         <div class="cart-item-img-placeholder" style="${item.image ? 'display:none' : ''}">🧸</div>
 
         <div class="cart-item-body">
@@ -1148,7 +1148,7 @@ function syncAuthHeader() {
 
       <i class="fas fa-user-check" style="color:#FF6B35"></i>
 
-      <span class="user-name-label" style="font-size:11px;font-weight:700;color:#FF6B35;display:block;line-height:1;margin-top:2px">${firstName}</span>
+      <span class="user-name-label">${firstName}</span>
 
     `;
 

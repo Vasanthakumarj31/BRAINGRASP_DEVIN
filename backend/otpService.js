@@ -32,28 +32,31 @@ async function sendOTPEmail(email, otp) {
 
   const mailOptions = {
     from: `"BrainyGrasp" <${process.env.EMAIL_USER}>`,
+    replyTo: 'brainygrasp@gmail.com',
     to: email,
-    subject: 'BrainyGrasp - Your One-Time Password (OTP)',
+    subject: 'BrainyGrasp — Your One-Time Password (OTP)',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px; text-align: center; margin-bottom: 30px;">
-          <h1 style="color: white; margin: 0; font-size: 32px;">BrainyGrasp</h1>
-          <p style="color: white; margin: 10px 0 0 0; font-size: 16px;">Educational Toys for Every Child</p>
+        <div style="background: linear-gradient(135deg, #4280ca 0%, #2d5fa0 100%); padding: 30px; border-radius: 12px; text-align: center; margin-bottom: 30px;">
+          <h1 style="color: white; margin: 0; font-size: 32px; font-family: Arial, sans-serif;">brainy<span style="color:#ffc107;">grasp</span></h1>
+          <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 14px;">Where Learning Meets Play!</p>
         </div>
         
         <div style="background: #f8f9fa; padding: 30px; border-radius: 10px; margin-bottom: 20px;">
-          <h2 style="color: #333; margin: 0 0 10px 0;">Your OTP Code</h2>
-          <div style="background: white; padding: 20px; border-radius: 5px; text-align: center; margin: 20px 0;">
-            <span style="font-size: 36px; font-weight: bold; color: #667eea; letter-spacing: 8px;">${otp}</span>
+          <h2 style="color: #1e1e2e; margin: 0 0 10px 0; font-size: 20px;">Your One-Time Password</h2>
+          <p style="color: #555; margin: 0 0 20px 0; font-size: 14px;">Use this OTP to verify your identity on BrainyGrasp.</p>
+          <div style="background: white; border: 2px dashed #4280ca; padding: 24px; border-radius: 10px; text-align: center; margin: 0 0 20px 0;">
+            <span style="font-size: 40px; font-weight: bold; color: #4280ca; letter-spacing: 10px;">${otp}</span>
           </div>
-          <p style="color: #666; margin: 0; line-height: 1.5;">
-            This OTP is valid for <strong>10 minutes</strong>. Please do not share this code with anyone.
+          <p style="color: #666; margin: 0; line-height: 1.6; font-size: 14px;">
+            This OTP is valid for <strong>10 minutes</strong>. Please do not share this code with anyone for security reasons.
           </p>
         </div>
         
-        <div style="text-align: center; color: #999; font-size: 12px;">
-          <p>If you didn't request this OTP, please ignore this email.</p>
-          <p>© 2026 BrainyGrasp. All rights reserved.</p>
+        <div style="text-align: center; color: #999; font-size: 12px; border-top: 1px solid #eee; padding-top: 20px;">
+          <p style="margin: 0 0 6px;">If you didn't request this OTP, please ignore this email.</p>
+          <p style="margin: 0 0 6px;">For support, contact us at <a href="mailto:brainygrasp@gmail.com" style="color:#4280ca;">brainygrasp@gmail.com</a></p>
+          <p style="margin: 0;">© 2026 BrainyGrasp Learning Pvt. Ltd. | 162, Tiruppur road, Kangayam-638701, Tamil Nadu</p>
         </div>
       </div>
     `

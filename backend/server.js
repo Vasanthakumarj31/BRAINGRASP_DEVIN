@@ -1,4 +1,4 @@
-require('dotenv').config();
+﻿require('dotenv').config();
 const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
@@ -70,13 +70,16 @@ app.use(express.json());
 if (!process.env.DB_PASSWORD) {
   throw new Error('❌ Missing required env var: DB_PASSWORD must be set in .env');
 }
-const pool = new Pool({
-    user:     process.env.DB_USER     || 'postgres',
-    host:     process.env.DB_HOST     || 'localhost',
-    database: process.env.DB_NAME     || 'brainygras',
-    password: process.env.DB_PASSWORD,
-    port:     parseInt(process.env.DB_PORT) || 5432,
-});
+// Support DATABASE_URL (Neon/Supabase) or individual DB_* vars (local Docker)
+const pool = process.env.DATABASE_URL
+  ? new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } })
+  : new Pool({
+      user:     process.env.DB_USER     || 'postgres',
+      host:     process.env.DB_HOST     || 'localhost',
+      database: process.env.DB_NAME     || 'brainygras',
+      password: process.env.DB_PASSWORD,
+      port:     parseInt(process.env.DB_PORT) || 5432,
+    });
 
 
 // ── Database Initialization (Tables) ────────────────────────────────────────

@@ -1,36 +1,24 @@
 {
-<<<<<<< HEAD
-  "name": "braingrasp_devin",
+  "name": "backend",
   "version": "1.0.0",
   "description": "BrainyGRAS — Educational Toys E-commerce Platform",
   "main": "index.js",
   "scripts": {
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Vasanthakumarj31/BRAINGRASP_DEVIN.git"
   },
-=======
-  "name": "backend",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "start": "node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
->>>>>>> 25bec6e (set up the admin panel)
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
-<<<<<<< HEAD
   "bugs": {
     "url": "https://github.com/Vasanthakumarj31/BRAINGRASP_DEVIN/issues"
   },
-  "homepage": "https://github.com/Vasanthakumarj31/BRAINGRASP_DEVIN#readme"
-=======
+  "homepage": "https://github.com/Vasanthakumarj31/BRAINGRASP_DEVIN#readme",
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
@@ -43,5 +31,4 @@
     "razorpay": "^2.9.6",
     "redis": "^4.6.14"
   }
->>>>>>> 25bec6e (set up the admin panel)
 }
