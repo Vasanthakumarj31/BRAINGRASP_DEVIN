@@ -1,4 +1,4 @@
-﻿// === Announcement Bar Slider ===
+// === Announcement Bar Slider ===
 
 function initAnnouncementSlider() {
 
@@ -124,20 +124,63 @@ function initMobileMenu() {
 
   if (overlay) overlay.addEventListener('click', closeMenu);
 
+  // Close menu on Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && nav.classList.contains('active')) closeMenu();
+  });
+
+  // Inject a close (X) button at top of nav sidebar
+  if (!nav.querySelector('.nav-close-btn')) {
+    const closeDiv = document.createElement('div');
+    closeDiv.className = 'nav-close-btn';
+    closeDiv.style.textAlign = 'right';
+    closeDiv.style.marginBottom = '15px';
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.setAttribute('aria-label', 'Close menu');
+    closeBtn.innerHTML = '<i class="fas fa-times" style="font-size: 24px; color: #333;"></i>';
+    closeBtn.style.background = 'none';
+    closeBtn.style.border = 'none';
+    closeBtn.style.cursor = 'pointer';
+    closeBtn.style.padding = '10px';
+    closeBtn.addEventListener('click', closeMenu);
+    closeDiv.appendChild(closeBtn);
+    nav.insertBefore(closeDiv, nav.firstChild);
+  }
+
+  // Mega-menu items: first tap opens dropdown, second tap navigates to page.
   document.querySelectorAll('.nav-item.has-mega .nav-link').forEach(link => {
-
     link.addEventListener('click', (e) => {
-
       if (window.innerWidth <= 768) {
-
+        const navItem = link.closest('.nav-item');
+        if (navItem.classList.contains('open')) {
+          // Already open — let the browser navigate to the href
+          closeMenu();
+          return;
+        }
+        // First tap — open the mega dropdown, don't navigate
         e.preventDefault();
-
-        link.closest('.nav-item').classList.toggle('open');
-
+        // Close any other open mega menus
+        document.querySelectorAll('.nav-item.has-mega.open').forEach(item => {
+          if (item !== navItem) item.classList.remove('open');
+        });
+        navItem.classList.add('open');
       }
-
     });
+  });
 
+  // Non-mega nav items — navigate and close the menu
+  document.querySelectorAll('.nav-item:not(.has-mega) .nav-link').forEach(link => {
+    link.addEventListener('click', () => {
+      closeMenu();
+    });
+  });
+
+  // Links inside mega-menu dropdowns — navigate and close menu
+  document.querySelectorAll('.mega-menu a').forEach(link => {
+    link.addEventListener('click', () => {
+      closeMenu();
+    });
   });
 
 }

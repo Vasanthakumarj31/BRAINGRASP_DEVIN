@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sign in - BrainyGrasp</title>
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/mobile-responsive.css">
@@ -35,6 +35,8 @@
     .footer-note{font-size:13px;color:var(--muted);margin-top:12px;text-align:center}
     @media (max-width:900px){.auth-shell{grid-template-columns:1fr;max-width:520px}.auth-hero{order:2}}
   </style>
+  <link rel="stylesheet" href="css/policy-mobile.css">
+  <link rel="stylesheet" href="css/mobile-master.css">
 </head>
 <body>
   <div class="auth-shell">
@@ -42,19 +44,20 @@
       <h1>Welcome back to BrainyGrasp</h1>
       <p class="muted">Sign in quickly using OTP. No password required — secure, fast, and kid-friendly.</p>
       <div style="margin-top:10px">
-        <a href="index.html" class="muted">← Back to Home</a>
+        <a href="index.html" class="muted">? Back to Home</a>
       </div>
     </div>
 
     <main class="auth-container" aria-labelledby="signinTitle">
-      <div class="brand">
-        <div class="logo-icon">BG</div>
+      <div class="brand" style="display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-bottom: 20px;">
+        <a href="index.html" style="text-decoration: none; display: flex; align-items: center; gap: 6px;">
+          <span class="animated-logo-text" style="font-family: 'Chewy', cursive; font-size: 32px; color: #4280ca; letter-spacing: 0.5px;">brainy<span style="color: #ffc107;">grasp</span></span>
+        </a>
         <div>
-          <div id="signinTitle" style="font-weight:700">Sign in</div>
+          <div id="signinTitle" style="font-weight:700; font-size: 18px; color: #0f172a; margin-top: 4px;">Sign in</div>
           <div class="muted" style="font-size:13px">Use your email to receive a one-time code</div>
         </div>
       </div>
-
       <form id="loginForm" novalidate>
         <div id="authStep1">
           <div id="emailWrap" class="input-group">
@@ -98,4 +101,5 @@
   <script src="js/mobile-enhancements.js"></script>
 </body>
 </html>
+
 

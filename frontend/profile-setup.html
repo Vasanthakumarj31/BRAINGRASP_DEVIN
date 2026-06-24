@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -253,6 +253,9 @@
             .profile-setup-container { padding: 25px; }
         }
     </style>
+  <link rel="stylesheet" href="css/mobile-responsive.css">
+  <link rel="stylesheet" href="css/policy-mobile.css">
+  <link rel="stylesheet" href="css/mobile-master.css">
 </head>
 <body>
     <div class="profile-setup-container">
@@ -347,7 +350,7 @@
             </button>
             
             <div class="success-message" id="successMessage">
-                ✨ Profile saved! Redirecting you now...
+                ? Profile saved! Redirecting you now...
             </div>
             
             <div class="skip-text">
@@ -446,8 +449,8 @@
                         const successMsg = document.getElementById('successMessage');
                         if (successMsg) {
                             successMsg.textContent = postRedirect.includes('checkout')
-                                ? '✨ Profile saved! Taking you to checkout...'
-                                : '✨ Profile saved! Taking you to your dashboard...';
+                                ? '? Profile saved! Taking you to checkout...'
+                                : '? Profile saved! Taking you to your dashboard...';
                             successMsg.style.display = 'block';
                         }
                         localStorage.removeItem('postProfileRedirect');

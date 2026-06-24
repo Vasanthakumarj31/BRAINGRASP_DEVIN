@@ -148,23 +148,23 @@ const products = {
     },
   ]
 };
- 
+
 // === Create Product Card HTML ===
 function createProductCard(product) {
   const badgeClass = product.badge === 'bestseller' ? 'badge-bestseller' :
-                     product.badge === 'new' ? 'badge-new' : 'badge-bundle';
+    product.badge === 'new' ? 'badge-new' : 'badge-bundle';
   const badgeText = product.badge === 'bestseller' ? 'Bestseller' :
-                    product.badge === 'new' ? 'New Launch' : 'Best Bundle';
-  
-  const reviewsHTML = product.reviews > 0 
+    product.badge === 'new' ? 'New Launch' : 'Best Bundle';
+
+  const reviewsHTML = product.reviews > 0
     ? `<div class="product-reviews">
         <div class="stars">
           <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
         </div>
         <span class="review-count">${product.reviews} reviews</span>
-       </div>` 
+       </div>`
     : '';
- 
+
   return `
     <div class="product-card" data-id="${product.id}" data-age="${product.ageGroup}" data-category="${product.category || ''}" data-skills='${JSON.stringify(product.skills || [])}' data-theme="${product.theme || ''}" data-type="${product.type || ''}" data-price="${product.price}" data-date="${product.launchDate || ''}" data-sales="${product.sales || 0}">
       <span class="product-badge ${badgeClass}">${badgeText}</span>
@@ -188,33 +188,33 @@ function createProductCard(product) {
     </div>
   `;
 }
- 
+
 // === Render Products ===
 function renderProducts(gridId, productList) {
   const grid = document.getElementById(gridId);
   if (!grid) return;
   grid.innerHTML = productList.map(createProductCard).join('');
 }
- 
+
 // === Initialize Product Grids ===
 function initProductGrids() {
   renderProducts('trendingGrid', products.trending);
   renderProducts('handpickedGrid', products.bestsellers);
 }
- 
+
 // === Announcement Bar Slider ===
 function initAnnouncementSlider() {
   const slides = document.querySelectorAll('.announcement-slide');
   if (!slides.length) return;
   let current = 0;
-  
+
   setInterval(() => {
     slides[current].classList.remove('active');
     current = (current + 1) % slides.length;
     slides[current].classList.add('active');
   }, 3000);
 }
- 
+
 // === Hero Slider ===
 function initHeroSlider() {
   const slides = document.querySelectorAll('.hero-slide');
@@ -224,7 +224,7 @@ function initHeroSlider() {
   const nextBtn = document.querySelector('.hero-next');
   let current = 0;
   let autoSlide;
- 
+
   function goToSlide(index) {
     slides[current].classList.remove('active');
     dots[current].classList.remove('active');
@@ -234,39 +234,39 @@ function initHeroSlider() {
     slides[current].classList.add('active');
     dots[current].classList.add('active');
   }
- 
+
   function startAuto() {
     autoSlide = setInterval(() => goToSlide(current + 1), 5000);
   }
- 
+
   function resetAuto() {
     clearInterval(autoSlide);
     startAuto();
   }
- 
+
   dots.forEach((dot, i) => {
     dot.addEventListener('click', () => { goToSlide(i); resetAuto(); });
   });
- 
+
   prevBtn.addEventListener('click', () => { goToSlide(current - 1); resetAuto(); });
   nextBtn.addEventListener('click', () => { goToSlide(current + 1); resetAuto(); });
- 
+
   startAuto();
 }
- 
+
 // === Tab Functionality ===
 function initTabs() {
   document.querySelectorAll('.tab-bar').forEach(tabBar => {
     const section = tabBar.closest('.section');
     const gridId = section.querySelector('.products-grid')?.id;
- 
+
     tabBar.querySelectorAll('.tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         tabBar.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
- 
+
         const tab = btn.dataset.tab;
-        
+
         if (gridId === 'trendingGrid') {
           if (tab === 'all') {
             renderProducts('trendingGrid', products.trending);
@@ -285,57 +285,57 @@ function initTabs() {
 }
  
 });
- 
-  searchClose.addEventListener('click', () => {
-    searchOverlay.classList.remove('active');
-  });
+
+searchClose.addEventListener('click', () => {
+  searchOverlay.classList.remove('active');
+});
 }
- 
+
 // === Cart Sidebar ===
 function initCart() {
   const cartBtn = document.getElementById('cartBtn');
   const cartOverlay = document.getElementById('cartOverlay');
   const cartSidebar = document.getElementById('cartSidebar');
   const cartClose = document.getElementById('cartClose');
- 
+
   function openCart() {
     cartOverlay.classList.add('active');
     cartSidebar.classList.add('active');
     document.body.style.overflow = 'hidden';
   }
- 
+
   function closeCart() {
     cartOverlay.classList.remove('active');
     cartSidebar.classList.remove('active');
     document.body.style.overflow = '';
   }
- 
+
   cartBtn.addEventListener('click', openCart);
   cartOverlay.addEventListener('click', closeCart);
   cartClose.addEventListener('click', closeCart);
 }
- 
+
 // === Mobile Menu ===
 function initMobileMenu() {
   const menuBtn = document.getElementById('mobileMenuBtn');
   const nav = document.getElementById('mainNav');
   const overlay = document.getElementById('mobileOverlay');
- 
+
   function openMenu() {
     nav.classList.add('active');
     overlay.classList.add('active');
     document.body.style.overflow = 'hidden';
   }
- 
+
   function closeMenu() {
     nav.classList.remove('active');
     overlay.classList.remove('active');
     document.body.style.overflow = '';
   }
- 
+
   menuBtn.addEventListener('click', openMenu);
   overlay.addEventListener('click', closeMenu);
- 
+
   // Mobile mega menu toggle
   document.querySelectorAll('.nav-item.has-mega .nav-link').forEach(link => {
     link.addEventListener('click', (e) => {
@@ -346,7 +346,7 @@ function initMobileMenu() {
     });
   });
 }
- 
+
 // === Sticky Header ===
 function initStickyHeader() {
   const header = document.getElementById('mainHeader');
@@ -358,11 +358,11 @@ function initStickyHeader() {
     }
   });
 }
- 
+
 // === Back to Top ===
 function initBackToTop() {
   const btn = document.getElementById('backToTop');
-  
+
   window.addEventListener('scroll', () => {
     if (window.scrollY > 500) {
       btn.classList.add('visible');
@@ -370,22 +370,22 @@ function initBackToTop() {
       btn.classList.remove('visible');
     }
   });
- 
+
   btn.addEventListener('click', () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 }
- 
+
 // === FAQ Accordion ===
 function initFAQ() {
   document.querySelectorAll('.faq-question').forEach(btn => {
     btn.addEventListener('click', () => {
       const item = btn.closest('.faq-item');
       const isActive = item.classList.contains('active');
-      
+
       // Close all
       document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
-      
+
       // Open clicked if it wasn't active
       if (!isActive) {
         item.classList.add('active');
@@ -393,19 +393,19 @@ function initFAQ() {
     });
   });
 }
- 
+
 // === About Toggle ===
 function initAboutToggle() {
   const toggle = document.getElementById('aboutToggle');
   const content = document.getElementById('aboutContent');
   if (!toggle || !content) return;
- 
+
   toggle.addEventListener('click', () => {
     toggle.classList.toggle('collapsed');
     content.classList.toggle('hidden');
   });
 }
- 
+
 // === Testimonials Slider ===
 function initTestimonialsSlider() {
   const track = document.querySelector('.testimonial-track');
@@ -414,24 +414,24 @@ function initTestimonialsSlider() {
   const nextBtn = document.querySelector('.testimonial-next');
   let position = 0;
   const cardWidth = 370; // card width + gap
- 
+
   function slide(direction) {
     const maxScroll = track.scrollWidth - track.parentElement.offsetWidth;
     position += direction * cardWidth;
     position = Math.max(-maxScroll, Math.min(0, position));
     track.style.transform = `translateX(${position}px)`;
   }
- 
+
   prevBtn.addEventListener('click', () => slide(1));
   nextBtn.addEventListener('click', () => slide(-1));
- 
+
   // Touch/drag support
   let startX, startPos;
   track.addEventListener('touchstart', (e) => {
     startX = e.touches[0].clientX;
     startPos = position;
   });
- 
+
   track.addEventListener('touchmove', (e) => {
     const diff = e.touches[0].clientX - startX;
     const maxScroll = track.scrollWidth - track.parentElement.offsetWidth;
@@ -439,10 +439,10 @@ function initTestimonialsSlider() {
     track.style.transform = `translateX(${position}px)`;
   });
 }
- 
+
 // === Add to Cart Animation ===
 // Note: initAddToCart function moved to common.js to avoid duplication
- 
+
 // === Intersection Observer for Animations ===
 function initScrollAnimations() {
   const observer = new IntersectionObserver((entries) => {
@@ -453,12 +453,12 @@ function initScrollAnimations() {
       }
     });
   }, { threshold: 0.1 });
- 
+
   document.querySelectorAll('.section-header, .product-card, .age-card, .blog-card, .testimonial-card').forEach(el => {
     observer.observe(el);
   });
 }
- 
+
 // === Gift Finder Wizard ===
 function initGiftFinder() {
   const steps = document.querySelectorAll('.gift-finder-step');
@@ -467,18 +467,18 @@ function initGiftFinder() {
   const resultDiv = document.getElementById('giftFinderResult');
   const resultGrid = document.getElementById('giftResultGrid');
   const restartBtn = document.getElementById('giftFinderRestart');
-  
-  if(!steps.length) return;
+
+  if (!steps.length) return;
 
   let currentStep = 1;
   const totalSteps = steps.length;
-  
+
   document.querySelectorAll('.gift-option').forEach(btn => {
-    btn.addEventListener('click', function() {
+    btn.addEventListener('click', function () {
       const parentStep = this.closest('.gift-finder-step');
       parentStep.querySelectorAll('.gift-option').forEach(b => b.classList.remove('selected'));
       this.classList.add('selected');
-      
+
       setTimeout(() => {
         parentStep.classList.remove('active');
         if (currentStep < totalSteps) {
@@ -512,7 +512,7 @@ function initGiftFinder() {
   function showGiftResults() {
     const shuffled = [...products.trending, ...products.bestsellers].sort(() => 0.5 - Math.random());
     const recommendations = shuffled.slice(0, 3);
-    
+
     resultGrid.innerHTML = recommendations.map(createProductCard).join('');
     document.querySelector('.gift-finder-progress').style.display = 'none';
     resultDiv.style.display = 'block';
@@ -523,8 +523,8 @@ function initGiftFinder() {
 function initImportantLinks() {
   const toggle = document.getElementById('importantLinksToggle');
   const content = document.getElementById('importantLinksContent');
-  
-  if(!toggle || !content) return;
+
+  if (!toggle || !content) return;
 
   toggle.addEventListener('click', () => {
     toggle.classList.toggle('collapsed');
@@ -537,8 +537,8 @@ function initQuickView() {
   const modal = document.getElementById('quickviewModal');
   const overlay = document.getElementById('quickviewOverlay');
   const closeBtn = document.getElementById('quickviewClose');
-  
-  if(!modal) return;
+
+  if (!modal) return;
 
   function openQuickView(productInfo) {
     document.getElementById('quickviewImg').src = productInfo.image;
@@ -548,7 +548,7 @@ function initQuickView() {
     document.getElementById('quickviewSave').textContent = `Save ${productInfo.save}`;
     document.getElementById('quickviewBadge').textContent = productInfo.badgeText;
     document.getElementById('quickviewBadge').className = `quickview-badge ${productInfo.badgeClass}`;
-    
+
     document.getElementById('quickviewQty').value = 1;
     modal.classList.add('active');
     overlay.classList.add('active');
@@ -566,14 +566,14 @@ function initQuickView() {
 
   document.addEventListener('click', (e) => {
     const card = e.target.closest('.product-card');
-    if(e.target.closest('.product-image') && card) {
+    if (e.target.closest('.product-image') && card) {
       const name = card.querySelector('.product-name').textContent;
       const image = card.querySelector('img').src;
       const priceText = card.querySelector('.price-current').textContent.replace('₹', '');
       const originalPriceText = card.querySelector('.price-original').textContent.replace('₹', '');
       const saveText = card.querySelector('.price-save').textContent.replace('Save ', '');
       const badge = card.querySelector('.product-badge');
-      
+
       openQuickView({
         name: name,
         image: image,
@@ -589,21 +589,21 @@ function initQuickView() {
   const qtyMinus = document.querySelector('.qty-minus');
   const qtyPlus = document.querySelector('.qty-plus');
   const qtyInput = document.getElementById('quickviewQty');
-  
-  if(qtyMinus && qtyPlus && qtyInput) {
+
+  if (qtyMinus && qtyPlus && qtyInput) {
     // Clear old event listeners by cloning
     const newMinus = qtyMinus.cloneNode(true);
     const newPlus = qtyPlus.cloneNode(true);
     qtyMinus.parentNode.replaceChild(newMinus, qtyMinus);
     qtyPlus.parentNode.replaceChild(newPlus, qtyPlus);
-    
+
     newMinus.addEventListener('click', () => {
       let val = parseInt(qtyInput.value);
-      if(val > 1) qtyInput.value = val - 1;
+      if (val > 1) qtyInput.value = val - 1;
     });
     newPlus.addEventListener('click', () => {
       let val = parseInt(qtyInput.value);
-      if(val < 10) qtyInput.value = val + 1;
+      if (val < 10) qtyInput.value = val + 1;
     });
   }
 
@@ -638,7 +638,7 @@ function initShopByAge() {
           top: offsetPosition,
           behavior: 'smooth'
         });
-        
+
         // Close mobile menu if open
         const nav = document.getElementById('mainNav');
         if (nav && nav.classList.contains('active')) {
@@ -654,7 +654,7 @@ function initShopByAge() {
   const allProducts = [...products.trending, ...products.bestsellers, ...products.newlaunches];
   // Deduplicate by ID
   const uniqueProducts = Array.from(new Map(allProducts.map(item => [item.id, item])).values());
-  
+
   let currentProducts = [...uniqueProducts];
   let currentFilters = {
     ageGroup: null,
@@ -714,7 +714,7 @@ function initShopByAge() {
       e.preventDefault();
       const isActive = bubble.classList.contains('active');
       ageBubbles.forEach(b => b.classList.remove('active'));
-      
+
       if (!isActive) {
         bubble.classList.add('active');
         const text = bubble.querySelector('.skillmatics-age-banner').textContent.trim();
@@ -723,7 +723,7 @@ function initShopByAge() {
         currentFilters.ageGroup = null;
       }
       applyFiltersAndSort();
-      
+
       // Scroll to shop section header accounting for sticky nav
       const section = bubble.closest('.shop-by-age');
       if (section) {
@@ -766,7 +766,7 @@ function initShopByAge() {
   const filterBtn = document.getElementById('mobileFilterBtn');
   const filterSidebar = document.getElementById('filterSidebar');
   const filterClose = document.getElementById('filterCloseBtn');
-  
+
   if (filterBtn && filterSidebar) {
     filterBtn.addEventListener('click', () => {
       filterSidebar.classList.add('active');
@@ -790,7 +790,7 @@ function initShopByCategory() {
 
   const allProducts = [...products.trending, ...products.bestsellers, ...products.newlaunches, ...products.bundles];
   const uniqueProducts = Array.from(new Map(allProducts.map(item => [item.id, item])).values());
-  
+
   let currentProducts = [...uniqueProducts];
   let currentFilters = {
     category: null,
@@ -845,7 +845,7 @@ function initShopByCategory() {
     if (currentFilters.category) {
       filtered = filtered.filter(p => p.category === currentFilters.category);
     }
-    
+
     // Sidebar array filters
     const selectedCategories = Array.from(document.querySelectorAll('#catFilterCategories input:checked')).map(cb => cb.value);
     if (selectedCategories.length > 0) {
@@ -895,10 +895,10 @@ function initShopByCategory() {
       currentFilters.category = cat;
       titleEl.textContent = `${cat} Sets for Kids`;
       subtitleEl.textContent = `Explore our curated collection of ${cat.toLowerCase()}`;
-      
+
       // Clear sidebar checkboxes if category selected from top
       document.querySelectorAll('#catFilterSidebar input[type="checkbox"]').forEach(cb => cb.checked = false);
-      
+
       applyFiltersAndSort();
       const section = document.getElementById('shopByCategory');
       if (section) {
@@ -910,7 +910,7 @@ function initShopByCategory() {
           behavior: 'smooth'
         });
       }
-      
+
       // Close nav
       const nav = document.getElementById('mainNav');
       if (nav && nav.classList.contains('active')) nav.classList.remove('active');
@@ -944,7 +944,7 @@ function initShopByCategory() {
     pill.addEventListener('click', () => {
       const isActive = pill.classList.contains('active');
       agePills.forEach(p => p.classList.remove('active'));
-      
+
       if (!isActive) {
         pill.classList.add('active');
         currentFilters.ages = [pill.dataset.age];
@@ -998,16 +998,16 @@ function initDiscoverySliders() {
 // === Share Dropdown ===
 function initShareDropdown() {
   document.addEventListener('click', (e) => {
-    if(!e.target.closest('.product-share')) {
+    if (!e.target.closest('.product-share')) {
       document.querySelectorAll('.share-dropdown').forEach(d => d.classList.remove('active'));
     }
 
     if (e.target.closest('.share-btn')) {
       const btn = e.target.closest('.share-btn');
       const shareContainer = btn.closest('.product-share');
-      
+
       let dropdown = shareContainer.querySelector('.share-dropdown');
-      if(!dropdown) {
+      if (!dropdown) {
         dropdown = document.createElement('div');
         dropdown.className = 'share-dropdown active';
         dropdown.innerHTML = `
@@ -1046,7 +1046,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initShopByAge();
   initShopByCategory();
   initDiscoverySliders();
-  
+
   // Delay scroll animations to let content render
   setTimeout(initScrollAnimations, 100);
 });
@@ -1063,15 +1063,15 @@ function getCart() {
 function addToCart(item) {
   const cart = getCart();
   const existingItem = cart.find(cartItem => cartItem.id === item.id);
-  
+
   if (existingItem) {
     existingItem.quantity = (existingItem.quantity || 1) + 1;
   } else {
     cart.push({ ...item, quantity: 1 });
   }
-  
+
   localStorage.setItem('bg_cart', JSON.stringify(cart));
-  
+
   // Update cart count if function exists
   if (typeof updateCartCount === 'function') {
     updateCartCount();
@@ -1082,7 +1082,7 @@ function removeFromCart(itemId) {
   let cart = getCart();
   cart = cart.filter(item => item.id !== itemId);
   localStorage.setItem('bg_cart', JSON.stringify(cart));
-  
+
   // Update cart count if function exists
   if (typeof updateCartCount === 'function') {
     updateCartCount();

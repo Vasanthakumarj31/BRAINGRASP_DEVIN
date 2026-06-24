@@ -83,7 +83,7 @@ class MobileEnhancements {
     setupTouchGestures() {
         // Swipe gestures for product cards
         const productCards = document.querySelectorAll('.product-card');
-        
+
         productCards.forEach(card => {
             let startX = 0;
             let startY = 0;
@@ -103,7 +103,7 @@ class MobileEnhancements {
             card.addEventListener('touchend', (e) => {
                 const diffX = startX - currentX;
                 const diffY = startY - currentY;
-                
+
                 // Horizontal swipe (for quick actions)
                 if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
                     if (diffX > 0) {
@@ -156,10 +156,10 @@ class MobileEnhancements {
             z-index: 1000;
             pointer-events: none;
         `;
-        
+
         card.style.position = 'relative';
         card.appendChild(feedback);
-        
+
         setTimeout(() => {
             feedback.remove();
         }, 1500);
@@ -181,7 +181,7 @@ class MobileEnhancements {
             if (isPulling) {
                 const currentY = e.touches[0].clientY;
                 const diffY = currentY - startY;
-                
+
                 if (diffY > pullThreshold) {
                     this.showPullToRefreshIndicator(diffY);
                 }
@@ -192,11 +192,11 @@ class MobileEnhancements {
             if (isPulling) {
                 const currentY = e.changedTouches[0].clientY;
                 const diffY = currentY - startY;
-                
+
                 if (diffY > pullThreshold) {
                     this.refreshPage();
                 }
-                
+
                 this.hidePullToRefreshIndicator();
                 isPulling = false;
             }
@@ -228,7 +228,7 @@ class MobileEnhancements {
             `;
             document.body.appendChild(indicator);
         }
-        
+
         const progress = Math.min(diffY / 120, 1);
         indicator.style.top = `${-60 + (diffY * 0.5)}px`;
         indicator.style.transform = `translateX(-50%) rotate(${360 * progress}deg)`;
@@ -249,13 +249,13 @@ class MobileEnhancements {
     setupMobileOptimizations() {
         // Optimize images for mobile
         this.optimizeImages();
-        
+
         // Setup lazy loading
         this.setupLazyLoading();
-        
+
         // Optimize fonts
         this.optimizeFonts();
-        
+
         // Setup mobile-specific interactions
         this.setupMobileInteractions();
     }
@@ -267,7 +267,7 @@ class MobileEnhancements {
             if (!img.hasAttribute('loading')) {
                 img.setAttribute('loading', 'lazy');
             }
-            
+
             // Optimize for mobile
             if (this.isMobile) {
                 img.style.maxWidth = '100%';
@@ -303,7 +303,7 @@ class MobileEnhancements {
         fontLink.rel = 'preload';
         fontLink.href = 'https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap';
         fontLink.as = 'style';
-        fontLink.onload = function() {
+        fontLink.onload = function () {
             this.rel = 'stylesheet';
         };
         document.head.appendChild(fontLink);
@@ -373,7 +373,7 @@ class MobileEnhancements {
 
     handleResize() {
         const newIsMobile = window.innerWidth <= 768;
-        
+
         if (newIsMobile !== this.isMobile) {
             this.isMobile = newIsMobile;
             this.updateLayoutForDevice();
@@ -400,7 +400,7 @@ class MobileEnhancements {
         // Mobile-specific layout adjustments
         document.body.classList.add('mobile-layout');
         document.body.classList.remove('desktop-layout');
-        
+
         // Adjust product grid
         const productGrid = document.querySelector('.product-grid');
         if (productGrid) {
@@ -412,7 +412,7 @@ class MobileEnhancements {
         // Desktop-specific layout adjustments
         document.body.classList.add('desktop-layout');
         document.body.classList.remove('mobile-layout');
-        
+
         // Reset product grid
         const productGrid = document.querySelector('.product-grid');
         if (productGrid) {
@@ -450,7 +450,7 @@ class MobileEnhancements {
         cartSidebar.addEventListener('touchmove', (e) => {
             currentX = e.touches[0].clientX;
             const diffX = currentX - startX;
-            
+
             if (diffX > 50) {
                 cartSidebar.style.transform = `translateX(${diffX}px)`;
             }
@@ -458,7 +458,7 @@ class MobileEnhancements {
 
         cartSidebar.addEventListener('touchend', (e) => {
             const diffX = currentX - startX;
-            
+
             if (diffX > 100) {
                 // Close cart with swipe
                 this.closeCart();
@@ -472,7 +472,7 @@ class MobileEnhancements {
     closeCart() {
         const cartSidebar = document.querySelector('.cart-sidebar');
         const cartOverlay = document.querySelector('.cart-overlay');
-        
+
         if (cartSidebar) {
             cartSidebar.classList.remove('active');
         }
@@ -484,11 +484,11 @@ class MobileEnhancements {
     // Mobile Quick View Setup
     setupMobileQuickView() {
         const quickViewOverlay = document.querySelector('.quickview-overlay');
-        
+
         if (quickViewOverlay && this.isMobile) {
             // Make quick view full screen on mobile
             quickViewOverlay.style.padding = '0';
-            
+
             const quickViewContent = quickViewOverlay.querySelector('.quickview-content');
             if (quickViewContent) {
                 quickViewContent.style.height = '100vh';
@@ -501,12 +501,12 @@ class MobileEnhancements {
     setupMobileScrollEffects() {
         let lastScrollTop = 0;
         const header = document.querySelector('.header');
-        
+
         if (!header) return;
 
         window.addEventListener('scroll', () => {
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            
+
             if (this.isMobile) {
                 // Hide/show header on scroll
                 if (scrollTop > lastScrollTop && scrollTop > 100) {
@@ -516,7 +516,7 @@ class MobileEnhancements {
                     // Scrolling up
                     header.style.transform = 'translateY(0)';
                 }
-                
+
                 lastScrollTop = scrollTop;
             }
         }, { passive: true });
@@ -541,7 +541,7 @@ class MobileEnhancements {
 
     throttle(func, limit) {
         let inThrottle;
-        return function() {
+        return function () {
             const args = arguments;
             const context = this;
             if (!inThrottle) {

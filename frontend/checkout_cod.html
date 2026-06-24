@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Checkout | BrainyGrasp</title>
-  <meta name="description" content="Secure checkout – BrainyGrasp educational toys. Pay via Cash on Delivery or Razorpay.">
+  <meta name="description" content="Secure checkout � BrainyGrasp educational toys. Pay via Cash on Delivery or Razorpay.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -21,7 +21,7 @@
     *{margin:0;padding:0;box-sizing:border-box}
     body{background:var(--bg);font-family:'Nunito',sans-serif;color:var(--text);min-height:100vh}
 
-    /* ── HEADER ── */
+    /* -- HEADER -- */
     .co-header{background:var(--white);padding:14px 5%;display:flex;align-items:center;gap:16px;
       box-shadow:0 2px 12px rgba(102,126,234,.10);position:sticky;top:0;z-index:200}
     .co-header a{text-decoration:none;color:var(--muted);font-weight:700;font-size:.9rem;
@@ -30,7 +30,7 @@
     .co-logo{font-family:'Fredoka';font-size:1.6rem;color:var(--primary-dark);font-weight:700;
       margin:0 auto;letter-spacing:.5px}
 
-    /* ── STEPPER ── */
+    /* -- STEPPER -- */
     .stepper{display:flex;justify-content:center;align-items:center;gap:0;padding:22px 5% 0}
     .step{display:flex;align-items:center;gap:8px;font-size:.82rem;font-weight:800;color:#b2bec3;transition:color .3s}
     .step.done{color:var(--green)}
@@ -42,12 +42,12 @@
     .step-line{width:60px;height:2px;background:#e9ecef;margin:0 8px}
     @media(max-width:480px){.step-line{width:28px}.step span{display:none}}
 
-    /* ── LAYOUT ── */
+    /* -- LAYOUT -- */
     .co-layout{max-width:1120px;margin:28px auto;padding:0 16px;
       display:grid;grid-template-columns:1fr 380px;gap:24px;align-items:start}
     @media(max-width:860px){.co-layout{grid-template-columns:1fr}}
 
-    /* ── CARDS ── */
+    /* -- CARDS -- */
     .card{background:var(--white);border-radius:var(--radius);padding:26px;
       box-shadow:var(--shadow);margin-bottom:20px;border:1px solid rgba(102,126,234,.08)}
     .card-title{font-family:'Fredoka';font-size:1.2rem;color:var(--primary-dark);
@@ -55,7 +55,7 @@
     .card-title i{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));
       color:#fff;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0}
 
-    /* ── PROFILE BANNER ── */
+    /* -- PROFILE BANNER -- */
     .profile-banner{display:flex;align-items:center;gap:14px;padding:14px 16px;
       background:linear-gradient(135deg,rgba(102,126,234,.07),rgba(118,75,162,.05));
       border:1.5px solid rgba(102,126,234,.18);border-radius:12px;margin-bottom:20px}
@@ -70,7 +70,7 @@
       text-decoration:none;white-space:nowrap;transition:opacity .2s}
     .profile-edit-link:hover{opacity:.75}
 
-    /* ── ADDRESS TABS ── */
+    /* -- ADDRESS TABS -- */
     .addr-tabs{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
     .addr-tab{padding:8px 16px;border-radius:50px;border:1.5px solid var(--border);
       font-size:.82rem;font-weight:700;cursor:pointer;background:#f8f9fa;
@@ -79,7 +79,7 @@
       box-shadow:0 4px 12px rgba(102,126,234,.3)}
     .addr-tab i{margin-right:5px}
 
-    /* ── SAVED ADDRESS CARD ── */
+    /* -- SAVED ADDRESS CARD -- */
     .saved-addr-list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
     .saved-addr-item{padding:14px 16px;border:2px solid var(--border);border-radius:12px;
       cursor:pointer;transition:all .25s;position:relative;background:#f8f9fa}
@@ -93,7 +93,7 @@
     .saved-addr-name{font-weight:800;font-size:.9rem;margin-bottom:3px}
     .saved-addr-line{font-size:.82rem;color:var(--muted);line-height:1.5}
 
-    /* ── FORM ── */
+    /* -- FORM -- */
     .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
     .full{grid-column:1/-1}
     @media(max-width:500px){.form-grid{grid-template-columns:1fr}}
@@ -108,7 +108,7 @@
     .form-group input.prefilled{background:rgba(0,184,148,.05);border-color:rgba(0,184,148,.4)}
     .field-hint{font-size:.72rem;color:var(--muted);margin-top:3px}
 
-    /* ── PAYMENT ── */
+    /* -- PAYMENT -- */
     .payment-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
     .pay-radio{display:none}
     .pay-card{border:2px solid var(--border);border-radius:14px;padding:18px 14px;
@@ -126,13 +126,13 @@
     .rzp-logo{font-size:.6rem;background:#eef;color:var(--primary);
       padding:2px 6px;border-radius:4px;font-weight:800}
 
-    /* ── COD INFO BOX ── */
+    /* -- COD INFO BOX -- */
     .cod-info{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;
       background:#f0fff8;border:1px solid rgba(0,184,148,.3);border-radius:10px;
       margin-bottom:18px;font-size:.82rem;color:var(--green-dark)}
     .cod-info i{margin-top:2px;flex-shrink:0}
 
-    /* ── PLACE ORDER BUTTON ── */
+    /* -- PLACE ORDER BUTTON -- */
     .btn-place{width:100%;padding:17px;border:none;border-radius:14px;
       font-family:inherit;font-size:1.05rem;font-weight:800;cursor:pointer;
       transition:all .3s;display:flex;align-items:center;justify-content:center;
@@ -144,13 +144,13 @@
     .btn-place .spinner{animation:spin .8s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
 
-    /* ── ERROR / INFO MSG ── */
+    /* -- ERROR / INFO MSG -- */
     #coMsg{margin-top:12px;font-size:.87rem;font-weight:700;
       padding:10px 14px;border-radius:8px;display:none}
     #coMsg.error{background:#fff5f5;color:#c53030;border:1px solid #feb2b2}
     #coMsg.info{background:#f0fff8;color:var(--green-dark);border:1px solid rgba(0,184,148,.3)}
 
-    /* ── ORDER SUMMARY (RIGHT PANEL) ── */
+    /* -- ORDER SUMMARY (RIGHT PANEL) -- */
     .sticky-panel{position:sticky;top:80px}
     .order-item-row{display:flex;justify-content:space-between;align-items:flex-start;
       padding:12px 0;border-bottom:1px solid #f1f2f6;font-size:.88rem;gap:10px}
@@ -167,7 +167,7 @@
     .empty-cart{text-align:center;padding:36px 20px;color:var(--muted)}
     .empty-cart i{font-size:2.8rem;opacity:.3;margin-bottom:12px;display:block}
 
-    /* ── PROMO CODE ── */
+    /* -- PROMO CODE -- */
     .promo-row{display:flex;gap:8px;margin-top:14px}
     .promo-row input{flex:1;padding:10px 12px;border:1.5px solid var(--border);
       border-radius:var(--radius-sm);font-family:inherit;font-size:.85rem;background:#f8f9fa}
@@ -177,14 +177,14 @@
       white-space:nowrap;transition:opacity .2s}
     .btn-promo:hover{opacity:.85}
 
-    /* ── TRUST BADGES ── */
+    /* -- TRUST BADGES -- */
     .trust-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px;padding-top:16px;
       border-top:1px solid var(--border)}
     .trust-item{display:flex;align-items:center;gap:6px;font-size:.75rem;
       color:var(--muted);font-weight:700}
     .trust-item i{color:var(--green);font-size:.9rem}
 
-    /* ── SUCCESS OVERLAY ── */
+    /* -- SUCCESS OVERLAY -- */
     .success-overlay{position:fixed;inset:0;background:rgba(20,25,40,.75);
       display:none;justify-content:center;align-items:center;z-index:9999;
       backdrop-filter:blur(6px)}
@@ -206,20 +206,25 @@
     .redirect-bar-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--green));
       width:0;transition:width 3s linear}
 
-    /* ── RESPONSIVE ── */
+    /* -- RESPONSIVE -- */
     @media(max-width:600px){
       .card{padding:18px}
       .success-box{padding:30px 20px}
       .payment-grid{grid-template-columns:1fr 1fr}
     }
   </style>
+  <link rel="stylesheet" href="css/mobile-responsive.css">
+  <link rel="stylesheet" href="css/policy-mobile.css">
+  <link rel="stylesheet" href="css/mobile-master.css">
 </head>
 <body>
 
 <!-- HEADER -->
 <header class="co-header">
   <a href="javascript:history.back()"><i class="fas fa-arrow-left"></i> Back</a>
-  <span class="co-logo">BrainyGrasp</span>
+  <a href="index.html" style="text-decoration: none; display: flex; align-items: center; gap: 8px; margin: 0 auto;">
+    <span class="animated-logo-text" style="font-family: 'Chewy', cursive; font-size: 30px; color: #4280ca; letter-spacing: 0.5px;">brainy<span style="color: #ffc107;">grasp</span></span>
+  </a>
   <a href="index.html"><i class="fas fa-home"></i> Shop</a>
 </header>
 
@@ -252,7 +257,7 @@
       <div class="profile-banner" id="profileBanner">
         <div class="profile-avatar" id="profileInitial">?</div>
         <div class="profile-info">
-          <div class="profile-name" id="profileName">Loading profile…</div>
+          <div class="profile-name" id="profileName">Loading profile�</div>
           <div class="profile-tag" id="profileEmail"></div>
         </div>
         <a href="profile-setup.html" class="profile-edit-link"><i class="fas fa-pencil-alt"></i> Edit Profile</a>
@@ -341,7 +346,7 @@
         <div>
           <input type="radio" name="payMethod" id="payCOD" class="pay-radio" value="cod" checked>
           <label for="payCOD" class="pay-card">
-            <span class="pay-icon">🏠</span>
+            <span class="pay-icon">??</span>
             <div class="pay-name">Cash on Delivery</div>
             <div class="pay-desc">Pay when your order arrives</div>
           </label>
@@ -350,9 +355,9 @@
           <input type="radio" name="payMethod" id="payRZP" class="pay-radio" value="razorpay">
           <label for="payRZP" class="pay-card">
             <div class="pay-badge">INSTANT</div>
-            <span class="pay-icon">⚡</span>
+            <span class="pay-icon">?</span>
             <div class="pay-name">Pay Online</div>
-            <div class="pay-desc">UPI · Card · Net Banking</div>
+            <div class="pay-desc">UPI � Card � Net Banking</div>
             <div class="rzp-logos">
               <span class="rzp-logo">UPI</span>
               <span class="rzp-logo">VISA</span>
@@ -384,7 +389,7 @@
       <!-- Trust badges -->
       <div class="trust-row">
         <div class="trust-item"><i class="fas fa-shield-alt"></i> 100% Secure</div>
-        <div class="trust-item"><i class="fas fa-truck"></i> Free Ship ₹999+</div>
+        <div class="trust-item"><i class="fas fa-truck"></i> Free Ship ?999+</div>
         <div class="trust-item"><i class="fas fa-undo"></i> 15-Day Returns</div>
         <div class="trust-item"><i class="fas fa-lock"></i> Safe Payments</div>
       </div>
@@ -399,7 +404,7 @@
       <div id="coItems">
         <div class="empty-cart">
           <i class="fas fa-shopping-bag"></i>
-          <p>Loading your cart…</p>
+          <p>Loading your cart�</p>
         </div>
       </div>
 
@@ -417,12 +422,12 @@
 <!-- SUCCESS OVERLAY -->
 <div class="success-overlay" id="successOverlay">
   <div class="success-box">
-    <div class="success-lottie">🎉</div>
+    <div class="success-lottie">??</div>
     <h2>Order Confirmed!</h2>
     <p>Your BrainyGrasp order is placed successfully.</p>
-    <div class="order-id-pill" id="successOrderId">Order #…</div>
+    <div class="order-id-pill" id="successOrderId">Order #�</div>
     <p class="success-pay-note" id="successPayNote"></p>
-    <p class="redirect-note"><i class="fas fa-circle-notch fa-spin"></i> Redirecting to dashboard…</p>
+    <p class="redirect-note"><i class="fas fa-circle-notch fa-spin"></i> Redirecting to dashboard�</p>
     <div class="redirect-bar"><div class="redirect-bar-fill" id="redirectFill"></div></div>
   </div>
 </div>

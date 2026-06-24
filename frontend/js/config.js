@@ -1,4 +1,4 @@
-﻿/**
+/**
  * BrainyGrasp — Shared Frontend Configuration
  *
  * HOW TO SET THE API URL FOR PRODUCTION:

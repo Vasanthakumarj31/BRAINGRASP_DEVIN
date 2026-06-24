@@ -7,34 +7,35 @@
    EXTRA SMALL DEVICES (320px - 480px)
    ========================================== */
 @media screen and (max-width: 480px) {
-    
-    html, body {
+
+    html,
+    body {
         overflow-x: hidden;
         width: 100%;
     }
-    
+
     body {
         font-size: 14px;
     }
-    
+
     .container {
         width: 100%;
         max-width: 100%;
         padding: 0 12px;
     }
-    
+
     /* Announcement Bar */
     .announcement-bar {
         padding: 6px 12px;
         font-size: 11px;
         height: 24px;
     }
-    
+
     /* Top Bar - Hide */
     .top-bar {
         display: none;
     }
-    
+
     /* Main Header - Fixed */
     .main-header {
         position: fixed;
@@ -43,30 +44,30 @@
         right: 0;
         z-index: 1000;
         height: 56px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
-    
+
     .header-inner {
         height: 56px;
         gap: 8px;
         padding: 0 8px;
     }
-    
+
     /* Logo */
     .logo {
         flex: 0 0 auto;
     }
-    
+
     .animated-logo-text {
         font-size: 18px !important;
         letter-spacing: 0.5px !important;
     }
-    
+
     /* Navigation - Hidden */
     .main-nav {
         display: none;
     }
-    
+
     /* Mobile Menu */
     .mobile-menu-btn {
         display: flex !important;
@@ -80,13 +81,13 @@
         cursor: pointer;
         order: -1;
     }
-    
+
     /* Header Actions */
     .header-actions {
         display: flex;
         gap: 4px;
     }
-    
+
     .header-actions button,
     .header-actions a {
         width: 40px;
@@ -101,7 +102,7 @@
         cursor: pointer;
         position: relative;
     }
-    
+
     /* Mobile Nav */
     .mobile-nav-overlay {
         position: fixed;
@@ -109,15 +110,15 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0,0,0,0.5);
+        background: rgba(0, 0, 0, 0.5);
         z-index: 2000;
         display: none;
     }
-    
+
     .mobile-nav-overlay.active {
         display: block;
     }
-    
+
     .mobile-nav-sidebar {
         position: fixed;
         top: 0;
@@ -130,54 +131,57 @@
         transition: left 0.3s ease;
         overflow-y: auto;
     }
-    
+
     .mobile-nav-overlay.active .mobile-nav-sidebar {
         left: 0;
     }
-    
+
     /* Content Offset */
-    main, .section, .banner-brand, .products-section {
+    main,
+    .section,
+    .banner-brand,
+    .products-section {
         margin-top: 56px;
     }
-    
+
     /* Hero Section */
     .banner-brand {
         padding: 0 !important;
     }
-    
+
     .banner-brand-inner {
         flex-direction: column;
         padding: 16px 12px;
         min-height: auto;
         gap: 12px;
     }
-    
+
     .brand-text-content {
         max-width: 100%;
     }
-    
+
     .brand-text-content h1 {
         font-size: 1.6rem !important;
         margin-bottom: 10px !important;
         line-height: 1.2 !important;
     }
-    
+
     .brand-text-content p {
         font-size: 0.9rem !important;
         margin-bottom: 12px !important;
         line-height: 1.5;
     }
-    
+
     .brand-image-container {
         height: 180px;
         width: 100%;
     }
-    
+
     .brand-hero-img {
         max-width: 100%;
         max-height: 100%;
     }
-    
+
     /* Buttons */
     .btn {
         padding: 10px 20px;
@@ -185,13 +189,13 @@
         min-height: 44px;
         width: 100%;
     }
-    
+
     .btn-brand {
         width: 100%;
         padding: 10px 16px !important;
         font-size: 0.95rem !important;
     }
-    
+
     /* Product Grid - 2 columns */
     .product-grid {
         display: grid;
@@ -199,43 +203,43 @@
         gap: 10px;
         padding: 0;
     }
-    
+
     .product-image {
         height: 110px;
     }
-    
+
     .product-info {
         padding: 8px;
     }
-    
+
     .product-name {
         font-size: 12px;
         height: 32px;
     }
-    
+
     .price-current {
         font-size: 13px;
     }
-    
+
     .add-to-cart-btn {
         padding: 6px;
         font-size: 11px;
         min-height: 36px;
     }
-    
+
     /* Sections */
     .section {
         padding: 18px 12px !important;
     }
-    
+
     .section-header h2 {
         font-size: 16px;
     }
-    
+
     .section-header p {
         font-size: 12px;
     }
-    
+
     /* Cart Sidebar */
     .cart-sidebar {
         width: 100vw;
@@ -243,29 +247,31 @@
         max-width: 100%;
         border-radius: 0;
     }
-    
+
     .cart-header h3 {
         font-size: 16px;
     }
-    
+
     .cart-items {
         max-height: calc(100vh - 180px);
     }
-    
+
     /* Forms */
-    input, textarea, select {
+    input,
+    textarea,
+    select {
         width: 100%;
         padding: 12px;
         font-size: 16px;
         border-radius: 6px;
         margin-bottom: 10px;
     }
-    
+
     /* Footer */
     .footer {
         padding: 18px 12px 12px;
     }
-    
+
     .footer-section {
         margin-bottom: 12px;
     }
@@ -275,102 +281,104 @@
    SMALL TABLETS (481px - 768px)
    ========================================== */
 @media screen and (max-width: 768px) {
-    
+
     .container {
         padding: 0 15px;
     }
-    
+
     .announcement-bar {
         padding: 8px 15px;
         font-size: 12px;
     }
-    
+
     .main-header {
         position: sticky;
         top: 0;
         height: 64px;
     }
-    
+
     .header-inner {
         height: 64px;
         gap: 12px;
     }
-    
+
     .animated-logo-text {
         font-size: 22px !important;
     }
-    
+
     .main-nav {
         display: none !important;
     }
-    
+
     .mobile-menu-btn {
         display: flex !important;
     }
-    
-    main, .section, .banner-brand {
+
+    main,
+    .section,
+    .banner-brand {
         margin-top: 64px;
     }
-    
+
     /* Banner/Hero */
     .banner-brand-inner {
         flex-direction: column;
         padding: 20px 15px;
         min-height: auto;
     }
-    
+
     .brand-text-content h1 {
         font-size: 2rem !important;
         margin-bottom: 12px !important;
     }
-    
+
     .brand-text-content p {
         font-size: 1rem !important;
         margin-bottom: 16px !important;
     }
-    
+
     .brand-image-container {
         height: 250px;
     }
-    
+
     /* Product Grid */
     .product-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 12px;
     }
-    
+
     .product-image {
         height: 140px;
     }
-    
+
     .product-name {
         font-size: 13px;
     }
-    
+
     .price-current {
         font-size: 15px;
     }
-    
+
     .add-to-cart-btn {
         padding: 8px;
         font-size: 12px;
     }
-    
+
     /* Categories */
     .category-grid {
         grid-template-columns: repeat(3, 1fr);
         gap: 12px;
     }
-    
+
     /* Section */
     .section {
         padding: 25px 15px !important;
     }
-    
+
     .section-header h2 {
         font-size: 22px;
     }
-    
+
     /* Cart */
     .cart-sidebar {
         width: 90vw;
@@ -378,24 +386,26 @@
         height: 90vh;
         border-radius: 12px 0 0 12px;
     }
-    
+
     /* Forms */
-    input, textarea, select {
+    input,
+    textarea,
+    select {
         padding: 12px;
         font-size: 16px;
     }
-    
+
     /* Footer */
     .footer {
         padding: 25px 15px 15px;
     }
-    
+
     .footer-content {
         flex-direction: row;
         flex-wrap: wrap;
         gap: 25px;
     }
-    
+
     .footer-section {
         flex: 1;
         min-width: 45%;
@@ -406,66 +416,68 @@
    LARGE TABLETS/SMALL DESKTOP (769px - 1024px)
    ========================================== */
 @media screen and (max-width: 1024px) {
-    
+
     .container {
         padding: 0 20px;
     }
-    
+
     .main-header {
         position: sticky;
         top: 0;
     }
-    
+
     .main-nav {
         display: flex;
     }
-    
+
     .mobile-menu-btn {
         display: none !important;
     }
-    
+
     .nav-list {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
     }
-    
-    main, .section, .banner-brand {
+
+    main,
+    .section,
+    .banner-brand {
         margin-top: 70px;
     }
-    
+
     /* Product Grid - 3 columns */
     .product-grid {
         grid-template-columns: repeat(3, 1fr);
         gap: 15px;
     }
-    
+
     .product-image {
         height: 160px;
     }
-    
+
     .product-name {
         font-size: 14px;
         height: 40px;
     }
-    
+
     /* Categories */
     .category-grid {
         grid-template-columns: repeat(4, 1fr);
         gap: 15px;
     }
-    
+
     /* Features */
     .features-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 20px;
     }
-    
+
     /* Cart */
     .cart-sidebar {
         width: 350px;
         height: 85vh;
     }
-    
+
     /* Section */
     .section {
         padding: 30px 20px !important;
@@ -476,22 +488,22 @@
    DESKTOP (1025px+)
    ========================================== */
 @media screen and (min-width: 1025px) {
-    
+
     .mobile-menu-btn {
         display: none !important;
     }
-    
+
     /* Product Grid - 4 columns */
     .product-grid {
         grid-template-columns: repeat(4, 1fr);
         gap: 20px;
     }
-    
+
     /* Features */
     .features-grid {
         grid-template-columns: repeat(4, 1fr);
     }
-    
+
     /* Cart */
     .cart-sidebar {
         width: 380px;
@@ -502,23 +514,27 @@
    TOUCH-FRIENDLY ELEMENTS
    ========================================== */
 @media (pointer: coarse) {
-    
-    button, a, .btn {
+
+    button,
+    a,
+    .btn {
         min-height: 44px;
         min-width: 44px;
         padding: 12px 16px;
     }
-    
+
     .header-actions button {
         min-height: 40px;
         min-width: 40px;
     }
-    
-    input, textarea, select {
+
+    input,
+    textarea,
+    select {
         padding: 12px;
         font-size: 16px;
     }
-    
+
     .product-card {
         padding: 4px;
     }
@@ -528,23 +544,25 @@
    LANDSCAPE MODE ADJUSTMENTS
    ========================================== */
 @media screen and (max-height: 600px) and (orientation: landscape) {
-    
+
     .main-header {
         height: 48px;
     }
-    
+
     .header-inner {
         height: 48px;
     }
-    
-    main, .section, .banner-brand {
+
+    main,
+    .section,
+    .banner-brand {
         margin-top: 48px;
     }
-    
+
     .brand-image-container {
         height: 300px;
     }
-    
+
     .section {
         padding: 15px 12px !important;
     }
@@ -553,15 +571,17 @@
 /* ==========================================
    HIGH DENSITY SCREENS (Retina/4K)
    ========================================== */
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-    
+@media (-webkit-min-device-pixel-ratio: 2),
+(min-resolution: 192dpi) {
+
     /* Optimizations for retina displays */
-    button, .btn {
+    button,
+    .btn {
         border-radius: 6px;
     }
-    
+
     .product-card {
-        box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
     }
 }
 
@@ -569,34 +589,34 @@
    RESPONSIVE TYPOGRAPHY
    ========================================== */
 @media screen and (max-width: 480px) {
-    
+
     h1 {
         font-size: 1.5rem;
     }
-    
+
     h2 {
         font-size: 1.3rem;
     }
-    
+
     h3 {
         font-size: 1.1rem;
     }
-    
+
     p {
         font-size: 0.95rem;
     }
 }
 
 @media screen and (min-width: 481px) and (max-width: 768px) {
-    
+
     h1 {
         font-size: 1.8rem;
     }
-    
+
     h2 {
         font-size: 1.5rem;
     }
-    
+
     h3 {
         font-size: 1.2rem;
     }
@@ -606,34 +626,34 @@
    RESPONSIVE SPACING
    ========================================== */
 @media screen and (max-width: 480px) {
-    
+
     .section {
         padding: 15px 12px !important;
     }
-    
+
     .section-header {
         margin-bottom: 15px;
     }
-    
+
     .product-grid {
         gap: 10px;
     }
-    
+
     .category-grid {
         gap: 10px;
     }
 }
 
 @media screen and (min-width: 481px) and (max-width: 768px) {
-    
+
     .section {
         padding: 20px 15px !important;
     }
-    
+
     .section-header {
         margin-bottom: 20px;
     }
-    
+
     .product-grid {
         gap: 12px;
     }
@@ -643,8 +663,9 @@
    MODAL/OVERLAY RESPONSIVE
    ========================================== */
 @media screen and (max-width: 768px) {
-    
-    .modal, .overlay {
+
+    .modal,
+    .overlay {
         position: fixed;
         top: 0;
         left: 0;
@@ -652,7 +673,7 @@
         height: 100%;
         z-index: 3000;
     }
-    
+
     .modal-content {
         width: 90vw;
         max-width: 500px;
@@ -665,37 +686,43 @@
    TABLE RESPONSIVE
    ========================================== */
 @media screen and (max-width: 768px) {
-    
+
     table {
         font-size: 12px;
     }
-    
-    table th, table td {
+
+    table th,
+    table td {
         padding: 8px 6px;
     }
-    
+
     /* Stack table on very small screens */
     @media screen and (max-width: 480px) {
-        
-        table, thead, tbody, th, td, tr {
+
+        table,
+        thead,
+        tbody,
+        th,
+        td,
+        tr {
             display: block;
             width: 100%;
         }
-        
+
         thead {
             display: none;
         }
-        
+
         tr {
             margin-bottom: 15px;
             border: 1px solid #ddd;
         }
-        
+
         td {
             padding: 10px;
             text-align: left;
         }
-        
+
         td:before {
             content: attr(data-label);
             font-weight: bold;
@@ -709,7 +736,7 @@
    DROPDOWN/MENU RESPONSIVE
    ========================================== */
 @media screen and (max-width: 768px) {
-    
+
     .mega-menu {
         position: fixed;
         left: 0;
@@ -717,9 +744,9 @@
         width: 100vw;
         max-width: 100%;
         border-radius: 0;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     }
-    
+
     .dropdown-menu {
         position: fixed;
         right: 15px;

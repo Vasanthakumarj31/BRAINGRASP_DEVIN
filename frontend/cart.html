@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="css/common.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
-    /* ── Cart Page Item Layout ── */
+    /* -- Cart Page Item Layout -- */
     .cart-item {
       display: flex;
       align-items: center;
@@ -47,14 +47,17 @@
     }
     .cart-item-remove:hover { background: #fdecea; }
   </style>
+  <link rel="stylesheet" href="css/mobile-responsive.css">
+  <link rel="stylesheet" href="css/policy-mobile.css">
+  <link rel="stylesheet" href="css/mobile-master.css">
 </head>
 <body>
   <header class="main-header" id="mainHeader">
     <div class="container">
       <div class="header-inner">
-        <a href="index.html" class="logo">
-          <img src="images/ChatGPT Image May 9, 2026, 10_43_38 AM.png" alt="BrainyGrasp Logo" class="brand-logo"
-            style="max-height: 55px; width: auto;">
+        <!-- Logo -->
+        <a href="index.html" class="logo" style="display: flex; align-items: center; gap: 8px; text-decoration: none;">
+          <span class="animated-logo-text" style="font-family: 'Chewy', cursive; font-size: 34px; color: #4280ca; letter-spacing: 1px; padding-top: 5px;">brainy<span style="color: #ffc107;">grasp</span></span>
         </a>
         <div class="header-actions">
           <a href="index.html" class="btn btn-secondary">Continue Shopping</a>

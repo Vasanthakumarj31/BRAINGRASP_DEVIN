@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -316,15 +316,20 @@
         .toast.success { background: #00b894; color: white; }
         .toast.error { background: #f5576c; color: white; }
     </style>
+  <link rel="stylesheet" href="css/mobile-responsive.css">
+  <link rel="stylesheet" href="css/policy-mobile.css">
+  <link rel="stylesheet" href="css/mobile-master.css">
 </head>
 <body>
 
     <nav class="navbar">
         <div class="nav-brand">
-            <a href="index.html" style="text-decoration:none;color:inherit"><h2>BrainyGrasp</h2></a>
+            <a href="index.html" style="display: flex; align-items: center; gap: 8px; text-decoration: none;">
+                <span class="animated-logo-text" style="font-family: 'Chewy', cursive; font-size: 30px; color: #4280ca; letter-spacing: 0.5px; padding-top: 2px;">brainy<span style="color: #ffc107;">grasp</span></span>
+            </a>
         </div>
         <div class="nav-menu">
-            <a href="index.html" class="nav-link">🛍️ Back to Shopping</a>
+            <a href="index.html" class="nav-link">??? Back to Shopping</a>
             <a href="#" class="nav-link active">Dashboard</a>
             <button id="logoutBtn" class="btn btn-secondary">Logout</button>
         </div>
@@ -398,8 +403,8 @@
     <div id="profileEditModal" class="modal" onclick="handleModalBackdrop(event)">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 style="font-family: 'Fredoka'; margin: 0; color: #764ba2;">✏️ Edit Profile</h2>
-                <button class="modal-close-btn" type="button" onclick="closeModal()" aria-label="Close">✕</button>
+                <h2 style="font-family: 'Fredoka'; margin: 0; color: #764ba2;">?? Edit Profile</h2>
+                <button class="modal-close-btn" type="button" onclick="closeModal()" aria-label="Close">?</button>
             </div>
 
             <form id="profileEditForm" novalidate>
@@ -415,15 +420,15 @@
                     <div class="gender-row">
                         <div class="gender-option">
                             <input type="radio" id="genderMale" name="gender" value="male">
-                            <label for="genderMale">👦 Male</label>
+                            <label for="genderMale">?? Male</label>
                         </div>
                         <div class="gender-option">
                             <input type="radio" id="genderFemale" name="gender" value="female">
-                            <label for="genderFemale">👧 Female</label>
+                            <label for="genderFemale">?? Female</label>
                         </div>
                         <div class="gender-option">
                             <input type="radio" id="genderOther" name="gender" value="other">
-                            <label for="genderOther">🙂 Other</label>
+                            <label for="genderOther">?? Other</label>
                         </div>
                     </div>
                 </div>
@@ -460,7 +465,7 @@
 
                 <!-- Actions -->
                 <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button type="submit" id="saveProfileBtn" class="btn btn-primary" style="flex: 2;">💾 Save Changes</button>
+                    <button type="submit" id="saveProfileBtn" class="btn btn-primary" style="flex: 2;">?? Save Changes</button>
                     <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="closeModal()">Cancel</button>
                 </div>
             </form>

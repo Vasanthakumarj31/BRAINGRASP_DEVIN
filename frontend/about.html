@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -226,6 +226,10 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="css/mobile-responsive.css">
+  <link rel="stylesheet" href="css/policy-mobile.css">
+  <link rel="stylesheet" href="css/mobile-master.css">
+  <link rel="stylesheet" href="css/mobile-menu-new.css">
 </head>
 
 <body>
@@ -258,11 +262,13 @@
   <header class="main-header" id="mainHeader">
     <div class="container">
       <div class="header-inner">
-        <button class="mobile-menu-btn" id="mobileMenuBtn"><i class="fas fa-bars"></i></button>
-        <a href="index.html" class="logo" style="display:flex;align-items:center;gap:8px;text-decoration:none;">
-          <span
-            style="font-family:'Chewy',cursive;font-size:34px;color:#4280ca;letter-spacing:1px;padding-top:5px;">brainy<span
-              style="color:#ffc107;">grasp</span></span>
+        <!-- Mobile Menu Toggle -->
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle mobile menu" aria-expanded="false" aria-controls="mobileNavSidebar">
+          <span></span><span></span><span></span>
+        </button>
+        <!-- Logo -->
+        <a href="index.html" class="logo" style="display: flex; align-items: center; gap: 8px; text-decoration: none;">
+          <span class="animated-logo-text" style="font-family: 'Chewy', cursive; font-size: 34px; color: #4280ca; letter-spacing: 1px; padding-top: 5px;">brainy<span style="color: #ffc107;">grasp</span></span>
         </a>
         <nav class="main-nav" id="mainNav">
           <ul class="nav-list">
@@ -363,9 +369,9 @@
     <div class="container">
       <div class="footer-grid">
         <div class="footer-col footer-brand">
-          <a href="index.html" class="footer-logo"
-            style="font-family:'Chewy',cursive;font-size:28px;color:#4280ca;text-decoration:none;">brainy<span
-              style="color:#ffc107;">grasp</span></a>
+          <a href="index.html" class="footer-logo" style="display: flex; align-items: center; gap: 8px; text-decoration: none; margin-bottom: 15px;">
+            <span class="animated-logo-text" style="font-family: 'Chewy', cursive; font-size: 34px; color: #4280ca; letter-spacing: 1px; padding-top: 5px;">brainy<span style="color: #ffc107;">grasp</span></span>
+          </a>
           <p>Where learning meets play! Educational toys designed to spark curiosity in every child.</p>
         </div>
         <div class="footer-col">
@@ -425,6 +431,140 @@
   <script src="js/common.js"></script>
   <script src="js/auth-unified.js"></script>
   <script src="js/modern-search.js"></script>
+  <!-- Mobile Nav Overlay -->
+  <div class="mobile-overlay" id="mobileOverlay"></div>
+
+  <!-- ── SLIDE-IN NAV ── -->
+  <nav class="mobile-nav-sidebar" id="mobileNavSidebar" aria-label="Mobile navigation">
+    <div class="nav-head">
+      <a href="index.html" class="logo" style="font-family: 'Chewy', cursive; font-size: 24px; color: #4280ca; letter-spacing: 1px; padding-top: 5px;">brainy<span style="color: #ffc107;">grasp</span></a>
+      <button class="nav-close" id="navClose" aria-label="Close menu">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="nav-body">
+      <!-- Shop by Age — mega -->
+      <div class="nav-item has-mega" id="navAge">
+        <button class="nav-link" aria-expanded="false">
+          <i class="fas fa-child nav-icon"></i>
+          Shop by Age
+          <i class="fas fa-chevron-right nav-arrow"></i>
+        </button>
+        <div class="mega-panel">
+          <div class="mega-grid">
+            <a class="mega-card" href="shop-by-age.html?age=0-2" data-label="0–2 Years">
+              <div class="mega-card-icon">👶</div>
+              <div><div class="mega-card-label">0–2 Years</div><div class="mega-card-sub">Sensory & soft</div></div>
+            </a>
+            <a class="mega-card" href="shop-by-age.html?age=2-4" data-label="2–4 Years">
+              <div class="mega-card-icon">🧩</div>
+              <div><div class="mega-card-label">2–4 Years</div><div class="mega-card-sub">Shape & colour</div></div>
+            </a>
+            <a class="mega-card" href="shop-by-age.html?age=4-6" data-label="4–6 Years">
+              <div class="mega-card-icon">🎨</div>
+              <div><div class="mega-card-label">4–6 Years</div><div class="mega-card-sub">Creative play</div></div>
+            </a>
+            <a class="mega-card" href="shop-by-age.html?age=6-8" data-label="6–8 Years">
+              <div class="mega-card-icon">🔬</div>
+              <div><div class="mega-card-label">6–8 Years</div><div class="mega-card-sub">STEM & logic</div></div>
+            </a>
+            <a class="mega-card" href="shop-by-age.html?age=8+" data-label="8+ Years">
+              <div class="mega-card-icon">🤖</div>
+              <div><div class="mega-card-label">8+ Years</div><div class="mega-card-sub">Advanced builds</div></div>
+            </a>
+          </div>
+        </div>
+      </div>
+      <!-- Shop by Category — mega -->
+      <div class="nav-item has-mega" id="navCat">
+        <button class="nav-link" aria-expanded="false">
+          <i class="fas fa-shapes nav-icon"></i>
+          Shop by Category
+          <i class="fas fa-chevron-right nav-arrow"></i>
+        </button>
+        <div class="mega-panel">
+          <div class="mega-grid">
+            <a class="mega-card" href="shop-by-category.html?category=Arts+%26+Crafts" data-label="Arts & Crafts">
+              <div class="mega-card-icon">🎨</div>
+              <div><div class="mega-card-label">Arts & Crafts</div><div class="mega-card-sub">Paint, draw, create</div></div>
+            </a>
+            <a class="mega-card" href="shop-by-category.html?category=Building+Blocks" data-label="Building Blocks">
+              <div class="mega-card-icon">🧱</div>
+              <div><div class="mega-card-label">Building Blocks</div><div class="mega-card-sub">Stack & construct</div></div>
+            </a>
+            <a class="mega-card" href="shop-by-category.html?category=Puzzles" data-label="Puzzles">
+              <div class="mega-card-icon">🧩</div>
+              <div><div class="mega-card-label">Puzzles</div><div class="mega-card-sub">Logic & patience</div></div>
+            </a>
+            <a class="mega-card" href="shop-by-category.html?category=Science+%26+STEM" data-label="Science & STEM">
+              <div class="mega-card-icon">🔭</div>
+              <div><div class="mega-card-label">Science & STEM</div><div class="mega-card-sub">Explore & discover</div></div>
+            </a>
+            <a class="mega-card" href="shop-by-category.html?category=Foil+Fun" data-label="Foil Fun">
+              <div class="mega-card-icon">✨</div>
+              <div><div class="mega-card-label">Foil Fun</div><div class="mega-card-sub">Shimmer & shine</div></div>
+            </a>
+            <a class="mega-card" href="shop-by-category.html?category=Sand+Art" data-label="Sand Art">
+              <div class="mega-card-icon">🏖</div>
+              <div><div class="mega-card-label">Sand Art</div><div class="mega-card-sub">Colour & texture</div></div>
+            </a>
+          </div>
+        </div>
+      </div>
+      <!-- Parents Choice — mega (list style) -->
+      <div class="nav-item has-mega" id="navParents">
+        <button class="nav-link" aria-expanded="false">
+          <i class="fas fa-heart nav-icon"></i>
+          Parents' Choice
+          <i class="fas fa-chevron-right nav-arrow"></i>
+        </button>
+        <div class="mega-panel">
+          <div class="mega-list">
+            <a class="parents-line-item" href="shop-by-category.html?category=Foil+Fun" data-label="Foil Fun">
+              <i class="fas fa-star"></i> Foil Fun
+            </a>
+            <a class="parents-line-item" href="shop-by-category.html?category=Piece+%26+Play" data-label="Piece & Play">
+              <i class="fas fa-star"></i> Piece & Play
+            </a>
+            <a class="parents-line-item" href="shop-by-category.html?category=Poke-In+Art" data-label="Poke-In Art">
+              <i class="fas fa-star"></i> Poke-In Art
+            </a>
+            <a class="parents-line-item" href="shop-by-category.html?category=Sandeezy" data-label="Sandeezy">
+              <i class="fas fa-star"></i> Sandeezy
+            </a>
+            <a class="parents-line-item" href="shop-by-category.html?category=Snip+Snip" data-label="Snip, Snip!">
+              <i class="fas fa-star"></i> Snip, Snip!
+            </a>
+          </div>
+        </div>
+      </div>
+      <!-- Collections — plain link -->
+      <a class="nav-link" href="collections.html">
+        <i class="fas fa-layer-group nav-icon"></i>
+        Collections
+      </a>
+      <!-- Gift Finder — plain link -->
+      <a class="nav-link" href="gift-finder.html">
+        <i class="fas fa-gift nav-icon"></i>
+        Gift Finder
+      </a>
+      <div class="nav-divider"></div>
+      <div class="nav-section-label">Account</div>
+      <a class="nav-link" href="dashboard-new.html">
+        <i class="fas fa-user nav-icon"></i>
+        My Account
+      </a>
+      <a class="nav-link" href="rewards.html">
+        <i class="fas fa-award nav-icon"></i>
+        Rewards
+      </a>
+      <a class="nav-link" href="faqs.html">
+        <i class="fas fa-question-circle nav-icon"></i>
+        Help & FAQs
+      </a>
+    </div>
+  </nav>
+
 </body>
 
 </html>

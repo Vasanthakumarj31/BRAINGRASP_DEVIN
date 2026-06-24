@@ -1,4 +1,4 @@
-﻿:root {
+:root {
 
   --primary: #6320EE;
 
@@ -1186,7 +1186,7 @@ input {
 
 
 /* =====================================================
-   MODERN CART SIDEBAR — Premium Redesign
+   MODERN CART SIDEBAR � Premium Redesign
    ===================================================== */
 
 /* Overlay */
@@ -1230,7 +1230,7 @@ input {
   right: 0;
 }
 
-/* ── Header ────────────────────────────────────────── */
+/* -- Header ------------------------------------------ */
 .cart-header {
   display: flex;
   align-items: center;
@@ -1295,7 +1295,7 @@ input {
   transform: rotate(90deg);
 }
 
-/* ── Shipping Progress Bar ─────────────────────────── */
+/* -- Shipping Progress Bar --------------------------- */
 .cart-shipping-bar {
   background: #f0f7ff;
   padding: 10px 18px;
@@ -1327,7 +1327,7 @@ input {
   transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* ── Promo Strip ───────────────────────────────────── */
+/* -- Promo Strip ------------------------------------- */
 .cart-promo-strip {
   display: flex;
   gap: 8px;
@@ -1363,7 +1363,7 @@ input {
   color: #f59e0b;
 }
 
-/* ── Empty State ───────────────────────────────────── */
+/* -- Empty State ------------------------------------- */
 .cart-empty {
   flex: 1;
   display: flex;
@@ -1425,7 +1425,7 @@ input {
   color: #fff;
 }
 
-/* ── Cart Items List ───────────────────────────────── */
+/* -- Cart Items List --------------------------------- */
 .cart-items {
   flex: 1;
   overflow-y: auto;
@@ -1560,7 +1560,7 @@ input {
   color: #fff;
 }
 
-/* ── Footer ────────────────────────────────────────── */
+/* -- Footer ------------------------------------------ */
 .cart-footer {
   padding: 18px 20px;
   border-top: 1px solid #f0f2fa;
@@ -6693,3 +6693,69 @@ input {
   }
 
 }
+/* -- Logo Animation (shared across all pages) ------------------
+   Rubber-band bounce effect on hover � matches index.html style
+   -------------------------------------------------------------- */
+.animated-logo-text {
+  display: inline-block;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform-origin: center;
+}
+
+.logo:hover .animated-logo-text,
+.footer-logo:hover .animated-logo-text {
+  animation: logoRubberBand 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+@keyframes logoRubberBand {
+  0%   { transform: scale3d(1,    1,    1); }
+  30%  { transform: scale3d(1.2,  0.8,  1); }
+  40%  { transform: scale3d(0.85, 1.15, 1); }
+  50%  { transform: scale3d(1.1,  0.9,  1); }
+  65%  { transform: scale3d(0.95, 1.05, 1); }
+  75%  { transform: scale3d(1.02, 0.98, 1); }
+  100% { transform: scale3d(1,    1,    1); }
+}
+
+
+/* ================================================
+   MOBILE MENU TOUCH FIX � appended to override old rules
+   ================================================ */
+
+/* Fix: proper touch target + remove iOS 300ms tap delay */
+.mobile-menu-btn {
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  padding: 8px !important;
+  cursor: pointer !important;
+  background: none !important;
+  border: none !important;
+  z-index: 1002 !important;
+  position: relative !important;
+}
+
+/* Mobile nav backdrop overlay */
+#mobileOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  cursor: pointer;
+}
+
+#mobileOverlay.active {
+  display: block;
+}
+
+/* Hide mobile nav close button on desktop */
+@media (min-width: 769px) {
+  .nav-close-btn {
+    display: none !important;
+  }
+}
+
+/* Hide new mobile menu as requested */
+#mobileMenuBtn, #mobileNavSidebar { display: none !important; }
