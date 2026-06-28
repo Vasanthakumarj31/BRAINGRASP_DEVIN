@@ -1,17 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Contact Us - BrainyGrasp</title>
-  <meta name="description" content="Contact BrainyGrasp for support. Reach us via phone, WhatsApp, email, or visit our registered address.">
+  <meta name="description"
+    content="Contact BrainyGrasp for support. Reach us via phone, WhatsApp, email, or visit our registered address.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Chewy&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Chewy&family=Nunito:wght@400;600;700;800;900&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Nunito', sans-serif; background: #f4f7fb; color: #333; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #f4f7fb;
+      color: #333;
+    }
 
     /* ── Simple Top Bar ── */
     .simple-topbar {
@@ -21,15 +33,20 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     }
+
     .simple-topbar .logo {
       font-family: 'Chewy', cursive;
       font-size: 30px;
       color: #4280ca;
       text-decoration: none;
     }
-    .simple-topbar .logo span { color: #ffc107; }
+
+    .simple-topbar .logo span {
+      color: #ffc107;
+    }
+
     .back-btn {
       display: inline-flex;
       align-items: center;
@@ -43,7 +60,11 @@
       font-weight: 700;
       transition: background 0.2s;
     }
-    .back-btn:hover { background: #4280ca; color: white; }
+
+    .back-btn:hover {
+      background: #4280ca;
+      color: white;
+    }
 
     /* ── Hero ── */
     .hero {
@@ -51,14 +72,25 @@
       text-align: center;
       padding: 60px 20px 50px;
     }
+
     .hero h1 {
       font-family: 'Chewy', cursive;
       font-size: 44px;
       color: #4280ca;
       margin-bottom: 12px;
     }
-    .hero h1 span { color: #ffc107; }
-    .hero p { font-size: 17px; color: #666; max-width: 560px; margin: 0 auto; line-height: 1.7; }
+
+    .hero h1 span {
+      color: #ffc107;
+    }
+
+    .hero p {
+      font-size: 17px;
+      color: #666;
+      max-width: 560px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
 
     /* ── Cards ── */
     .cards-grid {
@@ -71,50 +103,119 @@
       position: relative;
       z-index: 2;
     }
+
     .card {
       background: white;
       border-radius: 20px;
       padding: 36px 28px;
       text-align: center;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.07);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.07);
       transition: transform 0.25s, box-shadow 0.25s;
     }
-    .card:hover { transform: translateY(-5px); box-shadow: 0 16px 40px rgba(0,0,0,0.12); }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+    }
 
     .card-icon {
-      width: 72px; height: 72px;
+      width: 72px;
+      height: 72px;
       border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 28px;
       margin: 0 auto 18px;
     }
-    .card.phone  .card-icon { background: #e8f5e9; color: #4caf50; }
-    .card.email  .card-icon { background: #fff8e1; color: #f59e0b; }
-    .card.address .card-icon { background: #ffebee; color: #ef5350; }
-    .card.hours  .card-icon { background: #f3e5f5; color: #9c27b0; }
 
-    .card h3 { font-size: 19px; font-weight: 800; color: #222; margin-bottom: 8px; }
-    .card .sub { font-size: 13px; color: #aaa; margin-bottom: 14px; }
+    .card.phone .card-icon {
+      background: #e8f5e9;
+      color: #4caf50;
+    }
+
+    .card.email .card-icon {
+      background: #fff8e1;
+      color: #f59e0b;
+    }
+
+    .card.address .card-icon {
+      background: #ffebee;
+      color: #ef5350;
+    }
+
+    .card.hours .card-icon {
+      background: #f3e5f5;
+      color: #9c27b0;
+    }
+
+    .card h3 {
+      font-size: 19px;
+      font-weight: 800;
+      color: #222;
+      margin-bottom: 8px;
+    }
+
+    .card .sub {
+      font-size: 13px;
+      color: #aaa;
+      margin-bottom: 14px;
+    }
 
     .card a {
-      display: inline-flex; align-items: center; gap: 7px;
-      font-size: 16px; font-weight: 700;
-      color: #4280ca; text-decoration: none;
-      background: #f0f6ff; padding: 10px 20px;
-      border-radius: 50px; transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #4280ca;
+      text-decoration: none;
+      background: #f0f6ff;
+      padding: 10px 20px;
+      border-radius: 50px;
+      transition: all 0.2s;
     }
-    .card a:hover { background: #4280ca; color: white; }
+
+    .card a:hover {
+      background: #4280ca;
+      color: white;
+    }
 
     .card p.addr {
-      font-size: 14px; color: #555; line-height: 1.9; font-weight: 600;
+      font-size: 14px;
+      color: #555;
+      line-height: 1.9;
+      font-weight: 600;
     }
 
-    .hours-table { width: 100%; text-align: left; font-size: 14px; }
-    .hours-table tr td { padding: 5px 0; }
-    .hours-table tr td:first-child { font-weight: 700; color: #333; }
-    .hours-table tr td:last-child { text-align: right; }
-    .open  { color: #4caf50; font-weight: 800; }
-    .closed { color: #ef5350; font-weight: 800; }
+    .hours-table {
+      width: 100%;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    .hours-table tr td {
+      padding: 5px 0;
+    }
+
+    .hours-table tr td:first-child {
+      font-weight: 700;
+      color: #333;
+    }
+
+    .hours-table tr td:last-child {
+      text-align: right;
+    }
+
+    .open {
+      color: #4caf50;
+      font-weight: 800;
+    }
+
+    .closed {
+      color: #ef5350;
+      font-weight: 800;
+    }
 
     /* ── Quick Buttons ── */
     .quick-bar {
@@ -122,21 +223,54 @@
       border-top: 1px solid #eee;
       border-bottom: 1px solid #eee;
       padding: 24px;
-      display: flex; justify-content: center; align-items: center;
-      gap: 14px; flex-wrap: wrap;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
     }
+
     .qbtn {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 11px 22px; border-radius: 50px;
-      font-size: 14px; font-weight: 700; text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 22px;
+      border-radius: 50px;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
       transition: all 0.2s;
     }
-    .qbtn.wa  { background: #e8f5e9; color: #25d366; }
-    .qbtn.wa:hover  { background: #25d366; color: white; }
-    .qbtn.em  { background: #fff8e1; color: #f59e0b; }
-    .qbtn.em:hover  { background: #f59e0b; color: white; }
-    .qbtn.ord { background: #e3f2fd; color: #4280ca; }
-    .qbtn.ord:hover { background: #4280ca; color: white; }
+
+    .qbtn.wa {
+      background: #e8f5e9;
+      color: #25d366;
+    }
+
+    .qbtn.wa:hover {
+      background: #25d366;
+      color: white;
+    }
+
+    .qbtn.em {
+      background: #fff8e1;
+      color: #f59e0b;
+    }
+
+    .qbtn.em:hover {
+      background: #f59e0b;
+      color: white;
+    }
+
+    .qbtn.ord {
+      background: #e3f2fd;
+      color: #4280ca;
+    }
+
+    .qbtn.ord:hover {
+      background: #4280ca;
+      color: white;
+    }
 
     /* ── Contact Form ── */
     .form-section {
@@ -144,68 +278,173 @@
       margin: 50px auto;
       padding: 0 24px;
     }
+
     .form-section h2 {
       font-family: 'Chewy', cursive;
-      font-size: 32px; color: #4280ca;
-      text-align: center; margin-bottom: 6px;
+      font-size: 32px;
+      color: #4280ca;
+      text-align: center;
+      margin-bottom: 6px;
     }
-    .form-section p.sub { text-align: center; color: #888; margin-bottom: 28px; }
+
+    .form-section p.sub {
+      text-align: center;
+      color: #888;
+      margin-bottom: 28px;
+    }
+
     .form-box {
-      background: white; border-radius: 20px;
-      padding: 40px 36px; box-shadow: 0 8px 30px rgba(0,0,0,0.07);
+      background: white;
+      border-radius: 20px;
+      padding: 40px 36px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.07);
     }
-    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .fg { display: flex; flex-direction: column; margin-bottom: 18px; }
-    .fg label { font-size: 12px; font-weight: 800; color: #555; margin-bottom: 7px; text-transform: uppercase; letter-spacing: 0.5px; }
-    .fg input, .fg select, .fg textarea {
-      padding: 13px 16px; border: 2px solid #e9ecef; border-radius: 12px;
-      font-family: 'Nunito', sans-serif; font-size: 15px; color: #333;
-      background: #fafafa; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+
+    .row2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
     }
-    .fg input:focus, .fg select:focus, .fg textarea:focus {
-      border-color: #4280ca; box-shadow: 0 0 0 3px rgba(66,128,202,0.12); background: white;
+
+    .fg {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 18px;
     }
-    .fg textarea { resize: vertical; min-height: 120px; }
+
+    .fg label {
+      font-size: 12px;
+      font-weight: 800;
+      color: #555;
+      margin-bottom: 7px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .fg input,
+    .fg select,
+    .fg textarea {
+      padding: 13px 16px;
+      border: 2px solid #e9ecef;
+      border-radius: 12px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 15px;
+      color: #333;
+      background: #fafafa;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .fg input:focus,
+    .fg select:focus,
+    .fg textarea:focus {
+      border-color: #4280ca;
+      box-shadow: 0 0 0 3px rgba(66, 128, 202, 0.12);
+      background: white;
+    }
+
+    .fg textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+
     .send-btn {
-      width: 100%; padding: 15px;
+      width: 100%;
+      padding: 15px;
       background: linear-gradient(135deg, #4280ca, #2563eb);
-      color: white; border: none; border-radius: 14px;
-      font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 800;
-      cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
     }
-    .send-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(66,128,202,0.4); }
+
+    .send-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(66, 128, 202, 0.4);
+    }
+
     .success-msg {
-      display: none; text-align: center; padding: 28px;
-      background: #e8f5e9; border-radius: 16px; margin-top: 16px;
+      display: none;
+      text-align: center;
+      padding: 28px;
+      background: #e8f5e9;
+      border-radius: 16px;
+      margin-top: 16px;
     }
-    .success-msg i { font-size: 44px; color: #4caf50; display: block; margin-bottom: 10px; }
-    .success-msg p { font-size: 17px; font-weight: 700; color: #2e7d32; }
+
+    .success-msg i {
+      font-size: 44px;
+      color: #4caf50;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .success-msg p {
+      font-size: 17px;
+      font-weight: 700;
+      color: #2e7d32;
+    }
 
     /* ── Footer ── */
     footer {
-      background: #1a1a2e; color: #aaa;
-      text-align: center; padding: 28px 20px;
-      font-size: 13px; margin-top: 60px;
+      background: #1a1a2e;
+      color: #aaa;
+      text-align: center;
+      padding: 28px 20px;
+      font-size: 13px;
+      margin-top: 60px;
     }
-    footer a { color: #ffc107; text-decoration: none; margin: 0 8px; }
+
+    footer a {
+      color: #ffc107;
+      text-decoration: none;
+      margin: 0 8px;
+    }
 
     /* ── WhatsApp Float ── */
     .wa-float {
-      position: fixed; bottom: 24px; right: 24px; z-index: 999;
-      width: 54px; height: 54px; background: #25d366;
-      border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      color: white; font-size: 26px; box-shadow: 0 4px 18px rgba(0,0,0,0.2);
-      text-decoration: none; transition: transform 0.2s;
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 999;
+      width: 54px;
+      height: 54px;
+      background: #25d366;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 26px;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2);
+      text-decoration: none;
+      transition: transform 0.2s;
     }
-    .wa-float:hover { transform: scale(1.1); }
+
+    .wa-float:hover {
+      transform: scale(1.1);
+    }
 
     @media (max-width: 600px) {
-      .hero h1 { font-size: 32px; }
-      .row2 { grid-template-columns: 1fr; }
-      .form-box { padding: 24px 18px; }
+      .hero h1 {
+        font-size: 32px;
+      }
+
+      .row2 {
+        grid-template-columns: 1fr;
+      }
+
+      .form-box {
+        padding: 24px 18px;
+      }
     }
   </style>
 </head>
+
 <body>
 
   <!-- Simple Header -->
@@ -258,10 +497,22 @@
       <h3>Business Hours</h3>
       <p class="sub">When you can reach us</p>
       <table class="hours-table">
-        <tr><td>Mon – Fri</td><td class="open">9 AM – 6 PM</td></tr>
-        <tr><td>Saturday</td><td class="open">10 AM – 4 PM</td></tr>
-        <tr><td>Sunday</td><td class="closed">Closed</td></tr>
-        <tr><td>Holidays</td><td class="closed">Closed</td></tr>
+        <tr>
+          <td>Mon – Fri</td>
+          <td class="open">9 AM – 6 PM</td>
+        </tr>
+        <tr>
+          <td>Saturday</td>
+          <td class="open">10 AM – 4 PM</td>
+        </tr>
+        <tr>
+          <td>Sunday</td>
+          <td class="closed">Closed</td>
+        </tr>
+        <tr>
+          <td>Holidays</td>
+          <td class="closed">Closed</td>
+        </tr>
       </table>
     </div>
 
@@ -357,4 +608,5 @@
   </script>
 
 </body>
+
 </html>
