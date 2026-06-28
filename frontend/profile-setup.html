@@ -431,7 +431,7 @@
                 };
 
                 try {
-                    const response = await fetch('http://localhost:3000/api/auth/profile', {
+                    const response = await fetch(`${(window.BG_CONFIG && window.BG_CONFIG.API_BASE) || 'http://localhost:3000'}/api/auth/profile`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

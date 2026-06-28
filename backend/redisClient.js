@@ -1,4 +1,4 @@
-﻿const redis = require('redis');
+const redis = require('redis');
 
 /**
  * Redis Cache Management Module
@@ -12,14 +12,21 @@ let client;
 // ── Initialize Redis Connection ──────────────────────────────────────────────
 async function initRedis() {
   try {
-    client = redis.createClient({
-      host: process.env.REDIS_HOST || 'localhost',
-      port: process.env.REDIS_PORT || 6379,
-      password: process.env.REDIS_PASSWORD || 'redis_password',
-      socket: {
-        reconnectStrategy: (retries) => Math.min(retries * 50, 500),
-      }
-    });
+    client = redis.createClient(
+      process.env.REDIS_URL
+        ? {
+            url: process.env.REDIS_URL,
+            socket: { reconnectStrategy: (retries) => Math.min(retries * 50, 500) }
+          }
+        : {
+            socket: {
+              host: process.env.REDIS_HOST || 'localhost',
+              port: parseInt(process.env.REDIS_PORT) || 6379,
+              reconnectStrategy: (retries) => Math.min(retries * 50, 500),
+            },
+            password: process.env.REDIS_PASSWORD || undefined,
+          }
+    );
 
     client.on('error', (err) => {
       console.error('❌ Redis Client Error:', err);
