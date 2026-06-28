@@ -11,7 +11,7 @@
  */
 
 // ── CHANGE THIS to your Render/Railway backend URL before deploying ──
-const PRODUCTION_API_URL = 'https://brainygrasp-api.onrender.com';
+const PRODUCTION_API_URL = 'https://braingrasp-devin-1.onrender.com';
 
 window.BG_CONFIG = {
   API_BASE: (() => {
