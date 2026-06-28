@@ -1,408 +1,251 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Contact Us - BrainyGrasp | Educational Toys Support</title>
-  <meta name="description" content="Contact BrainyGrasp for support, order queries, or any questions about our educational toys. Reach us via phone, WhatsApp, or email.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us - BrainyGrasp</title>
+  <meta name="description" content="Contact BrainyGrasp for support. Reach us via phone, WhatsApp, email, or visit our registered address.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Chewy&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="css/mobile-master.css">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Nunito', sans-serif; background: #f8f9fa; color: #333; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Nunito', sans-serif; background: #f4f7fb; color: #333; }
 
-    /* ── Hero ── */
-    .contact-hero {
-      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%, #e8f5e9 100%);
-      padding: 70px 20px 80px;
-      text-align: center;
+    /* ── Simple Top Bar ── */
+    .simple-topbar {
+      background: #fff;
+      border-bottom: 1px solid #eee;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
-    .contact-hero h1 {
+    .simple-topbar .logo {
       font-family: 'Chewy', cursive;
-      font-size: 48px;
-      color: #4280ca;
-      margin-bottom: 16px;
-      letter-spacing: 1px;
-    }
-    .contact-hero h1 span { color: #ffc107; }
-    .contact-hero p {
-      font-size: 18px;
-      color: #555;
-      max-width: 600px;
-      margin: 0 auto;
-      line-height: 1.7;
-    }
-
-    /* ── Info Cards ── */
-    .contact-cards-section {
-      max-width: 1100px;
-      margin: -40px auto 0;
-      padding: 0 20px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
-      gap: 24px;
-      position: relative;
-      z-index: 10;
-    }
-    .contact-card {
-      background: white;
-      border-radius: 24px;
-      padding: 40px 28px;
-      text-align: center;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.08);
-      border: 2px solid transparent;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-    .contact-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 5px;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    .contact-card:hover { transform: translateY(-6px); box-shadow: 0 20px 50px rgba(0,0,0,0.12); border-color: #e3f2fd; }
-    .contact-card:hover::before { opacity: 1; }
-    .contact-card.phone::before  { background: linear-gradient(90deg, #4caf50, #81c784); }
-    .contact-card.email::before  { background: linear-gradient(90deg, #ffc107, #ffd54f); }
-    .contact-card.address::before { background: linear-gradient(90deg, #ff5252, #ff8a80); }
-    .contact-card.hours::before  { background: linear-gradient(90deg, #9c27b0, #ce93d8); }
-
-    .contact-icon {
-      width: 80px; height: 80px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 20px;
-      font-size: 32px;
-      transition: transform 0.3s ease;
-    }
-    .contact-card:hover .contact-icon { transform: scale(1.1) rotate(8deg); }
-    .contact-card.phone  .contact-icon { background: #e8f5e9; color: #4caf50; }
-    .contact-card.email  .contact-icon { background: #fff8e1; color: #f59e0b; }
-    .contact-card.address .contact-icon { background: #ffebee; color: #ff5252; }
-    .contact-card.hours  .contact-icon { background: #f3e5f5; color: #9c27b0; }
-
-    .contact-card h3 { font-size: 20px; font-weight: 800; color: #2c3e50; margin-bottom: 10px; }
-    .contact-card .sub { font-size: 14px; color: #999; margin-bottom: 14px; }
-    .contact-card .contact-link {
-      display: inline-block;
-      font-size: 16px; font-weight: 700;
+      font-size: 30px;
       color: #4280ca;
       text-decoration: none;
-      transition: color 0.2s;
     }
-    .contact-card .contact-link:hover { color: #2563eb; }
-    .contact-card .hours-list { list-style: none; text-align: left; }
-    .contact-card .hours-list li {
-      display: flex; justify-content: space-between;
-      font-size: 14px; color: #555;
-      padding: 6px 0;
-      border-bottom: 1px solid #f0f0f0;
-    }
-    .contact-card .hours-list li:last-child { border-bottom: none; }
-    .contact-card .hours-list .day { font-weight: 700; color: #333; }
-    .contact-card .hours-list .open { color: #4caf50; font-weight: 700; }
-    .contact-card .hours-list .closed { color: #ff5252; font-weight: 700; }
-
-    /* ── Contact Form Section ── */
-    .contact-form-section {
-      max-width: 760px;
-      margin: 60px auto;
-      padding: 0 20px;
-    }
-    .contact-form-section h2 {
-      font-family: 'Chewy', cursive;
-      font-size: 34px;
-      color: #4280ca;
-      text-align: center;
-      margin-bottom: 8px;
-    }
-    .contact-form-section .subtitle {
-      text-align: center;
-      color: #777;
-      margin-bottom: 36px;
-      font-size: 16px;
-    }
-    .contact-form {
-      background: white;
-      border-radius: 24px;
-      padding: 48px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.07);
-    }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .form-group { display: flex; flex-direction: column; margin-bottom: 22px; }
-    .form-group label {
-      font-size: 14px; font-weight: 700;
-      color: #444; margin-bottom: 8px;
-      text-transform: uppercase; letter-spacing: 0.5px;
-    }
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-      padding: 14px 18px;
-      border: 2px solid #e9ecef;
-      border-radius: 14px;
-      font-family: 'Nunito', sans-serif;
-      font-size: 15px;
-      color: #333;
-      background: #fdfdfd;
-      transition: border-color 0.2s, box-shadow 0.2s;
-      outline: none;
-    }
-    .form-group input:focus,
-    .form-group select:focus,
-    .form-group textarea:focus {
-      border-color: #4280ca;
-      box-shadow: 0 0 0 4px rgba(66,128,202,0.1);
-      background: white;
-    }
-    .form-group textarea { resize: vertical; min-height: 130px; }
-    .submit-btn {
-      width: 100%;
-      padding: 16px;
-      background: linear-gradient(135deg, #4280ca, #2563eb);
-      color: white;
-      border: none;
-      border-radius: 16px;
-      font-family: 'Nunito', sans-serif;
-      font-size: 17px;
-      font-weight: 800;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-      letter-spacing: 0.5px;
-    }
-    .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(66,128,202,0.4); }
-    .submit-btn i { margin-right: 8px; }
-    .form-success {
-      display: none;
-      text-align: center;
-      padding: 30px;
-      background: #e8f5e9;
-      border-radius: 16px;
-      margin-top: 20px;
-    }
-    .form-success i { font-size: 48px; color: #4caf50; margin-bottom: 12px; display: block; }
-    .form-success p { font-size: 18px; font-weight: 700; color: #2e7d32; }
-
-    /* ── Quick Links Strip ── */
-    .quick-links-strip {
-      background: white;
-      border-top: 1px solid #f0f0f0;
-      border-bottom: 1px solid #f0f0f0;
-      padding: 30px 20px;
-      margin-bottom: 0;
-    }
-    .quick-links-inner {
-      max-width: 900px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 16px;
-    }
-    .quick-link-btn {
+    .simple-topbar .logo span { color: #ffc107; }
+    .back-btn {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 12px 22px;
+      background: #f0f4ff;
+      color: #4280ca;
+      text-decoration: none;
+      padding: 9px 18px;
       border-radius: 50px;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 700;
-      text-decoration: none;
-      transition: all 0.2s;
-    }
-    .quick-link-btn.whatsapp { background: #e8f5e9; color: #25d366; }
-    .quick-link-btn.whatsapp:hover { background: #25d366; color: white; }
-    .quick-link-btn.email    { background: #fff8e1; color: #f59e0b; }
-    .quick-link-btn.email:hover { background: #f59e0b; color: white; }
-    .quick-link-btn.orders   { background: #e3f2fd; color: #4280ca; }
-    .quick-link-btn.orders:hover { background: #4280ca; color: white; }
-
-    /* ── Footer ── */
-    .main-footer {
-      background: #1a1a2e;
-      color: #ccc;
-      padding: 60px 20px 0;
-      margin-top: 0;
-    }
-    .footer-grid {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr 1fr;
-      gap: 40px;
-      padding-bottom: 40px;
-      border-bottom: 1px solid #333;
-    }
-    .footer-col h4 { font-size: 16px; font-weight: 800; color: white; margin-bottom: 16px; }
-    .footer-col ul { list-style: none; }
-    .footer-col ul li { margin-bottom: 10px; }
-    .footer-col ul li a { color: #aaa; text-decoration: none; font-size: 14px; transition: color 0.2s; }
-    .footer-col ul li a:hover { color: #ffc107; }
-    .footer-brand p { font-size: 14px; color: #aaa; line-height: 1.7; margin-top: 8px; margin-bottom: 20px; }
-    .footer-social { display: flex; gap: 12px; }
-    .footer-social a {
-      width: 38px; height: 38px;
-      background: #2a2a3e;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      color: #aaa;
-      transition: all 0.2s;
-      font-size: 15px;
-      text-decoration: none;
-    }
-    .footer-social a:hover { background: #4280ca; color: white; }
-    .footer-bottom {
-      max-width: 1200px; margin: 0 auto;
-      display: flex; justify-content: space-between; align-items: center;
-      flex-wrap: wrap; gap: 12px;
-      padding: 20px 0;
-    }
-    .footer-bottom p { font-size: 13px; color: #888; }
-    .footer-bottom-links { display: flex; gap: 16px; }
-    .footer-bottom-links a { font-size: 13px; color: #888; text-decoration: none; }
-    .footer-bottom-links a:hover { color: #ffc107; }
-    .footer-whatsapp-btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: #25d366;
-      color: white;
-      padding: 10px 18px;
-      border-radius: 50px;
-      text-decoration: none;
-      font-size: 14px; font-weight: 700;
-      margin-top: 12px;
       transition: background 0.2s;
     }
-    .footer-whatsapp-btn:hover { background: #1da851; }
+    .back-btn:hover { background: #4280ca; color: white; }
 
-    /* ── Responsive ── */
-    @media (max-width: 768px) {
-      .contact-hero h1 { font-size: 34px; }
-      .contact-form { padding: 28px 20px; }
-      .form-row { grid-template-columns: 1fr; }
-      .footer-grid { grid-template-columns: 1fr 1fr; }
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, #e8f4fd 0%, #dbeafe 50%, #e0f2fe 100%);
+      text-align: center;
+      padding: 60px 20px 50px;
     }
-    @media (max-width: 480px) {
-      .footer-grid { grid-template-columns: 1fr; }
-      .footer-bottom { flex-direction: column; text-align: center; }
+    .hero h1 {
+      font-family: 'Chewy', cursive;
+      font-size: 44px;
+      color: #4280ca;
+      margin-bottom: 12px;
+    }
+    .hero h1 span { color: #ffc107; }
+    .hero p { font-size: 17px; color: #666; max-width: 560px; margin: 0 auto; line-height: 1.7; }
+
+    /* ── Cards ── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+      max-width: 980px;
+      margin: -30px auto 50px;
+      padding: 0 24px;
+      position: relative;
+      z-index: 2;
+    }
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 36px 28px;
+      text-align: center;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.07);
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .card:hover { transform: translateY(-5px); box-shadow: 0 16px 40px rgba(0,0,0,0.12); }
+
+    .card-icon {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+      margin: 0 auto 18px;
+    }
+    .card.phone  .card-icon { background: #e8f5e9; color: #4caf50; }
+    .card.email  .card-icon { background: #fff8e1; color: #f59e0b; }
+    .card.address .card-icon { background: #ffebee; color: #ef5350; }
+    .card.hours  .card-icon { background: #f3e5f5; color: #9c27b0; }
+
+    .card h3 { font-size: 19px; font-weight: 800; color: #222; margin-bottom: 8px; }
+    .card .sub { font-size: 13px; color: #aaa; margin-bottom: 14px; }
+
+    .card a {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: 16px; font-weight: 700;
+      color: #4280ca; text-decoration: none;
+      background: #f0f6ff; padding: 10px 20px;
+      border-radius: 50px; transition: all 0.2s;
+    }
+    .card a:hover { background: #4280ca; color: white; }
+
+    .card p.addr {
+      font-size: 14px; color: #555; line-height: 1.9; font-weight: 600;
+    }
+
+    .hours-table { width: 100%; text-align: left; font-size: 14px; }
+    .hours-table tr td { padding: 5px 0; }
+    .hours-table tr td:first-child { font-weight: 700; color: #333; }
+    .hours-table tr td:last-child { text-align: right; }
+    .open  { color: #4caf50; font-weight: 800; }
+    .closed { color: #ef5350; font-weight: 800; }
+
+    /* ── Quick Buttons ── */
+    .quick-bar {
+      background: white;
+      border-top: 1px solid #eee;
+      border-bottom: 1px solid #eee;
+      padding: 24px;
+      display: flex; justify-content: center; align-items: center;
+      gap: 14px; flex-wrap: wrap;
+    }
+    .qbtn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 22px; border-radius: 50px;
+      font-size: 14px; font-weight: 700; text-decoration: none;
+      transition: all 0.2s;
+    }
+    .qbtn.wa  { background: #e8f5e9; color: #25d366; }
+    .qbtn.wa:hover  { background: #25d366; color: white; }
+    .qbtn.em  { background: #fff8e1; color: #f59e0b; }
+    .qbtn.em:hover  { background: #f59e0b; color: white; }
+    .qbtn.ord { background: #e3f2fd; color: #4280ca; }
+    .qbtn.ord:hover { background: #4280ca; color: white; }
+
+    /* ── Contact Form ── */
+    .form-section {
+      max-width: 720px;
+      margin: 50px auto;
+      padding: 0 24px;
+    }
+    .form-section h2 {
+      font-family: 'Chewy', cursive;
+      font-size: 32px; color: #4280ca;
+      text-align: center; margin-bottom: 6px;
+    }
+    .form-section p.sub { text-align: center; color: #888; margin-bottom: 28px; }
+    .form-box {
+      background: white; border-radius: 20px;
+      padding: 40px 36px; box-shadow: 0 8px 30px rgba(0,0,0,0.07);
+    }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .fg { display: flex; flex-direction: column; margin-bottom: 18px; }
+    .fg label { font-size: 12px; font-weight: 800; color: #555; margin-bottom: 7px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .fg input, .fg select, .fg textarea {
+      padding: 13px 16px; border: 2px solid #e9ecef; border-radius: 12px;
+      font-family: 'Nunito', sans-serif; font-size: 15px; color: #333;
+      background: #fafafa; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .fg input:focus, .fg select:focus, .fg textarea:focus {
+      border-color: #4280ca; box-shadow: 0 0 0 3px rgba(66,128,202,0.12); background: white;
+    }
+    .fg textarea { resize: vertical; min-height: 120px; }
+    .send-btn {
+      width: 100%; padding: 15px;
+      background: linear-gradient(135deg, #4280ca, #2563eb);
+      color: white; border: none; border-radius: 14px;
+      font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 800;
+      cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .send-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(66,128,202,0.4); }
+    .success-msg {
+      display: none; text-align: center; padding: 28px;
+      background: #e8f5e9; border-radius: 16px; margin-top: 16px;
+    }
+    .success-msg i { font-size: 44px; color: #4caf50; display: block; margin-bottom: 10px; }
+    .success-msg p { font-size: 17px; font-weight: 700; color: #2e7d32; }
+
+    /* ── Footer ── */
+    footer {
+      background: #1a1a2e; color: #aaa;
+      text-align: center; padding: 28px 20px;
+      font-size: 13px; margin-top: 60px;
+    }
+    footer a { color: #ffc107; text-decoration: none; margin: 0 8px; }
+
+    /* ── WhatsApp Float ── */
+    .wa-float {
+      position: fixed; bottom: 24px; right: 24px; z-index: 999;
+      width: 54px; height: 54px; background: #25d366;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 26px; box-shadow: 0 4px 18px rgba(0,0,0,0.2);
+      text-decoration: none; transition: transform 0.2s;
+    }
+    .wa-float:hover { transform: scale(1.1); }
+
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 32px; }
+      .row2 { grid-template-columns: 1fr; }
+      .form-box { padding: 24px 18px; }
     }
   </style>
 </head>
-
 <body>
 
-  <!-- Announcement Bar -->
-  <div class="announcement-bar">
-    <div class="announcement-slider">
-      <div class="announcement-slide active">Buy any <strong>2</strong> and get <strong>FLAT 10% OFF</strong> | Use Code: <strong>BRAINY10</strong></div>
-      <div class="announcement-slide">Buy any <strong>3</strong> and get <strong>FLAT 15% OFF</strong> | Use Code: <strong>BRAINY15</strong></div>
-      <div class="announcement-slide">Get a <strong>FREE GIFT</strong> on all orders above <strong>&#8377;1,499</strong></div>
-      <div class="announcement-slide"><strong>FREE SHIPPING</strong> on order value above &#8377;999</div>
-    </div>
+  <!-- Simple Header -->
+  <div class="simple-topbar">
+    <a href="index.html" class="logo">brainy<span>grasp</span></a>
+    <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Shop</a>
   </div>
-
-  <!-- Top Bar -->
-  <div class="top-bar">
-    <div class="container">
-      <div class="top-bar-links">
-        <a href="faqs.html">FAQs</a>
-        <a href="blogs.html">Blogs</a>
-        <a href="rewards.html"><i class="fas fa-gift"></i> Rewards</a>
-        <a href="refund-policy.html"><i class="fas fa-undo-alt"></i> Refund Policy</a>
-        <a href="privacy-policy.html"><i class="fas fa-shield-alt"></i> Privacy</a>
-        <a href="terms.html"><i class="fas fa-file-contract"></i> Terms</a>
-        <a href="https://wa.me/919677406373"><i class="fab fa-whatsapp"></i> Need Help?</a>
-      </div>
-    </div>
-  </div>
-
-  <!-- Main Header -->
-  <header class="main-header" id="mainHeader">
-    <div class="container">
-      <div class="header-inner">
-        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle mobile menu">
-          <i class="fas fa-bars"></i>
-        </button>
-        <a href="index.html" class="logo" style="display:flex;align-items:center;gap:8px;text-decoration:none;">
-          <span class="animated-logo-text" style="font-family:'Chewy',cursive;font-size:34px;color:#4280ca;letter-spacing:1px;padding-top:5px;">brainy<span style="color:#ffc107;">grasp</span></span>
-        </a>
-        <nav class="main-nav" id="mainNav">
-          <ul class="nav-list">
-            <li class="nav-item"><a href="shop-by-age.html" class="nav-link">Shop by Age</a></li>
-            <li class="nav-item"><a href="shop-by-category.html" class="nav-link">Shop by Category</a></li>
-            <li class="nav-item"><a href="parents-choice.html" class="nav-link">Parents' Choice</a></li>
-            <li class="nav-item"><a href="collections.html?collection=bestsellers" class="nav-link nav-link-highlight">Bestsellers</a></li>
-            <li class="nav-item"><a href="collections.html?collection=newlaunches" class="nav-link nav-link-new">New Launches</a></li>
-          </ul>
-        </nav>
-        <div class="header-actions">
-          <a href="https://wa.me/919677406373" class="header-action-btn whatsapp-btn" aria-label="Contact via WhatsApp"><i class="fab fa-whatsapp"></i></a>
-          <div class="cart-btn-wrapper" style="position:relative;display:inline-flex;align-items:center;margin-right:6px;">
-            <button class="header-action-btn cart-btn" id="cartBtn" aria-label="Open cart"><i class="fas fa-shopping-bag"></i></button>
-            <span class="cart-count" style="position:absolute;top:-6px;right:-6px;z-index:1;pointer-events:none;">0</span>
-          </div>
-          <div id="profileWrapper"><a id="userBtn" href="login.html" class="header-action-btn user-btn" title="Sign In"><i class="fas fa-user"></i></a></div>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <!-- Cart Sidebar (needed by common.js) -->
-  <div class="cart-overlay" id="cartOverlay"></div>
-  <div class="cart-sidebar" id="cartSidebar">
-    <div class="cart-header">
-      <div class="cart-header-left">
-        <div class="cart-header-icon"><i class="fas fa-shopping-bag"></i></div>
-        <div><h3>Your Cart</h3><span class="cart-item-count-label"><span id="cartItemCount">0</span> items</span></div>
-      </div>
-      <button class="cart-close" id="cartClose" aria-label="Close cart"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="cart-items" id="cartItems"></div>
-    <div class="cart-footer" id="cartFooter" style="display:none;">
-      <a href="checkout_cod.html" class="checkout-btn"><i class="fas fa-lock"></i> Checkout</a>
-    </div>
-  </div>
-
 
   <!-- Hero -->
-  <section class="contact-hero">
+  <section class="hero">
     <h1>Get in <span>Touch</span></h1>
-    <p>Have questions about your order, our educational toys, or need help with anything? We're here for you — always!</p>
+    <p>Have a question about your order, our products, or need support? We're always here to help!</p>
   </section>
 
-  <!-- Info Cards -->
-  <div class="contact-cards-section">
+  <!-- Contact Info Cards -->
+  <div class="cards-grid">
 
-    <div class="contact-card phone">
-      <div class="contact-icon"><i class="fas fa-phone-alt"></i></div>
+    <div class="card phone">
+      <div class="card-icon"><i class="fas fa-phone-alt"></i></div>
       <h3>Call / WhatsApp</h3>
       <p class="sub">Mon – Sat, 9:00 AM – 6:00 PM</p>
-      <a href="https://wa.me/919677406373" target="_blank" class="contact-link">
+      <a href="https://wa.me/919677406373" target="_blank">
         <i class="fab fa-whatsapp"></i> +91 9677406373
       </a>
     </div>
 
-    <div class="contact-card email">
-      <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+    <div class="card email">
+      <div class="card-icon"><i class="fas fa-envelope"></i></div>
       <h3>Email Support</h3>
-      <p class="sub">We'll respond within 24 hours</p>
-      <a href="mailto:brainygrasp@gmail.com" class="contact-link">
+      <p class="sub">Reply within 24 hours</p>
+      <a href="mailto:brainygrasp@gmail.com">
         <i class="fas fa-at"></i> brainygrasp@gmail.com
       </a>
     </div>
 
-    <div class="contact-card address">
-      <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
+    <div class="card address">
+      <div class="card-icon"><i class="fas fa-map-marker-alt"></i></div>
       <h3>Registered Address</h3>
       <p class="sub">Headquarters & Warehouse</p>
-      <p style="font-size:14px;color:#555;line-height:1.8;font-weight:600;">
+      <p class="addr">
         BrainyGrasp Learning Pvt. Ltd.<br>
         162, Tiruppur Road,<br>
         Kangayam – 638701,<br>
@@ -410,60 +253,57 @@
       </p>
     </div>
 
-    <div class="contact-card hours">
-      <div class="contact-icon"><i class="fas fa-clock"></i></div>
+    <div class="card hours">
+      <div class="card-icon"><i class="fas fa-clock"></i></div>
       <h3>Business Hours</h3>
       <p class="sub">When you can reach us</p>
-      <ul class="hours-list">
-        <li><span class="day">Monday – Friday</span><span class="open">9 AM – 6 PM</span></li>
-        <li><span class="day">Saturday</span><span class="open">10 AM – 4 PM</span></li>
-        <li><span class="day">Sunday</span><span class="closed">Closed</span></li>
-        <li><span class="day">Public Holidays</span><span class="closed">Closed</span></li>
-      </ul>
+      <table class="hours-table">
+        <tr><td>Mon – Fri</td><td class="open">9 AM – 6 PM</td></tr>
+        <tr><td>Saturday</td><td class="open">10 AM – 4 PM</td></tr>
+        <tr><td>Sunday</td><td class="closed">Closed</td></tr>
+        <tr><td>Holidays</td><td class="closed">Closed</td></tr>
+      </table>
     </div>
 
   </div>
 
-  <!-- Quick Action Links -->
-  <div class="quick-links-strip" style="margin-top:60px;">
-    <div class="quick-links-inner">
-      <span style="font-weight:800;color:#555;font-size:15px;">Quick Actions:</span>
-      <a href="https://wa.me/919677406373" target="_blank" class="quick-link-btn whatsapp">
-        <i class="fab fa-whatsapp"></i> Chat on WhatsApp
-      </a>
-      <a href="mailto:brainygrasp@gmail.com" class="quick-link-btn email">
-        <i class="fas fa-envelope"></i> Send an Email
-      </a>
-      <a href="dashboard-new.html" class="quick-link-btn orders">
-        <i class="fas fa-box"></i> Track My Order
-      </a>
-    </div>
+  <!-- Quick Buttons -->
+  <div class="quick-bar">
+    <strong style="color:#555;">Quick Contact:</strong>
+    <a href="https://wa.me/919677406373" class="qbtn wa" target="_blank">
+      <i class="fab fa-whatsapp"></i> WhatsApp Us
+    </a>
+    <a href="mailto:brainygrasp@gmail.com" class="qbtn em">
+      <i class="fas fa-envelope"></i> Send Email
+    </a>
+    <a href="dashboard-new.html" class="qbtn ord">
+      <i class="fas fa-box"></i> Track Order
+    </a>
   </div>
 
   <!-- Contact Form -->
-  <section class="contact-form-section">
-    <h2>Send Us a Message</h2>
-    <p class="subtitle">Fill out the form below and we'll get back to you within 24 hours.</p>
-
-    <div class="contact-form">
+  <section class="form-section">
+    <h2>Send a Message</h2>
+    <p class="sub">We'll get back to you within 24 hours.</p>
+    <div class="form-box">
       <form id="contactForm" onsubmit="handleSubmit(event)">
-        <div class="form-row">
-          <div class="form-group">
-            <label for="contactName">Your Name *</label>
-            <input type="text" id="contactName" placeholder="e.g. Priya Sharma" required>
+        <div class="row2">
+          <div class="fg">
+            <label>Your Name *</label>
+            <input type="text" placeholder="Priya Sharma" required>
           </div>
-          <div class="form-group">
-            <label for="contactPhone">Phone Number *</label>
-            <input type="tel" id="contactPhone" placeholder="+91 98765 43210" required>
+          <div class="fg">
+            <label>Phone Number *</label>
+            <input type="tel" placeholder="+91 98765 43210" required>
           </div>
         </div>
-        <div class="form-group">
-          <label for="contactEmail">Email Address *</label>
-          <input type="email" id="contactEmail" placeholder="you@example.com" required>
+        <div class="fg">
+          <label>Email Address *</label>
+          <input type="email" placeholder="you@example.com" required>
         </div>
-        <div class="form-group">
-          <label for="contactSubject">Subject</label>
-          <select id="contactSubject">
+        <div class="fg">
+          <label>Topic</label>
+          <select>
             <option value="">-- Select a topic --</option>
             <option>Order Status / Tracking</option>
             <option>Return / Refund Request</option>
@@ -473,80 +313,33 @@
             <option>Other</option>
           </select>
         </div>
-        <div class="form-group">
-          <label for="contactMessage">Your Message *</label>
-          <textarea id="contactMessage" placeholder="Describe your query in detail..." required></textarea>
+        <div class="fg">
+          <label>Your Message *</label>
+          <textarea placeholder="Describe your query in detail..." required></textarea>
         </div>
-        <button type="submit" class="submit-btn" id="submitBtn">
+        <button type="submit" class="send-btn" id="submitBtn">
           <i class="fas fa-paper-plane"></i> Send Message
         </button>
       </form>
-
-      <div class="form-success" id="formSuccess">
+      <div class="success-msg" id="formSuccess">
         <i class="fas fa-check-circle"></i>
-        <p>Message sent! We'll get back to you within 24 hours.</p>
+        <p>Message sent! We'll reply within 24 hours.</p>
       </div>
     </div>
   </section>
 
   <!-- Footer -->
-  <footer class="main-footer">
-    <div class="footer-grid">
-      <div class="footer-col footer-brand">
-        <a href="index.html" style="text-decoration:none;">
-          <span style="font-family:'Chewy',cursive;font-size:34px;color:#4280ca;">brainy<span style="color:#ffc107;">grasp</span></span>
-        </a>
-        <p>Where learning meets play! Educational toys designed to spark curiosity and build confidence in every child.</p>
-        <a href="https://wa.me/919677406373" class="footer-whatsapp-btn" target="_blank">
-          <i class="fab fa-whatsapp"></i> WhatsApp Us
-        </a>
-        <div class="footer-social" style="margin-top:20px;">
-          <a href="#"><i class="fab fa-facebook-f"></i></a>
-          <a href="#"><i class="fab fa-instagram"></i></a>
-          <a href="#"><i class="fab fa-twitter"></i></a>
-          <a href="#"><i class="fab fa-youtube"></i></a>
-          <a href="#"><i class="fab fa-pinterest"></i></a>
-        </div>
-      </div>
-      <div class="footer-col">
-        <h4>Help</h4>
-        <ul>
-          <li><a href="contact.html">Contact Us</a></li>
-          <li><a href="refund-policy.html">Refund &amp; Replacement</a></li>
-          <li><a href="faqs.html">FAQs</a></li>
-          <li><a href="rewards.html">Rewards</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Know More</h4>
-        <ul>
-          <li><a href="about.html">About Us</a></li>
-          <li><a href="blogs.html">Blog</a></li>
-          <li><a href="privacy-policy.html">Privacy Policy</a></li>
-          <li><a href="terms.html">Terms &amp; Conditions</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Contact Info</h4>
-        <ul>
-          <li><a href="tel:+919677406373"><i class="fas fa-phone" style="color:#4caf50;margin-right:6px;"></i>+91 9677406373</a></li>
-          <li><a href="mailto:brainygrasp@gmail.com"><i class="fas fa-envelope" style="color:#ffc107;margin-right:6px;"></i>brainygrasp@gmail.com</a></li>
-          <li><a href="#"><i class="fas fa-map-marker-alt" style="color:#ff5252;margin-right:6px;"></i>Kangayam, Tamil Nadu</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>&copy; 2026 BrainyGrasp Learning Pvt. Ltd. All rights reserved.</p>
-      <div class="footer-bottom-links">
-        <a href="privacy-policy.html">Privacy Policy</a>
-        <a href="terms.html">Terms &amp; Conditions</a>
-        <a href="refund-policy.html">Refund Policy</a>
-      </div>
-    </div>
+  <footer>
+    <p>&copy; 2026 BrainyGrasp Learning Pvt. Ltd. All rights reserved.</p>
+    <p style="margin-top:10px;">
+      <a href="privacy-policy.html">Privacy Policy</a>
+      <a href="terms.html">Terms &amp; Conditions</a>
+      <a href="refund-policy.html">Refund Policy</a>
+    </p>
   </footer>
 
   <!-- WhatsApp Float -->
-  <a href="https://wa.me/919677406373" class="whatsapp-float" aria-label="Contact us on WhatsApp" style="position:fixed;bottom:24px;right:24px;z-index:999;width:56px;height:56px;background:#25d366;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:28px;box-shadow:0 4px 20px rgba(0,0,0,0.2);text-decoration:none;transition:transform 0.2s;">
+  <a href="https://wa.me/919677406373" class="wa-float" target="_blank" aria-label="WhatsApp">
     <i class="fab fa-whatsapp"></i>
   </a>
 
@@ -563,11 +356,5 @@
     }
   </script>
 
-  <script src="js/products.js"></script>
-  <script src="js/config.js"></script>
-  <script src="js/auth-unified.js"></script>
-  <script src="js/common.js"></script>
-
 </body>
 </html>
-
