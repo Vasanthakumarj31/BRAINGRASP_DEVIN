@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shipping &amp; Delivery Policy | BrainyGrasp</title>
+  <meta name="description" content="Read BrainyGrasp's shipping and delivery policy. Learn about our delivery timelines, shipping charges, and our partnership with Delhivery.">
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    .policy-hero {
+      background: linear-gradient(135deg, #FF6B35 0%, #ff8c5a 100%);
+      padding: 60px 0 50px;
+      text-align: center;
+      color: #fff;
+    }
+    .policy-hero h1 { font-family: 'Fredoka', sans-serif; font-size: 42px; margin: 0 0 10px; }
+    .policy-hero p { font-size: 16px; opacity: 0.9; margin: 0; }
+    .policy-hero .breadcrumb { font-size: 13px; opacity: 0.75; margin-bottom: 16px; }
+    .policy-hero .breadcrumb a { color: #fff; text-decoration: none; }
+    .policy-hero .breadcrumb a:hover { text-decoration: underline; }
+    .policy-body { max-width: 860px; margin: 0 auto; padding: 60px 24px 80px; }
+    .policy-updated { display: inline-block; background: #fff3cd; color: #856404; font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 20px; margin-bottom: 40px; border: 1px solid #ffc107; }
+    .policy-section { margin-bottom: 44px; }
+    .policy-section h2 { font-family: 'Fredoka', sans-serif; font-size: 24px; color: #1e1e1e; margin: 0 0 14px; display: flex; align-items: center; gap: 10px; }
+    .policy-section h2 .sec-icon { width: 36px; height: 36px; background: #fff0e8; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #FF6B35; font-size: 15px; flex-shrink: 0; }
+    .policy-section p { color: #4b5563; line-height: 1.8; font-size: 15px; margin: 0 0 12px; }
+    .policy-card { background: #f9fafb; border-left: 4px solid #FF6B35; border-radius: 0 12px 12px 0; padding: 18px 22px; margin: 18px 0; }
+    .policy-card p { margin: 0; }
+    .policy-table { width: 100%; border-collapse: collapse; margin: 20px 0; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+    .policy-table th { background: #FF6B35; color: #fff; padding: 14px 18px; text-align: left; font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 500; }
+    .policy-table td { padding: 13px 18px; border-bottom: 1px solid #f0f0f0; color: #374151; font-size: 14px; line-height: 1.6; vertical-align: top; }
+    .policy-table tr:last-child td { border-bottom: none; }
+    .policy-table tr:nth-child(even) td { background: #fafafa; }
+    .badge-yes { background: #d1fae5; color: #065f46; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+    .badge-no { background: #fee2e2; color: #991b1b; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+    .badge-cond { background: #fef3c7; color: #92400e; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+    .highlight-box { background: linear-gradient(135deg, #fff0e8, #fff8f3); border: 1px solid #ffcdb2; border-radius: 14px; padding: 22px 26px; margin: 24px 0; }
+    .highlight-box h3 { font-family: 'Fredoka', sans-serif; font-size: 18px; color: #c2410c; margin: 0 0 10px; }
+    .highlight-box ul { margin: 0; padding-left: 20px; color: #4b5563; font-size: 14px; line-height: 1.9; }
+    .contact-box { background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 16px; padding: 30px; text-align: center; color: #fff; margin-top: 50px; }
+    .contact-box h3 { font-family: 'Fredoka', sans-serif; font-size: 24px; margin: 0 0 10px; }
+    .contact-box p { opacity: 0.9; margin: 0 0 20px; }
+    .contact-box .contact-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .contact-box a { display: inline-flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: 30px; font-weight: 700; font-size: 15px; text-decoration: none; transition: transform 0.2s; }
+    .contact-box a:hover { transform: translateY(-2px); }
+    .btn-wa { background: #25d366; color: #fff; }
+    .btn-mail { background: #fff; color: #667eea; }
+    .steps-list { counter-reset: step-counter; list-style: none; padding: 0; margin: 0; }
+    .steps-list li { counter-increment: step-counter; display: flex; align-items: flex-start; gap: 14px; padding: 14px 0; border-bottom: 1px dashed #e5e7eb; }
+    .steps-list li:last-child { border-bottom: none; }
+    .steps-list li::before { content: counter(step-counter); display: flex; align-items: center; justify-content: center; min-width: 32px; height: 32px; background: #FF6B35; color: #fff; border-radius: 50%; font-weight: 700; font-size: 14px; margin-top: 1px; }
+    .steps-list li span { color: #374151; font-size: 14px; line-height: 1.7; }
+  </style>
+  <link rel="stylesheet" href="css/mobile-responsive.css">
+  <link rel="stylesheet" href="css/policy-mobile.css">
+  <link rel="stylesheet" href="css/mobile-master.css">
+  <link rel="stylesheet" href="css/mobile-menu-new.css">
+</head>
+<body>
+
+  <!-- Announcement Bar -->
+  <div class="announcement-bar">
+    <div class="announcement-slider">
+      <div class="announcement-slide active">Buy any <strong>2</strong> and get <strong>FLAT 10% OFF</strong> | Use Code: <strong>BRAINY10</strong></div>
+      <div class="announcement-slide">Buy any <strong>3</strong> and get <strong>FLAT 15% OFF</strong> | Use Code: <strong>BRAINY15</strong></div>
+      <div class="announcement-slide"><strong>FREE SHIPPING</strong> on orders above &#8377;999</div>
+    </div>
+  </div>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="container">
+      <div class="top-bar-links">
+        <a href="faqs.html">FAQs</a>
+        <a href="blogs.html">Blogs</a>
+        <a href="rewards.html"><i class="fas fa-gift"></i> Rewards</a>
+        <a href="shipping-policy.html"><i class="fas fa-truck"></i> Shipping Policy</a>
+        <a href="refund-policy.html"><i class="fas fa-undo-alt"></i> Refund Policy</a>
+        <a href="privacy-policy.html"><i class="fas fa-shield-alt"></i> Privacy</a>
+        <a href="terms.html"><i class="fas fa-file-contract"></i> Terms</a>
+        <a href="https://wa.me/919677406373"><i class="fab fa-whatsapp"></i> Need Help?</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Header -->
+  <header class="main-header" id="mainHeader">
+    <div class="container">
+      <div class="header-inner">
+        <!-- Mobile Menu Toggle -->
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle mobile menu" aria-expanded="false" aria-controls="mobileNavSidebar">
+          <span></span><span></span><span></span>
+        </button>
+        <!-- Logo -->
+        <a href="index.html" class="logo" style="display: flex; align-items: center; gap: 8px; text-decoration: none;">
+          <span class="animated-logo-text" style="font-family: 'Chewy', cursive; font-size: 34px; color: #4280ca; letter-spacing: 1px; padding-top: 5px;">brainy<span style="color: #ffc107;">grasp</span></span>
+        </a>
+        <nav class="main-nav" id="mainNav">
+          <ul class="nav-list">
+            <li class="nav-item"><a href="shop-by-age.html" class="nav-link">Shop by Age</a></li>
+            <li class="nav-item"><a href="shop-by-category.html" class="nav-link">Shop by Category</a></li>
+            <li class="nav-item"><a href="collections.html" class="nav-link">Collections</a></li>
+            <li class="nav-item"><a href="collections.html?collection=bestsellers" class="nav-link nav-link-highlight">Bestsellers</a></li>
+            <li class="nav-item"><a href="collections.html?collection=newlaunches" class="nav-link nav-link-new">New Launches</a></li>
+          </ul>
+        </nav>
+        <div class="header-actions">
+          <a href="https://wa.me/919677406373" class="header-action-btn whatsapp-btn" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+          <button class="header-action-btn search-btn" id="searchBtn" aria-label="Open search"><i class="fas fa-search"></i></button>
+          <div class="cart-btn-wrapper" style="position:relative;display:inline-flex;align-items:center;margin-right:6px;">
+            <button class="header-action-btn cart-btn" id="cartBtn" aria-label="Open cart"><i class="fas fa-shopping-bag"></i></button>
+            <span class="cart-count" style="position:absolute;top:-6px;right:-6px;z-index:1;pointer-events:none;">0</span>
+          </div>
+          <div id="profileWrapper"><a id="userBtn" href="login.html" class="header-action-btn user-btn" title="Sign In"><i class="fas fa-user"></i></a></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <div class="policy-hero">
+    <div class="container">
+      <div class="breadcrumb"><a href="index.html">Home</a> &rsaquo; Shipping &amp; Delivery</div>
+      <h1><i class="fas fa-truck" style="margin-right:12px;"></i>Shipping &amp; Delivery Policy</h1>
+      <p>Fast, reliable, and secure shipping for all your educational toys.</p>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="policy-body">
+    <span class="policy-updated"><i class="fas fa-calendar-alt" style="margin-right:6px;"></i>Last Updated: May 2026</span>
+
+    <!-- Overview -->
+    <div class="policy-section">
+      <h2><span class="sec-icon"><i class="fas fa-info"></i></span>Overview</h2>
+      <p>At <strong>BrainyGrasp Learning Pvt. Ltd.</strong>, we know you are eager to receive your educational toys. We work diligently to ensure your orders are processed and delivered as quickly and safely as possible.</p>
+      <p>This policy details our shipping timelines, costs, and our trusted delivery partners.</p>
+    </div>
+
+    <!-- Our Delivery Partner -->
+    <div class="policy-section">
+      <h2><span class="sec-icon"><i class="fas fa-handshake"></i></span>Our Delivery Partner</h2>
+      <div class="policy-card">
+        <p>We are proud to partner with <strong>Delhivery</strong> as our primary logistics provider, ensuring nationwide reach and reliable, fast delivery right to your doorstep.</p>
+      </div>
+    </div>
+
+    <!-- Processing and Delivery Time -->
+    <div class="policy-section">
+      <h2><span class="sec-icon"><i class="fas fa-clock"></i></span>Processing &amp; Delivery Timelines</h2>
+      <ul style="color:#4b5563;line-height:1.9;font-size:15px;padding-left:20px;">
+        <li><strong>Order Processing:</strong> All orders are processed within 1-2 business days (excluding weekends and holidays).</li>
+        <li><strong>Delivery Time:</strong> Standard delivery generally takes 3-7 business days across India, depending on your pin code.</li>
+        <li><strong>Delays:</strong> While we strive to meet our delivery times, unforeseen circumstances or high order volumes may occasionally cause slight delays. We will keep you informed if this occurs.</li>
+      </ul>
+    </div>
+
+    <!-- Shipping Costs -->
+    <div class="policy-section">
+      <h2><span class="sec-icon"><i class="fas fa-rupee-sign"></i></span>Shipping Charges</h2>
+      <table class="policy-table">
+        <thead>
+          <tr><th>Order Value</th><th>Shipping Cost</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Above &#8377;999</td>
+            <td><span class="badge-yes">FREE</span></td>
+          </tr>
+          <tr>
+            <td>Below &#8377;999</td>
+            <td>Standard rates apply at checkout</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Order Tracking -->
+    <div class="policy-section">
+      <h2><span class="sec-icon"><i class="fas fa-search-location"></i></span>Order Tracking</h2>
+      <p>Once your order has been dispatched via Delhivery, you will receive a tracking link via email and WhatsApp. You can use this link to monitor the real-time status of your package.</p>
+    </div>
+
+    <!-- Contact -->
+    <div class="contact-box">
+      <h3><i class="fas fa-headset" style="margin-right:10px;"></i>Need Help With Your Delivery?</h3>
+      <p>Our support team is available Monday&ndash;Saturday, 9 AM &ndash; 6 PM IST</p>
+      <div class="contact-btns">
+        <a href="https://wa.me/919677406373" class="btn-wa"><i class="fab fa-whatsapp"></i> WhatsApp Us</a>
+        <a href="https://mail.google.com/mail/?view=cm&to=brainygrasp@gmail.com&subject=BrainyGrasp%20Support" target="_blank" rel="noopener" class="btn-mail"><i class="fas fa-envelope"></i> Email Support</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col footer-brand">
+          <a href="index.html" class="footer-logo" style="display: flex; align-items: center; gap: 8px; text-decoration: none; margin-bottom: 15px;">
+            <span class="animated-logo-text" style="font-family: 'Chewy', cursive; font-size: 34px; color: #4280ca; letter-spacing: 1px; padding-top: 5px;">brainy<span style="color: #ffc107;">grasp</span></span>
+          </a>
+          <p>Where learning meets play! Educational toys designed to spark curiosity in every child.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Policies</h4>
+          <ul>
+            <li><a href="shipping-policy.html">Shipping &amp; Delivery</a></li>
+            <li><a href="refund-policy.html">Refund &amp; Replacement</a></li>
+            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+            <li><a href="terms.html">Terms &amp; Conditions</a></li>
+            <li><a href="faqs.html">FAQs</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Shop</h4>
+          <ul>
+            <li><a href="shop-by-age.html">Shop by Age</a></li>
+            <li><a href="shop-by-category.html">Shop by Category</a></li>
+            <li><a href="collections.html?collection=bestsellers">Bestsellers</a></li>
+            <li><a href="collections.html?collection=newlaunches">New Launches</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Contact</h4>
+          <ul>
+            <li><a href="https://wa.me/919677406373"><i class="fab fa-whatsapp"></i> +91 96774 06373</a></li>
+            <li><a href="https://mail.google.com/mail/?view=cm&to=brainygrasp@gmail.com&subject=BrainyGrasp%20Support" target="_blank" rel="noopener"><i class="fas fa-envelope"></i> brainygrasp@gmail.com</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="footer-bottom-inner">
+          <p>&copy; 2026 BrainyGrasp Learning Pvt. Ltd. All rights reserved.</p>
+          <div class="payment-icons">
+            <span>Secure Payments via</span>
+            <div class="payment-methods">
+              <i class="fab fa-cc-visa"></i>
+              <i class="fab fa-cc-mastercard"></i>
+              <i class="fab fa-cc-amex"></i>
+              <i class="fab fa-google-pay"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Cart Sidebar -->
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <div class="cart-sidebar" id="cartSidebar">
+    <div class="cart-header">
+      <h3>My Cart <span class="cart-item-count" id="cartItemCount">0</span></h3>
+      <button class="cart-close" id="cartClose"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="cart-body">
+      <div class="cart-empty" id="cartEmpty"><i class="fas fa-shopping-bag"></i><p>Your cart is empty</p><a href="collections.html" class="btn btn-primary">Start Shopping</a></div>
+      <div class="cart-items" id="cartItems"></div>
+    </div>
+    <div class="cart-footer">
+      <div class="cart-total-row"><span>Total:</span><span id="cartTotal">&#8377;0</span></div>
+      <button class="btn btn-primary btn-full" id="sidebarCheckoutBtn">Secure Checkout</button>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/auth-unified.js"></script>
+  <script src="js/modern-search.js"></script>
+  <!-- Mobile Nav Overlay -->
+  <div class="mobile-overlay" id="mobileOverlay"></div>
+</body>
+</html>
