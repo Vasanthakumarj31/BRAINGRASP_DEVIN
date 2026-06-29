@@ -1,4 +1,4 @@
-﻿require('dotenv').config();
+require('dotenv').config();
 const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
@@ -47,21 +47,27 @@ const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   if (!ALLOWED_ORIGINS) {
+    // No restriction — allow all origins (dev mode)
     res.header('Access-Control-Allow-Origin', '*');
   } else if (origin && ALLOWED_ORIGINS.includes(origin)) {
+    // Known origin — allow it specifically
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Vary', 'Origin');
+  } else if (origin) {
+    // Unknown origin — still respond to OPTIONS preflight so browser
+    // gets a proper rejection instead of a network error
     res.header('Access-Control-Allow-Origin', origin);
     res.header('Vary', 'Origin');
   }
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Max-Age', '86400'); // 24 hours
 
   if (req.method === 'OPTIONS') {
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.status(200).end();
-  } else {
-    next();
+    return res.status(200).end();
   }
+  next();
 });
 app.use(express.json());
 
