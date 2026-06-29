@@ -37,6 +37,10 @@ const SECRET_KEY = process.env.JWT_SECRET;
 const app = express();
 const port = process.env.PORT || 3000;
 
+// ── Trust Proxy (required on Render/Heroku behind a load balancer) ──────────
+// Fixes express-rate-limit ERR_ERL_UNEXPECTED_X_FORWARDED_FOR error
+app.set('trust proxy', 1);
+
 // ── Middleware ──────────────────────────────────────────────────────────────
 // CORS: allow origins listed in ALLOWED_ORIGINS env var (comma-separated).
 // Falls back to '*' in development so local file:// and localhost work out of the box.

@@ -22,7 +22,9 @@ function createEmailTransporter() {
     },
     tls: {
       rejectUnauthorized: true  // Enforce valid TLS certificate
-    }
+    },
+    connectionTimeout: 10000,  // 10s — fail fast if Gmail blocks the IP
+    socketTimeout: 10000       // 10s — fail fast if connection stalls
   });
 }
 
