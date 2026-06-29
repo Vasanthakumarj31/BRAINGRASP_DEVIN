@@ -21,7 +21,7 @@ window.BG_CONFIG = {
     // 2. Auto-detect local development
     const host = window.location.hostname;
     if (host === 'localhost' || host === '127.0.0.1' || host === '') {
-      return 'http://localhost:3000';
+      return PRODUCTION_API_URL;
     }
 
     // 3. Production: use the configured backend URL
