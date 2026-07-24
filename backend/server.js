@@ -7,6 +7,7 @@ const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const { sendOTP } = require('./otpService');
 const { initRedis, getCached, setCache, deleteCache, clearCachePattern, CACHE_KEYS, TTL } = require('./redisClient');
+const bcrypt = require('bcryptjs');
 
 // ── Rate Limiting ─────────────────────────────────────────────────────────────
 // Guard OTP endpoint: max 5 requests per IP per 15 minutes
@@ -43,26 +44,35 @@ app.set('trust proxy', 1);
 
 // ── Middleware ──────────────────────────────────────────────────────────────
 // CORS: allow origins listed in ALLOWED_ORIGINS env var (comma-separated).
-// Falls back to '*' in development so local file:// and localhost work out of the box.
+// In development (ALLOWED_ORIGINS not set), all origins are allowed so that
+// local file:// and localhost work out of the box.
 const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(',')
-  : null; // null = allow all
+  ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
+  : null; // null = allow all (dev mode only)
 
 app.use((req, res, next) => {
   const origin = req.headers.origin;
+
   if (!ALLOWED_ORIGINS) {
-    // No restriction — allow all origins (dev mode)
+    // Dev mode — no restriction
     res.header('Access-Control-Allow-Origin', '*');
   } else if (origin && ALLOWED_ORIGINS.includes(origin)) {
-    // Known origin — allow it specifically
+    // Known, explicitly allowed origin
     res.header('Access-Control-Allow-Origin', origin);
     res.header('Vary', 'Origin');
   } else if (origin) {
-    // Unknown origin — still respond to OPTIONS preflight so browser
-    // gets a proper rejection instead of a network error
-    res.header('Access-Control-Allow-Origin', origin);
-    res.header('Vary', 'Origin');
+    // ── BUG FIX: Unknown origin — reject with 403 instead of echoing it back.
+    // Echoing an unknown origin would effectively whitelist every domain.
+    if (req.method === 'OPTIONS') {
+      // Respond to preflight so the browser receives a proper rejection
+      // rather than a network-level error.
+      res.header('Access-Control-Allow-Origin', 'null');
+      return res.status(403).end();
+    }
+    return res.status(403).json({ error: 'CORS: Origin not allowed.' });
   }
+  // For same-origin requests (no Origin header) fall through normally.
+
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.header('Access-Control-Allow-Credentials', 'true');
@@ -170,6 +180,85 @@ async function initDB() {
     await client.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_date DATE`).catch(() => {});
     await client.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS admin_note TEXT`).catch(() => {});
 
+    // ── Affiliate System: extend existing tables ──────────────────────────────
+    await client.query(`ALTER TABLE users  ADD COLUMN IF NOT EXISTS role          VARCHAR(20)  DEFAULT 'CUSTOMER'`).catch(() => {});
+    await client.query(`ALTER TABLE users  ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255)`).catch(() => {});
+    await client.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS affiliate_id  INTEGER`).catch(() => {});
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS affiliates (
+        id              SERIAL PRIMARY KEY,
+        user_id         INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        affiliate_code  VARCHAR(20) UNIQUE NOT NULL,
+        commission_pct  NUMERIC(5,2) DEFAULT 20.00,
+        status          VARCHAR(20)  DEFAULT 'ACTIVE',
+        created_at      TIMESTAMP DEFAULT NOW(),
+        updated_at      TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS affiliate_clicks (
+        id            SERIAL PRIMARY KEY,
+        affiliate_id  INTEGER REFERENCES affiliates(id) ON DELETE CASCADE,
+        ip_address    VARCHAR(45),
+        session_id    VARCHAR(100),
+        page_url      TEXT,
+        clicked_at    TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS commissions (
+        id                SERIAL PRIMARY KEY,
+        affiliate_id      INTEGER REFERENCES affiliates(id) ON DELETE CASCADE,
+        order_id          INTEGER REFERENCES orders(id) ON DELETE SET NULL,
+        order_amount      INTEGER NOT NULL,
+        commission_pct    NUMERIC(5,2) NOT NULL,
+        commission_amount INTEGER NOT NULL,
+        status            VARCHAR(20) DEFAULT 'APPROVED',
+        created_at        TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    await client.query(`CREATE UNIQUE INDEX IF NOT EXISTS uq_commission_order ON commissions(order_id)`).catch(() => {});
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS affiliate_wallets (
+        id               SERIAL PRIMARY KEY,
+        affiliate_id     INTEGER UNIQUE REFERENCES affiliates(id) ON DELETE CASCADE,
+        current_balance  INTEGER DEFAULT 0,
+        total_earned     INTEGER DEFAULT 0,
+        updated_at       TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS wallet_transactions (
+        id                SERIAL PRIMARY KEY,
+        affiliate_id      INTEGER REFERENCES affiliates(id) ON DELETE CASCADE,
+        transaction_type  VARCHAR(20) NOT NULL,
+        amount            INTEGER NOT NULL,
+        description       TEXT,
+        reference_id      INTEGER,
+        created_at        TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS affiliate_payouts (
+        id                SERIAL PRIMARY KEY,
+        affiliate_id      INTEGER REFERENCES affiliates(id) ON DELETE CASCADE,
+        amount            INTEGER NOT NULL,
+        status            VARCHAR(20) DEFAULT 'PAID',
+        payment_reference VARCHAR(100),
+        admin_note        TEXT,
+        paid_at           TIMESTAMP DEFAULT NOW(),
+        created_at        TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS affiliate_settings (
+        id          SERIAL PRIMARY KEY,
+        payout_day  INTEGER DEFAULT 1
+      )
+    `);
+    await client.query(`INSERT INTO affiliate_settings (id, payout_day) VALUES (1, 1) ON CONFLICT (id) DO NOTHING`).catch(() => {});
+
   } catch (err) {
     console.error('DB init error:', err);
   } finally {
@@ -213,6 +302,20 @@ function authenticateToken(req, res, next) {
   });
 }
 
+// ── Affiliate Auth Middleware ───────────────────────────────────────────────
+function authenticateAffiliate(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'Affiliate access denied' });
+  jwt.verify(token, SECRET_KEY, (err, decoded) => {
+    if (err || decoded.role !== 'affiliate') {
+      return res.status(403).json({ error: 'Affiliate access required' });
+    }
+    req.affiliate = decoded;
+    next();
+  });
+}
+
 // ── User Authentication Endpoints ───────────────────────────────────────────
 
 // Handle preflight requests for auth endpoints
@@ -228,8 +331,6 @@ app.post('/api/auth/request-otp', otpLimiter, cors(), async (req, res) => {
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 min
-
-  console.log('🔢 Generated OTP:', otp);
 
   try {
     console.log('💾 Storing OTP in cache...');
@@ -492,17 +593,57 @@ app.post('/api/addresses', authenticateToken, async (req, res) => {
 
 // 6. Place Order (COD or post-Razorpay)
 app.post('/api/orders', authenticateToken, async (req, res) => {
-  const { address_id, items, subtotal, total, payment_method = 'cod', payment_id = null } = req.body;
+  const { address_id, items, subtotal, total, payment_method = 'cod', payment_id = null, affiliate_ref = null } = req.body;
   try {
+    let resolvedAffiliateId = null;
+    let commPct = 20.00;
+    if (affiliate_ref) {
+      const affCheck = await pool.query("SELECT id, commission_pct, status FROM affiliates WHERE affiliate_code=$1 AND status='ACTIVE'", [affiliate_ref.trim()]);
+      if (affCheck.rows.length > 0) {
+        resolvedAffiliateId = affCheck.rows[0].id;
+        commPct = parseFloat(affCheck.rows[0].commission_pct) || 20.00;
+      }
+    }
+
     const result = await pool.query(`
-      INSERT INTO orders (user_id, address_id, items, subtotal, total, status, payment_method, payment_id)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id
+      INSERT INTO orders (user_id, address_id, items, subtotal, total, status, payment_method, payment_id, affiliate_id)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id
     `, [
       req.user.id, address_id, JSON.stringify(items), subtotal, total,
       payment_method === 'razorpay' ? 'Paid' : 'Placed',
       payment_method,
-      payment_id
+      payment_id,
+      resolvedAffiliateId
     ]);
+
+    const orderId = result.rows[0].id;
+
+    // Process affiliate commission if order came via valid active affiliate
+    if (resolvedAffiliateId) {
+      const commAmount = Math.round((total * commPct) / 100);
+      const commRes = await pool.query(`
+        INSERT INTO commissions (affiliate_id, order_id, order_amount, commission_pct, commission_amount, status)
+        VALUES ($1, $2, $3, $4, $5, 'APPROVED')
+        ON CONFLICT (order_id) DO NOTHING
+        RETURNING id
+      `, [resolvedAffiliateId, orderId, total, commPct, commAmount]);
+
+      if (commRes.rows.length > 0) {
+        await pool.query(`
+          INSERT INTO affiliate_wallets (affiliate_id, current_balance, total_earned)
+          VALUES ($1, $2, $2)
+          ON CONFLICT (affiliate_id) DO UPDATE
+          SET current_balance = affiliate_wallets.current_balance + $2,
+              total_earned    = affiliate_wallets.total_earned + $2,
+              updated_at      = NOW()
+        `, [resolvedAffiliateId, commAmount]);
+
+        await pool.query(`
+          INSERT INTO wallet_transactions (affiliate_id, transaction_type, amount, description, reference_id)
+          VALUES ($1, 'COMMISSION', $2, $3, $4)
+        `, [resolvedAffiliateId, commAmount, `Commission from Order #${orderId}`, commRes.rows[0].id]);
+      }
+    }
     
     // Clear user's cart in DB and cache after successful order
     await pool.query("UPDATE users SET cart = '[]' WHERE id = $1", [req.user.id]);
@@ -601,7 +742,8 @@ app.get('/api/products/search', async (req, res) => {
     }
     
     // Fetch from database
-    const pattern = `%${q.trim()}%`;
+    const escapedQ = q.trim().replace(/[%_\\]/g, '\\$&');
+    const pattern = `%${escapedQ}%`;
     const result = await pool.query(`
       SELECT id, name, category, price, original_price, image, badge, age, sales
       FROM products
@@ -708,14 +850,28 @@ function authenticateAdmin(req, res, next) {
 }
 
 // ── A1. Admin Login ────────────────────────────────────────────────────────
-// Credentials come from env vars (ADMIN_USERNAME / ADMIN_PASSWORD).
-// Default: admin / admin123 (matching the placeholder shown in login.html).
+// Credentials MUST be set via env vars (ADMIN_USERNAME / ADMIN_PASSWORD).
+// ── BUG FIX: Removed insecure fallback defaults ('admin'/'admin123').
+// The server will refuse to start if these vars are missing (see startup check below).
+if (!process.env.ADMIN_USERNAME || !process.env.ADMIN_PASSWORD) {
+  throw new Error(
+    '❌ Missing required env vars: ADMIN_USERNAME and ADMIN_PASSWORD must be set in .env'
+  );
+}
+
 app.post('/api/admin/login', (req, res) => {
   const { username, password } = req.body;
-  const ADMIN_USER = process.env.ADMIN_USERNAME || 'admin';
-  const ADMIN_PASS = process.env.ADMIN_PASSWORD || 'admin123';
+  // Read from env at request time so that hot-reloaded env changes are picked up.
+  const ADMIN_USER = process.env.ADMIN_USERNAME || '';
+  const ADMIN_PASS = process.env.ADMIN_PASSWORD || '';
 
-  if (username !== ADMIN_USER || password !== ADMIN_PASS) {
+  const matches = (a, b) => {
+    if (typeof a !== 'string' || typeof b !== 'string') return false;
+    return a.length === b.length && crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
+  };
+
+  if (!username || !password || !matches(username, ADMIN_USER) || !matches(password, ADMIN_PASS)) {
+    // Uniform error message — don't reveal which field is wrong.
     return res.status(401).json({ error: 'Invalid admin credentials' });
   }
 
@@ -852,7 +1008,7 @@ app.get('/api/admin/dashboard', authenticateAdmin, async (req, res) => {
       productsRes, ordersCountRes, revenueRes,
       confirmedRes, pendingRes, deliveredRes,
       usersWithCartRes, recentOrdersRes,
-      topSellingRes, lowSellingRes, cartItemsRes
+      topSellingRes, lowSellingRes, cartItemsRes, totalUsersRes
     ] = await Promise.all([
       pool.query('SELECT COUNT(*) FROM products'),
       pool.query('SELECT COUNT(*) FROM orders'),
@@ -879,7 +1035,8 @@ app.get('/api/admin/dashboard', authenticateAdmin, async (req, res) => {
           (SELECT COALESCE(SUM((item->>'quantity')::int), 0)
            FROM jsonb_array_elements(COALESCE(cart,'[]'::jsonb)) AS item)
         ), 0) AS total_items FROM users
-      `)
+      `),
+      pool.query('SELECT COUNT(*) FROM users')
     ]);
 
     res.json({
@@ -892,6 +1049,7 @@ app.get('/api/admin/dashboard', authenticateAdmin, async (req, res) => {
         delivered:       parseInt(deliveredRes.rows[0].count),
         usersWithCart:   parseInt(usersWithCartRes.rows[0].count),
         cartItems:       parseInt(cartItemsRes.rows[0].total_items || 0),
+        totalUsers:      parseInt(totalUsersRes.rows[0].count)
       },
       recentOrders: recentOrdersRes.rows,
       topSelling:   topSellingRes.rows,
@@ -989,24 +1147,520 @@ app.get('/api/admin/orders/:id', authenticateAdmin, async (req, res) => {
 
 // ── A9. Update Order Status ────────────────────────────────────────────────
 app.put('/api/admin/orders/:id/status', authenticateAdmin, async (req, res) => {
-  const { status, delivery_date, admin_note } = req.body;
+  const { status, expected_delivery, delivery_date, admin_note } = req.body;
   if (!status) return res.status(400).json({ error: 'status is required' });
 
   try {
     const result = await pool.query(`
       UPDATE orders
-      SET status=$1, delivery_date=$2, admin_note=$3
-      WHERE id=$4
-      RETURNING id, status, delivery_date, admin_note
-    `, [status, delivery_date || null, admin_note || null, parseInt(req.params.id)]);
+      SET status=$1, expected_delivery=$2, delivery_date=$3, admin_note=$4
+      WHERE id=$5
+      RETURNING id, user_id, status, expected_delivery, delivery_date, admin_note
+    `, [status, expected_delivery || null, delivery_date || null, admin_note || null, parseInt(req.params.id)]);
 
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Order not found' });
     }
-    res.json({ success: true, order: result.rows[0] });
+
+    const updated = result.rows[0];
+    if (updated.user_id) {
+      await deleteCache(CACHE_KEYS.USER_ORDERS(updated.user_id)).catch(() => {});
+    }
+
+    // Reverse affiliate commission if order status changed to Cancelled
+    if (status.toLowerCase() === 'cancelled') {
+      const commCheck = await pool.query("SELECT * FROM commissions WHERE order_id=$1 AND status='APPROVED'", [parseInt(req.params.id)]);
+      if (commCheck.rows.length > 0) {
+        const comm = commCheck.rows[0];
+        await pool.query("UPDATE commissions SET status='CANCELLED' WHERE id=$1", [comm.id]);
+        await pool.query(`
+          UPDATE affiliate_wallets
+          SET current_balance = GREATEST(0, current_balance - $1),
+              total_earned    = GREATEST(0, total_earned - $1),
+              updated_at      = NOW()
+          WHERE affiliate_id = $2
+        `, [comm.commission_amount, comm.affiliate_id]);
+        await pool.query(`
+          INSERT INTO wallet_transactions (affiliate_id, transaction_type, amount, description, reference_id)
+          VALUES ($1, 'REVERSAL', $2, $3, $4)
+        `, [comm.affiliate_id, -comm.commission_amount, `Commission reversed for cancelled Order #${req.params.id}`, comm.id]);
+      }
+    }
+
+    res.json({ success: true, order: updated });
   } catch (err) {
     console.error('Admin order status update error:', err);
     res.status(500).json({ error: 'Failed to update order status' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ── AFFILIATE SYSTEM API ───────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Helper: Calculate next payout date & remaining days based on configured payout_day
+async function getPayoutConfig() {
+  try {
+    const res = await pool.query('SELECT payout_day FROM affiliate_settings WHERE id=1');
+    const payoutDay = res.rows[0]?.payout_day || 1;
+    
+    const now = new Date();
+    let day = parseInt(payoutDay) || 1;
+    if (day < 1) day = 1;
+    if (day > 28) day = 28;
+
+    let nextPayout = new Date(now.getFullYear(), now.getMonth(), day);
+    if (nextPayout <= now) {
+      nextPayout = new Date(now.getFullYear(), now.getMonth() + 1, day);
+    }
+    const diffMs = nextPayout.getTime() - now.getTime();
+    const daysRemaining = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    
+    return {
+      payoutDay: day,
+      nextPayoutDate: nextPayout.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
+      nextPayoutIso: nextPayout.toISOString().split('T')[0],
+      daysRemaining
+    };
+  } catch (err) {
+    return { payoutDay: 1, nextPayoutDate: '1st of next month', daysRemaining: 0 };
+  }
+}
+
+// 1. Referral Track Endpoint (Public)
+app.get('/api/affiliate/track', async (req, res) => {
+  const { ref } = req.query;
+  if (!ref) return res.status(400).json({ error: 'Referral code is required' });
+
+  try {
+    const aff = await pool.query("SELECT id FROM affiliates WHERE affiliate_code=$1 AND status='ACTIVE'", [ref.trim()]);
+    if (aff.rows.length === 0) {
+      return res.status(404).json({ error: 'Invalid or inactive affiliate code' });
+    }
+
+    const affiliateId = aff.rows[0].id;
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+    
+    await pool.query(`
+      INSERT INTO affiliate_clicks (affiliate_id, ip_address, session_id, page_url)
+      VALUES ($1, $2, $3, $4)
+    `, [affiliateId, String(ip).split(',')[0].trim(), req.headers['user-agent'] || 'browser', req.headers['referer'] || '/']);
+
+    res.json({ success: true, message: 'Click tracked successfully' });
+  } catch (err) {
+    console.error('Affiliate click track error:', err);
+    res.status(500).json({ error: 'Tracking failed' });
+  }
+});
+
+// 2. Affiliate Login
+app.post('/api/affiliate/login', async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) return res.status(400).json({ error: 'Email and password are required' });
+
+  try {
+    const userRes = await pool.query("SELECT * FROM users WHERE email=$1 AND role='AFFILIATE'", [email.trim().toLowerCase()]);
+    if (userRes.rows.length === 0) {
+      return res.status(401).json({ error: 'Invalid affiliate credentials' });
+    }
+
+    const user = userRes.rows[0];
+    if (!user.password_hash) {
+      return res.status(401).json({ error: 'Invalid affiliate credentials' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password_hash);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Invalid affiliate credentials' });
+    }
+
+    const affRes = await pool.query('SELECT * FROM affiliates WHERE user_id=$1', [user.id]);
+    if (affRes.rows.length === 0) {
+      return res.status(404).json({ error: 'Affiliate record not found' });
+    }
+
+    const aff = affRes.rows[0];
+    if (aff.status !== 'ACTIVE') {
+      return res.status(403).json({ error: 'Account is inactive. Contact admin.' });
+    }
+
+    const token = jwt.sign({
+      id: user.id,
+      affiliate_id: aff.id,
+      affiliate_code: aff.affiliate_code,
+      role: 'affiliate'
+    }, SECRET_KEY, { expiresIn: '7d' });
+
+    res.json({
+      token,
+      affiliate: {
+        id: aff.id,
+        code: aff.affiliate_code,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        commission_pct: aff.commission_pct
+      }
+    });
+  } catch (err) {
+    console.error('Affiliate login error:', err);
+    res.status(500).json({ error: 'Login failed' });
+  }
+});
+
+// 3. Get Current Affiliate Profile & Dashboard Data
+app.get('/api/affiliate/stats', authenticateAffiliate, async (req, res) => {
+  const affId = req.affiliate.affiliate_id;
+  try {
+    const [clicksRes, salesRes, walletRes, affRes, userRes, payoutConfig] = await Promise.all([
+      pool.query('SELECT COUNT(*) FROM affiliate_clicks WHERE affiliate_id=$1', [affId]),
+      pool.query("SELECT COUNT(*), COALESCE(SUM(order_amount),0) AS total_sales_val FROM commissions WHERE affiliate_id=$1 AND status!='CANCELLED'", [affId]),
+      pool.query('SELECT current_balance, total_earned FROM affiliate_wallets WHERE affiliate_id=$1', [affId]),
+      pool.query('SELECT affiliate_code, commission_pct, status, created_at FROM affiliates WHERE id=$1', [affId]),
+      pool.query('SELECT name, email, phone FROM users WHERE id=$1', [req.affiliate.id]),
+      getPayoutConfig()
+    ]);
+
+    const aff = affRes.rows[0] || {};
+    const usr = userRes.rows[0] || {};
+    const wlt = walletRes.rows[0] || { current_balance: 0, total_earned: 0 };
+
+    res.json({
+      affiliate: {
+        id: affId,
+        code: aff.affiliate_code,
+        commission_pct: parseFloat(aff.commission_pct || 20),
+        status: aff.status,
+        name: usr.name,
+        email: usr.email,
+        phone: usr.phone,
+        created_at: aff.created_at
+      },
+      stats: {
+        totalClicks: parseInt(clicksRes.rows[0].count || 0),
+        totalSalesCount: parseInt(salesRes.rows[0].count || 0),
+        totalSalesValue: parseInt(salesRes.rows[0].total_sales_val || 0),
+        totalEarned: parseInt(wlt.total_earned || 0),
+        currentWalletBalance: parseInt(wlt.current_balance || 0),
+        nextPayoutDate: payoutConfig.nextPayoutDate,
+        daysRemaining: payoutConfig.daysRemaining
+      }
+    });
+  } catch (err) {
+    console.error('Affiliate stats error:', err);
+    res.status(500).json({ error: 'Failed to fetch affiliate stats' });
+  }
+});
+
+// 4. Get Affiliate Commissions List
+app.get('/api/affiliate/commissions', authenticateAffiliate, async (req, res) => {
+  const affId = req.affiliate.affiliate_id;
+  try {
+    const result = await pool.query(`
+      SELECT c.*, o.status AS order_status, o.total AS order_total, o.created_at AS order_date
+      FROM commissions c
+      LEFT JOIN orders o ON c.order_id = o.id
+      WHERE c.affiliate_id = $1
+      ORDER BY c.created_at DESC
+    `, [affId]);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Affiliate commissions fetch error:', err);
+    res.status(500).json({ error: 'Failed to fetch commissions' });
+  }
+});
+
+// 5. Get Affiliate Payouts History
+app.get('/api/affiliate/payouts', authenticateAffiliate, async (req, res) => {
+  const affId = req.affiliate.affiliate_id;
+  try {
+    const result = await pool.query(`
+      SELECT * FROM affiliate_payouts
+      WHERE affiliate_id = $1
+      ORDER BY paid_at DESC
+    `, [affId]);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Affiliate payouts fetch error:', err);
+    res.status(500).json({ error: 'Failed to fetch payout history' });
+  }
+});
+
+// 6. Get Payout Date Config
+app.get('/api/affiliate/payout-config', async (req, res) => {
+  const cfg = await getPayoutConfig();
+  res.json(cfg);
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ── ADMIN AFFILIATE MANAGEMENT APIs ─────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+
+// A10. Create Affiliate Account (Admin)
+app.post('/api/admin/affiliates', authenticateAdmin, async (req, res) => {
+  const { name, email, password, phone, commission_pct = 20 } = req.body;
+
+  if (!name || !email || !password) {
+    return res.status(400).json({ error: 'Name, email, and password are required' });
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const cleanEmail = email.trim().toLowerCase();
+    const existingUser = await client.query('SELECT id FROM users WHERE email=$1', [cleanEmail]);
+    if (existingUser.rows.length > 0) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'An account with this email already exists' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    // 1. Insert user
+    const userRes = await client.query(`
+      INSERT INTO users (name, email, phone, role, password_hash)
+      VALUES ($1, $2, $3, 'AFFILIATE', $4)
+      RETURNING id, name, email, phone
+    `, [name.trim(), cleanEmail, phone ? phone.trim() : null, passwordHash]);
+
+    const userId = userRes.rows[0].id;
+
+    // 2. Insert affiliate with generated code
+    const affInsert = await client.query(`
+      INSERT INTO affiliates (user_id, affiliate_code, commission_pct, status)
+      VALUES ($1, 'TEMP', $2, 'ACTIVE')
+      RETURNING id
+    `, [userId, parseFloat(commission_pct) || 20.00]);
+
+    const affId = affInsert.rows[0].id;
+    const affCode = 'AFF' + String(affId).padStart(3, '0');
+
+    await client.query('UPDATE affiliates SET affiliate_code=$1 WHERE id=$2', [affCode, affId]);
+
+    // 3. Initialize wallet
+    await client.query(`
+      INSERT INTO affiliate_wallets (affiliate_id, current_balance, total_earned)
+      VALUES ($1, 0, 0)
+    `, [affId]);
+
+    await client.query('COMMIT');
+
+    res.status(201).json({
+      success: true,
+      message: 'Affiliate created successfully',
+      affiliate: {
+        id: affId,
+        user_id: userId,
+        name,
+        email: cleanEmail,
+        phone,
+        affiliate_code: affCode,
+        commission_pct: parseFloat(commission_pct) || 20.00,
+        status: 'ACTIVE'
+      }
+    });
+
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Admin create affiliate error:', err);
+    res.status(500).json({ error: 'Failed to create affiliate account' });
+  } finally {
+    client.release();
+  }
+});
+
+// A11. Get All Affiliates (Admin)
+app.get('/api/admin/affiliates', authenticateAdmin, async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        a.id, a.user_id, a.affiliate_code, a.commission_pct, a.status, a.created_at,
+        u.name, u.email, u.phone,
+        COALESCE(w.current_balance, 0) AS current_balance,
+        COALESCE(w.total_earned, 0) AS total_earned,
+        (SELECT COUNT(*) FROM affiliate_clicks WHERE affiliate_id = a.id) AS total_clicks,
+        (SELECT COUNT(*) FROM commissions WHERE affiliate_id = a.id AND status!='CANCELLED') AS total_sales
+      FROM affiliates a
+      JOIN users u ON a.user_id = u.id
+      LEFT JOIN affiliate_wallets w ON a.id = w.affiliate_id
+      ORDER BY a.id DESC
+    `);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Admin list affiliates error:', err);
+    res.status(500).json({ error: 'Failed to fetch affiliates' });
+  }
+});
+
+// A12. Update Affiliate (Admin)
+app.put('/api/admin/affiliates/:id', authenticateAdmin, async (req, res) => {
+  const affId = parseInt(req.params.id);
+  const { name, phone, commission_pct, status } = req.body;
+
+  try {
+    const affRes = await pool.query('SELECT user_id FROM affiliates WHERE id=$1', [affId]);
+    if (affRes.rows.length === 0) return res.status(404).json({ error: 'Affiliate not found' });
+
+    const userId = affRes.rows[0].user_id;
+
+    if (name || phone !== undefined) {
+      await pool.query('UPDATE users SET name=COALESCE($1, name), phone=COALESCE($2, phone) WHERE id=$3', [name, phone, userId]);
+    }
+
+    if (commission_pct !== undefined || status !== undefined) {
+      await pool.query(`
+        UPDATE affiliates 
+        SET commission_pct = COALESCE($1, commission_pct),
+            status         = COALESCE($2, status),
+            updated_at     = NOW()
+        WHERE id = $3
+      `, [commission_pct !== undefined ? parseFloat(commission_pct) : null, status || null, affId]);
+    }
+
+    res.json({ success: true, message: 'Affiliate updated successfully' });
+  } catch (err) {
+    console.error('Admin update affiliate error:', err);
+    res.status(500).json({ error: 'Failed to update affiliate' });
+  }
+});
+
+// A13. Get Monthly Payouts Overview (Admin)
+app.get('/api/admin/affiliate-wallets', authenticateAdmin, async (req, res) => {
+  try {
+    const [payoutConfig, walletsRes] = await Promise.all([
+      getPayoutConfig(),
+      pool.query(`
+        SELECT 
+          a.id AS affiliate_id, a.affiliate_code, a.status AS affiliate_status,
+          u.name, u.email, u.phone,
+          COALESCE(w.current_balance, 0) AS current_balance,
+          COALESCE(w.total_earned, 0) AS total_earned,
+          (SELECT MAX(paid_at) FROM affiliate_payouts WHERE affiliate_id = a.id) AS last_payout_date
+        FROM affiliates a
+        JOIN users u ON a.user_id = u.id
+        LEFT JOIN affiliate_wallets w ON a.id = w.affiliate_id
+        ORDER BY w.current_balance DESC, a.id ASC
+      `)
+    ]);
+
+    res.json({
+      payoutConfig,
+      affiliates: walletsRes.rows
+    });
+  } catch (err) {
+    console.error('Admin affiliate wallets error:', err);
+    res.status(500).json({ error: 'Failed to fetch payout wallets' });
+  }
+});
+
+// A14. Mark Affiliate As Paid (Admin Manual Payout)
+app.post('/api/admin/affiliate-payouts/:affiliateId', authenticateAdmin, async (req, res) => {
+  const affId = parseInt(req.params.affiliateId);
+  const { payment_reference, admin_note } = req.body;
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const walletRes = await client.query('SELECT current_balance FROM affiliate_wallets WHERE affiliate_id=$1 FOR UPDATE', [affId]);
+    if (walletRes.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Affiliate wallet not found' });
+    }
+
+    const currentBalance = parseInt(walletRes.rows[0].current_balance || 0);
+    if (currentBalance <= 0) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'Wallet balance is ₹0. Nothing to payout.' });
+    }
+
+    // 1. Create payout record
+    const payoutRes = await client.query(`
+      INSERT INTO affiliate_payouts (affiliate_id, amount, status, payment_reference, admin_note, paid_at)
+      VALUES ($1, $2, 'PAID', $3, $4, NOW())
+      RETURNING id, amount, paid_at
+    `, [affId, currentBalance, payment_reference || null, admin_note || null]);
+
+    const payout = payoutRes.rows[0];
+
+    // 2. Log transaction
+    await client.query(`
+      INSERT INTO wallet_transactions (affiliate_id, transaction_type, amount, description, reference_id)
+      VALUES ($1, 'PAYOUT', $2, $3, $4)
+    `, [affId, currentBalance, `Monthly payout recorded by admin`, payout.id]);
+
+    // 3. Reset wallet balance to 0 (total_earned remains unchanged)
+    await client.query(`
+      UPDATE affiliate_wallets
+      SET current_balance = 0, updated_at = NOW()
+      WHERE affiliate_id = $1
+    `, [affId]);
+
+    // 4. Update status of approved commissions to PAID
+    await client.query(`
+      UPDATE commissions
+      SET status = 'PAID'
+      WHERE affiliate_id = $1 AND status = 'APPROVED'
+    `, [affId]);
+
+    await client.query('COMMIT');
+
+    res.json({
+      success: true,
+      message: `Successfully paid ₹${currentBalance} to affiliate and reset wallet to ₹0`,
+      payout
+    });
+
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Admin mark payout paid error:', err);
+    res.status(500).json({ error: 'Failed to process payout' });
+  } finally {
+    client.release();
+  }
+});
+
+// A15. Get All Payment History (Admin)
+app.get('/api/admin/affiliate-payouts', authenticateAdmin, async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT p.*, a.affiliate_code, u.name AS affiliate_name, u.email AS affiliate_email
+      FROM affiliate_payouts p
+      JOIN affiliates a ON p.affiliate_id = a.id
+      JOIN users u ON a.user_id = u.id
+      ORDER BY p.paid_at DESC
+    `);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Admin payout history error:', err);
+    res.status(500).json({ error: 'Failed to fetch payout history' });
+  }
+});
+
+// A16. Get / Update Payout Settings (Admin)
+app.get('/api/admin/affiliate-settings', authenticateAdmin, async (req, res) => {
+  const cfg = await getPayoutConfig();
+  res.json(cfg);
+});
+
+app.put('/api/admin/affiliate-settings', authenticateAdmin, async (req, res) => {
+  const { payout_day } = req.body;
+  let day = parseInt(payout_day);
+  if (isNaN(day) || day < 1 || day > 28) {
+    return res.status(400).json({ error: 'Payout day must be a number between 1 and 28' });
+  }
+  try {
+    await pool.query('UPDATE affiliate_settings SET payout_day=$1 WHERE id=1', [day]);
+    const updatedCfg = await getPayoutConfig();
+    res.json({ success: true, message: `Monthly payout day updated to ${day}st/th`, config: updatedCfg });
+  } catch (err) {
+    console.error('Update affiliate settings error:', err);
+    res.status(500).json({ error: 'Failed to update settings' });
   }
 });
 

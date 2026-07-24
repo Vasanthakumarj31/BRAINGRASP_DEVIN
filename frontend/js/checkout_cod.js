@@ -3,6 +3,7 @@
    Handles: Auth gate, cart load, profile prefill, COD + Razorpay
    ============================================================ */
 
+(() => {
 const API_BASE = (window.BG_CONFIG && window.BG_CONFIG.API_BASE) || 'http://localhost:3000';
 
 // ── State ─────────────────────────────────────────────────────
@@ -237,6 +238,7 @@ async function placeOrder(token, payMethod, paymentId = null) {
     const aData = await aRes.json();
 
     // 2. Place order
+    const affiliateRef = localStorage.getItem('bg_ref') || null;
     const oRes = await fetch(`${API_BASE}/api/orders`, {
       method : 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -246,7 +248,8 @@ async function placeOrder(token, payMethod, paymentId = null) {
         subtotal      : activeSubtotal,
         total         : activeTotal,
         payment_method: payMethod,
-        payment_id    : paymentId
+        payment_id    : paymentId,
+        affiliate_ref : affiliateRef
       })
     });
     if (!oRes.ok) throw new Error('Failed to create order. Please try again.');
@@ -440,3 +443,4 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 });
+})();

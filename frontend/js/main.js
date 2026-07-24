@@ -283,13 +283,6 @@ function initTabs() {
     });
   });
 }
- 
-});
-
-searchClose.addEventListener('click', () => {
-  searchOverlay.classList.remove('active');
-});
-}
 
 // === Cart Sidebar ===
 function initCart() {

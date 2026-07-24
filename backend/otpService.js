@@ -1,14 +1,25 @@
 require('dotenv').config();
 
 // ── Startup validation ────────────────────────────────────────────────────
-if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-  throw new Error(
-    '❌ Missing required env vars: EMAIL_USER and EMAIL_PASS must be set in .env'
-  );
+// ── BUG FIX: Gmail credentials are only needed when Resend is NOT configured.
+// Previously, EMAIL_USER/EMAIL_PASS were always required, crashing the server
+// even in production where Resend is the configured sender.
+const USE_RESEND = !!process.env.RESEND_API_KEY;
+
+if (USE_RESEND) {
+  // Resend mode: only the API key is needed.
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error('❌ Missing required env var: RESEND_API_KEY must be set when using Resend.');
+  }
+} else {
+  // Gmail SMTP fallback (local dev): both EMAIL_USER and EMAIL_PASS are required.
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    throw new Error(
+      '❌ Missing required env vars: EMAIL_USER and EMAIL_PASS must be set in .env (or set RESEND_API_KEY to use Resend instead).'
+    );
+  }
 }
 
-// ── Email sender: Resend (production) or Nodemailer/Gmail (local dev) ────
-const USE_RESEND = !!process.env.RESEND_API_KEY;
 
 // ── Resend HTTP API sender ────────────────────────────────────────────────
 async function sendViaResend(email, otp) {
@@ -114,15 +125,19 @@ async function sendOTPEmail(email, otp) {
 }
 
 // ── Send OTP via SMS (Twilio — stub) ─────────────────────────────────────
+// SMS delivery is not yet implemented. Returning true keeps the flow working
+// for email-only auth. Replace this with a real Twilio call when SMS is needed.
 async function sendOTPSMS(phone, otp) {
   try {
-    console.log(`📱 [SMS stub] OTP for ${phone}: ${otp}`);
+    // ── BUG FIX: OTP must never be logged in plaintext in production logs.
+    console.log(`📱 [SMS stub] OTP delivery attempted for phone ending in ...${String(phone).slice(-3)}`);
     return true;
   } catch (error) {
-    console.error(`❌ Failed to send OTP SMS to ${phone}:`, error.message);
+    console.error(`❌ Failed to send OTP SMS:`, error.message);
     return false;
   }
 }
+
 
 // ── Main OTP dispatcher ───────────────────────────────────────────────────
 async function sendOTP(method, value, otp) {

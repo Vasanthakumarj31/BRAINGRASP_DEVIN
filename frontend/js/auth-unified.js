@@ -97,7 +97,7 @@ function showLogoutConfirmModal() {
 function initCheckoutProtection() {
     // Protect all checkout buttons and links
     document.addEventListener('click', (e) => {
-        const checkoutLink = e.target.closest('a[href*="checkout"], button[data-action="checkout"], .btn-checkout, #cartPageCheckout');
+        const checkoutLink = e.target.closest('a[href*="checkout"], button[data-action="checkout"], .btn-checkout, #cartPageCheckout, #sidebarCheckoutBtn');
 
         if (checkoutLink) {
             e.preventDefault();
@@ -262,12 +262,17 @@ async function handleVerifyOTP() {
                 const profileData = await profileResponse.json();
 
                 // 5. Smart Redirect based on profile completion
-                const redirectPath = localStorage.getItem('redirectAfterLogin');
+                let redirectPath = localStorage.getItem('redirectAfterLogin');
+                
+                // ── BUG FIX: Handle stale localStorage values from before the fix
+                if (redirectPath === 'dashboard.html' || (redirectPath && redirectPath.endsWith('/dashboard.html'))) {
+                    redirectPath = 'dashboard-new.html';
+                }
 
                 if (!profileData.profile_completed) {
                     // First-time user: save where they eventually want to land
                     // after completing their profile (checkout or dashboard)
-                    localStorage.setItem('postProfileRedirect', redirectPath || 'dashboard.html');
+                    localStorage.setItem('postProfileRedirect', redirectPath || 'dashboard-new.html');
                     localStorage.removeItem('redirectAfterLogin');
                     window.location.href = 'profile-setup.html';
                 } else if (redirectPath) {
@@ -281,9 +286,12 @@ async function handleVerifyOTP() {
             } catch (error) {
                 console.error('Profile status check failed:', error);
                 // Fallback: use data.user from the JWT response
-                const redirectPath = localStorage.getItem('redirectAfterLogin');
+                let redirectPath = localStorage.getItem('redirectAfterLogin');
+                if (redirectPath === 'dashboard.html' || (redirectPath && redirectPath.endsWith('/dashboard.html'))) {
+                    redirectPath = 'dashboard-new.html';
+                }
                 if (!data.user.profile_completed) {
-                    localStorage.setItem('postProfileRedirect', redirectPath || 'dashboard.html');
+                    localStorage.setItem('postProfileRedirect', redirectPath || 'dashboard-new.html');
                     localStorage.removeItem('redirectAfterLogin');
                     window.location.href = 'profile-setup.html';
                 } else if (redirectPath) {
@@ -411,9 +419,6 @@ async function requestOTP(method, value) {
 
         if (data.success) {
             console.log('✅ OTP sent successfully');
-            if (data.otp_demo) {
-                console.log(`🔢 Demo OTP: ${data.otp_demo}`);
-            }
             return true;
         } else {
             showAuthError('otpRequestError', data.error || 'Failed to send OTP');

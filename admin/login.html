@@ -17,7 +17,7 @@
       <form id="loginForm">
         <div class="input-group">
           <label for="username">Username</label>
-          <input type="text" id="username" name="username" required placeholder="admin" autocomplete="username">
+          <input type="text" id="username" name="username" required placeholder="Enter username" autocomplete="username">
         </div>
         <div class="input-group">
           <label for="password">Password</label>
@@ -26,12 +26,10 @@
         <div id="loginError" class="login-error"></div>
         <button type="submit" class="btn-primary">Sign In →</button>
       </form>
-
-      <p style="text-align:center;margin-top:20px;font-size:0.78rem;color:var(--muted);">
-        Default: <strong style="color:var(--text)">admin</strong> / <strong style="color:var(--text)">admin123</strong>
-      </p>
     </div>
   </div>
-  <script src="js/admin.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/admin-common.js"></script>
+  <script src="js/admin-login.js"></script>
 </body>
 </html>

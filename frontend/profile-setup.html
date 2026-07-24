@@ -373,7 +373,12 @@
 
             // Determine where to go after profile save
             // postProfileRedirect is set by auth-unified.js during login
-            const postRedirect = localStorage.getItem('postProfileRedirect') || 'dashboard-new.html';
+            let postRedirect = localStorage.getItem('postProfileRedirect') || 'dashboard-new.html';
+            
+            // ── BUG FIX: Handle stale localStorage values from before the fix
+            if (postRedirect === 'dashboard.html' || postRedirect.endsWith('/dashboard.html')) {
+                postRedirect = 'dashboard-new.html';
+            }
 
             // Update skip link to go to postRedirect too
             const skipLink = document.getElementById('skipLink');

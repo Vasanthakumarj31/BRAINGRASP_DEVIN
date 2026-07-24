@@ -669,14 +669,23 @@ function initCommerceRoutes() {
 
   if (checkoutBtn) {
 
-    checkoutBtn.addEventListener('click', () => {
-
+    checkoutBtn.addEventListener('click', (e) => {
       const cart = typeof getCart === 'function' ? getCart() : [];
+      if (!cart.length) {
+        e.preventDefault();
+        e.stopPropagation();
+        return; // don't navigate or prompt if cart is empty
+      }
 
-      if (!cart.length) return; // don't navigate with empty cart
+      // If the unified auth script is loaded and the user is NOT logged in,
+      // we must NOT redirect here. We let the event bubble up so that
+      // auth-unified.js can intercept it and show the login modal.
+      if (typeof isAuthenticated === 'function' && !isAuthenticated()) {
+        e.preventDefault();
+        return;
+      }
 
       window.location.href = 'checkout_cod.html';
-
     });
 
   }
@@ -1278,3 +1287,22 @@ function initMegaNavigation() {
   });
 
 }
+
+// === Affiliate Referral Link Tracking ===
+function initAffiliateTracking() {
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const ref = urlParams.get('ref');
+    if (ref && ref.trim()) {
+      const cleanRef = ref.trim().toUpperCase();
+      localStorage.setItem('bg_ref', cleanRef);
+      document.cookie = `bg_ref=${cleanRef}; path=/; max-age=2592000`; // 30 days
+      const apiBase = (window.BG_CONFIG && window.BG_CONFIG.API_BASE) || 'http://localhost:3000';
+      fetch(`${apiBase}/api/affiliate/track?ref=${encodeURIComponent(cleanRef)}`).catch(() => {});
+    }
+  } catch (e) {}
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initAffiliateTracking();
+});

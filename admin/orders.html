@@ -101,6 +101,8 @@
       <a href="dashboard.html"><i class="fas fa-chart-pie"></i> Dashboard</a>
       <a href="index.html"><i class="fas fa-box-open"></i> Products</a>
       <a href="orders.html" class="active"><i class="fas fa-receipt"></i> Orders</a>
+      <a href="affiliates.html"><i class="fas fa-user-tie"></i> Affiliates</a>
+      <a href="affiliate-payouts.html"><i class="fas fa-hand-holding-usd"></i> Monthly Payouts</a>
       <a href="#" class="logout" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </nav>
   </aside>
@@ -118,6 +120,7 @@
     <div class="filters">
       <button class="filter-btn active" data-status="all">All</button>
       <button class="filter-btn" data-status="placed">Placed</button>
+      <button class="filter-btn" data-status="paid">Paid</button>
       <button class="filter-btn" data-status="confirmed">Confirmed</button>
       <button class="filter-btn" data-status="shipped">Shipped</button>
       <button class="filter-btn" data-status="delivered">Delivered</button>
@@ -184,6 +187,7 @@
               <label>Status</label>
               <select id="statusSelect">
                 <option value="Placed">Placed</option>
+                <option value="Paid">Paid</option>
                 <option value="Confirmed">Confirmed</option>
                 <option value="Shipped">Shipped</option>
                 <option value="Delivered">Delivered</option>
@@ -191,7 +195,13 @@
               </select>
             </div>
             <div class="form-group">
-              <label>Delivery Date</label>
+              <label>Expected Delivery</label>
+              <input type="date" id="expectedDeliveryInput">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Actual Delivery Date</label>
               <input type="date" id="deliveryDateInput">
             </div>
           </div>
@@ -209,169 +219,8 @@
 
   <div class="toast" id="toast"></div>
 
-  <script>
-    const API = 'http://localhost:3000';
-    const token = localStorage.getItem('adminToken');
-    if (!token) location.href = 'login.html';
-
-    document.getElementById('logoutBtn').onclick = e => { e.preventDefault(); localStorage.removeItem('adminToken'); location.href = 'login.html'; };
-
-    let currentStatus = 'all', currentSearch = '', currentPage = 1, totalOrders = 0;
-    let currentOrderId = null;
-
-    // Toast
-    function toast(msg, type='ok') {
-      const t = document.getElementById('toast');
-      t.textContent = msg; t.className = `toast show ${type}`;
-      setTimeout(() => t.className = 'toast', 3500);
-    }
-
-    // Format helpers
-    const fmtDate = d => d ? new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : '—';
-    const fmtRupee = n => '₹' + Number(n||0).toLocaleString('en-IN');
-    function badgeClass(s) {
-      const m = {placed:'b-placed',confirmed:'b-confirmed',shipped:'b-shipped',delivered:'b-delivered',cancelled:'b-cancelled',paid:'b-paid'};
-      return m[(s||'').toLowerCase()] || 'b-placed';
-    }
-
-    // Load orders
-    async function loadOrders() {
-      document.getElementById('ordersTbody').innerHTML = '<tr><td colspan="8" class="loading"><i class="fas fa-spinner"></i></td></tr>';
-      try {
-        const params = new URLSearchParams({ page: currentPage, limit: 20 });
-        if (currentStatus !== 'all') params.set('status', currentStatus);
-        if (currentSearch) params.set('search', currentSearch);
-        const res = await fetch(`${API}/api/admin/orders?${params}`, { headers: { Authorization: `Bearer ${token}` }});
-        if (res.status === 401) { localStorage.removeItem('adminToken'); location.href='login.html'; return; }
-        const { orders, total } = await res.json();
-        totalOrders = total;
-        renderTable(orders);
-        document.getElementById('orderCount').textContent = `${total} order${total !== 1 ? 's' : ''} total`;
-        document.getElementById('pageInfo').textContent = `Showing ${orders.length} of ${total}`;
-        document.getElementById('prevBtn').disabled = currentPage <= 1;
-        document.getElementById('nextBtn').disabled = currentPage * 20 >= total;
-      } catch (err) {
-        document.getElementById('ordersTbody').innerHTML = `<tr><td colspan="8" class="no-data">Failed to load orders. Is the backend running?</td></tr>`;
-      }
-    }
-
-    function renderTable(orders) {
-      const tbody = document.getElementById('ordersTbody');
-      if (!orders.length) { tbody.innerHTML = '<tr><td colspan="8" class="no-data">No orders found.</td></tr>'; return; }
-      tbody.innerHTML = orders.map(o => {
-        const addr = [o.line1, o.city, o.state, o.pincode].filter(Boolean).join(', ');
-        const items = Array.isArray(o.items) ? o.items : [];
-        const itemCount = items.reduce((s,i) => s+(i.quantity||1), 0);
-        return `<tr data-id="${o.id}">
-          <td><span class="oid">#${o.id}</span></td>
-          <td><div style="font-weight:600">${o.customer_name||'Guest'}</div><div style="font-size:11px;color:var(--muted)">${o.customer_email||'—'}</div></td>
-          <td style="font-size:12px;max-width:180px">${o.addr_name||''}<br><span style="color:var(--muted)">${addr||'—'}</span><br><span style="color:var(--muted)">${o.addr_phone||''}</span></td>
-          <td style="font-weight:600">${itemCount} item${itemCount!==1?'s':''}</td>
-          <td style="font-weight:700;color:var(--green)">${fmtRupee(o.total)}</td>
-          <td><span class="badge ${badgeClass(o.status)}">${o.status||'Placed'}</span></td>
-          <td style="font-size:12px">${fmtDate(o.expected_delivery)}</td>
-          <td style="font-size:12px;color:var(--muted)">${fmtDate(o.created_at)}</td>
-        </tr>`;
-      }).join('');
-      tbody.querySelectorAll('tr[data-id]').forEach(tr => tr.onclick = () => openModal(tr.dataset.id));
-    }
-
-    // Modal
-    async function openModal(id) {
-      currentOrderId = id;
-      document.getElementById('modalOverlay').classList.add('open');
-      document.getElementById('modalInfo').innerHTML = '<div style="color:var(--muted);grid-column:1/-1">Loading…</div>';
-      document.getElementById('modalItems').innerHTML = '';
-      document.getElementById('modalTotals').innerHTML = '';
-      try {
-        const res = await fetch(`${API}/api/admin/orders/${id}`, { headers: { Authorization: `Bearer ${token}` }});
-        const o = await res.json();
-        document.getElementById('modalTitle').textContent = `Order #${o.id} · ${o.status}`;
-        document.getElementById('modalInfo').innerHTML = `
-          <div class="info-block"><label>Customer</label><span>${o.customer_name||'Guest'}</span></div>
-          <div class="info-block"><label>Email</label><span>${o.customer_email||'—'}</span></div>
-          <div class="info-block"><label>Phone</label><span>${o.addr_phone||'—'}</span></div>
-          <div class="info-block"><label>Payment</label><span>${o.payment_method?.toUpperCase()||'COD'}</span></div>
-          <div class="info-block" style="grid-column:1/-1"><label>Delivery Address</label>
-            <span>${[o.addr_name,o.line1,o.city,o.state,o.pincode].filter(Boolean).join(', ')||'—'}</span></div>
-          <div class="info-block"><label>Expected Delivery</label><span>${fmtDate(o.expected_delivery)}</span></div>
-          <div class="info-block"><label>Actual Delivery</label><span>${fmtDate(o.delivery_date)}</span></div>
-          <div class="info-block"><label>Order Date</label><span>${fmtDate(o.created_at)}</span></div>
-          ${o.admin_note ? `<div class="info-block"><label>Admin Note</label><span>${o.admin_note}</span></div>` : ''}
-        `;
-        const items = Array.isArray(o.items) ? o.items : [];
-        document.getElementById('modalItems').innerHTML = items.map(it => `
-          <div class="item-row">
-            <div><div class="item-name">${it.name||'—'}</div><div class="item-meta">Qty: ${it.quantity||1} × ${fmtRupee(it.price)}</div></div>
-            <div class="item-price">${fmtRupee(it.price*(it.quantity||1))}</div>
-          </div>`).join('');
-        const shipping = o.total - o.subtotal;
-        document.getElementById('modalTotals').innerHTML = `
-          <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted)"><span>Subtotal</span><span>${fmtRupee(o.subtotal)}</span></div>
-          <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-top:4px"><span>Shipping</span><span>${shipping>0?fmtRupee(shipping):'FREE'}</span></div>
-          <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:700;margin-top:8px"><span>Total</span><span style="color:var(--green)">${fmtRupee(o.total)}</span></div>
-        `;
-        // Pre-fill form
-        document.getElementById('statusSelect').value = o.status||'Placed';
-        document.getElementById('deliveryDateInput').value = o.delivery_date ? o.delivery_date.split('T')[0] : '';
-        document.getElementById('adminNoteInput').value = o.admin_note||'';
-      } catch (err) {
-        document.getElementById('modalInfo').innerHTML = '<div style="color:var(--red)">Failed to load order.</div>';
-      }
-    }
-
-    document.getElementById('modalClose').onclick = () => document.getElementById('modalOverlay').classList.remove('open');
-    document.getElementById('modalOverlay').onclick = e => { if (e.target === document.getElementById('modalOverlay')) document.getElementById('modalOverlay').classList.remove('open'); };
-
-    // Save status
-    document.getElementById('saveStatusBtn').onclick = async () => {
-      if (!currentOrderId) return;
-      const btn = document.getElementById('saveStatusBtn');
-      btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving…';
-      try {
-        const res = await fetch(`${API}/api/admin/orders/${currentOrderId}/status`, {
-          method: 'PUT',
-          headers: { 'Content-Type':'application/json', Authorization:`Bearer ${token}` },
-          body: JSON.stringify({
-            status: document.getElementById('statusSelect').value,
-            delivery_date: document.getElementById('deliveryDateInput').value || null,
-            admin_note: document.getElementById('adminNoteInput').value || null
-          })
-        });
-        if (res.ok) {
-          toast('✅ Order updated successfully!', 'ok');
-          document.getElementById('modalOverlay').classList.remove('open');
-          loadOrders();
-        } else {
-          toast('❌ Failed to update order', 'err');
-        }
-      } catch { toast('❌ Network error', 'err'); }
-      finally { btn.disabled=false; btn.innerHTML='<i class="fas fa-save"></i> Save Changes'; }
-    };
-
-    // Filter buttons
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-      btn.onclick = () => {
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentStatus = btn.dataset.status;
-        currentPage = 1;
-        loadOrders();
-      };
-    });
-
-    // Search
-    let searchTimer;
-    document.getElementById('searchInput').oninput = e => {
-      clearTimeout(searchTimer);
-      searchTimer = setTimeout(() => { currentSearch = e.target.value; currentPage = 1; loadOrders(); }, 400);
-    };
-
-    // Pagination
-    document.getElementById('prevBtn').onclick = () => { currentPage--; loadOrders(); };
-    document.getElementById('nextBtn').onclick = () => { currentPage++; loadOrders(); };
-
-    loadOrders();
-  </script>
+  <script src="js/config.js"></script>
+  <script src="js/admin-common.js"></script>
+  <script src="js/orders.js"></script>
 </body>
 </html>

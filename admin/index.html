@@ -1,34 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard — BrainGrasp</title>
+  <title>Products — BrainGrasp Admin</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="css/admin.css">
 </head>
+
 <body>
   <div class="admin-layout">
 
     <!-- ── Sidebar ─────────────────────────────────────────────────────── -->
     <aside class="sidebar">
       <div class="logo">
-        <span class="logo-icon">🧠</span>
+        <i class="fas fa-brain"></i>
         <span>BrainGrasp</span>
       </div>
       <nav>
-        <a href="dashboard.html" id="navDashboard">
-          <span class="nav-icon">📊</span> Dashboard
+        <a href="dashboard.html">
+          <i class="fas fa-chart-pie"></i> Dashboard
         </a>
-        <a href="index.html" class="active" id="navProducts">
-          <span class="nav-icon">📦</span> Products
+        <a href="index.html" class="active">
+          <i class="fas fa-box-open"></i> Products
         </a>
-        <a href="orders.html" id="navOrders">
-          <span class="nav-icon">🧾</span> Orders
+        <a href="orders.html">
+          <i class="fas fa-receipt"></i> Orders
         </a>
-        <a href="login.html" id="logoutBtn" class="logout-link">
-          <span class="nav-icon">🚪</span> Logout
+        <a href="affiliates.html">
+          <i class="fas fa-user-tie"></i> Affiliates
+        </a>
+        <a href="affiliate-payouts.html">
+          <i class="fas fa-hand-holding-usd"></i> Monthly Payouts
+        </a>
+        <a href="#" id="logoutBtn" class="logout-link">
+          <i class="fas fa-sign-out-alt"></i> Logout
         </a>
       </nav>
     </aside>
@@ -160,7 +169,8 @@
             <div class="input-group span-2">
               <label>Skills (comma-separated)</label>
               <input type="text" id="f_skills" placeholder="Logical Reasoning, Fine Motor, Creativity">
-              <small class="field-hint">e.g. Logical Reasoning, Fine Motor, Creativity, Sensory Development, Focus &amp; Attention, Social &amp; Communication</small>
+              <small class="field-hint">e.g. Logical Reasoning, Fine Motor, Creativity, Sensory Development, Focus &amp;
+                Attention, Social &amp; Communication</small>
             </div>
 
             <!-- Row 8 – Offer -->
@@ -210,7 +220,9 @@
               </tr>
             </thead>
             <tbody id="productsTableBody">
-              <tr><td colspan="8" class="loading-row">Loading…</td></tr>
+              <tr>
+                <td colspan="8" class="loading-row">Loading…</td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -219,6 +231,59 @@
     </main>
   </div>
 
-  <script src="js/admin.js"></script>
+  <!-- ── Delete Confirmation Modal ─────────────────────────────────── -->
+  <div id="deleteModal" style="
+      display:none; position:fixed; inset:0; background:rgba(0,0,0,.7);
+      backdrop-filter:blur(4px); z-index:1000; place-items:center;
+  ">
+    <div style="
+        background:#1c2333; border:1px solid rgba(255,255,255,.08);
+        border-radius:16px; padding:32px; width:90%; max-width:400px;
+        text-align:center; animation:slideUp .25s ease;
+    ">
+      <div style="
+          width:56px; height:56px; border-radius:50%;
+          background:rgba(239,68,68,.12); display:grid;
+          place-items:center; margin:0 auto 18px;
+      ">
+        <i class="fas fa-trash-alt" style="color:#ef4444; font-size:20px"></i>
+      </div>
+      <h3 style="font-size:18px; font-weight:700; margin-bottom:8px; color:#e2e8f0">Delete Product?</h3>
+      <p style="color:#64748b; font-size:14px; line-height:1.6; margin-bottom:24px">
+        This action is permanent and cannot be undone.
+      </p>
+      <div style="display:flex; gap:12px; justify-content:center">
+        <button id="deleteCancelBtn" style="
+            flex:1; padding:11px; border-radius:9px;
+            border:1px solid rgba(255,255,255,.08); background:transparent;
+            color:#94a3b8; font-size:14px; font-weight:600;
+            cursor:pointer; font-family:inherit;
+        ">Cancel</button>
+        <button id="deleteConfirmBtn" style="
+            flex:1; padding:11px; border-radius:9px; border:none;
+            background:linear-gradient(135deg,#ef4444,#dc2626);
+            color:#fff; font-size:14px; font-weight:700;
+            cursor:pointer; font-family:inherit;
+            box-shadow:0 4px 15px rgba(220,38,38,.3);
+        ">Yes, Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    @keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}
+    #deleteModal { display: none; }
+    #deleteModal.open { display: grid; }
+    /* Align sidebar logo icon with dashboard/orders pages */
+    .logo i { font-size: 1.3rem; color: #4f7ef7; }
+    .sidebar nav a i { width: 16px; text-align: center; font-size: 13px; }
+    .logout-link { color: #ef4444 !important; margin-top: auto; }
+    .logout-link:hover { background: rgba(239,68,68,.1) !important; }
+  </style>
+
+  <script src="js/config.js"></script>
+  <script src="js/admin-common.js"></script>
+  <script src="js/admin-products.js"></script>
 </body>
+
 </html>

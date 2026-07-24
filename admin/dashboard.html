@@ -144,6 +144,8 @@
       <a href="dashboard.html" class="active"><i class="fas fa-chart-pie"></i> Dashboard</a>
       <a href="index.html"><i class="fas fa-box-open"></i> Products</a>
       <a href="orders.html"><i class="fas fa-receipt"></i> Orders</a>
+      <a href="affiliates.html"><i class="fas fa-user-tie"></i> Affiliates</a>
+      <a href="affiliate-payouts.html"><i class="fas fa-hand-holding-usd"></i> Monthly Payouts</a>
       <a href="#" class="logout" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </nav>
   </aside>
@@ -165,8 +167,9 @@
 
     <!-- KPI Cards -->
     <div class="kpi-grid">
-      <div class="kpi blue fade"><div class="kpi-ico"><i class="fas fa-boxes"></i></div><div class="kpi-body"><div class="kpi-val" id="kTotal">—</div><div class="kpi-lbl">Total Products</div></div></div>
-      <div class="kpi orange fade"><div class="kpi-ico"><i class="fas fa-shopping-cart"></i></div><div class="kpi-body"><div class="kpi-val" id="kCart">—</div><div class="kpi-lbl">Items in Carts</div><div class="kpi-note" id="kCartNote"></div></div></div>
+      <div class="kpi blue fade"><div class="kpi-ico"><i class="fas fa-users"></i></div><div class="kpi-body"><div class="kpi-val" id="kUsers">—</div><div class="kpi-lbl">Registered Users</div></div></div>
+      <div class="kpi blue fade" style="animation-delay:.02s"><div class="kpi-ico"><i class="fas fa-boxes"></i></div><div class="kpi-body"><div class="kpi-val" id="kTotal">—</div><div class="kpi-lbl">Total Products</div></div></div>
+      <div class="kpi orange fade" style="animation-delay:.04s"><div class="kpi-ico"><i class="fas fa-shopping-cart"></i></div><div class="kpi-body"><div class="kpi-val" id="kCart">—</div><div class="kpi-lbl">Items in Carts</div><div class="kpi-note" id="kCartNote"></div></div></div>
       <div class="kpi purple fade"><div class="kpi-ico"><i class="fas fa-check-circle"></i></div><div class="kpi-body"><div class="kpi-val" id="kConfirmed">—</div><div class="kpi-lbl">Confirmed Orders</div></div></div>
       <div class="kpi yellow fade"><div class="kpi-ico"><i class="fas fa-truck"></i></div><div class="kpi-body"><div class="kpi-val" id="kPending">—</div><div class="kpi-lbl">Delivery Pending</div></div></div>
       <div class="kpi green fade"><div class="kpi-ico"><i class="fas fa-check-double"></i></div><div class="kpi-body"><div class="kpi-val" id="kDelivered">—</div><div class="kpi-lbl">Delivered</div></div></div>
@@ -228,7 +231,7 @@
       <div class="panel fade">
         <div class="panel-head">
           <div class="panel-title"><i class="fas fa-receipt" style="color:var(--purple)"></i> Recent Orders</div>
-          <span class="panel-badge">Last 5</span>
+          <span class="panel-badge">Last 10</span>
         </div>
         <div class="tbl-wrap">
           <table>
@@ -243,119 +246,8 @@
 
   <div class="toast" id="toast"></div>
 
-  <script>
-    const API = 'http://localhost:3000';
-    const token = localStorage.getItem('adminToken');
-    if (!token) location.href = 'login.html';
-
-    // Date
-    document.getElementById('dateLabel').textContent = new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-
-    // Logout
-    document.getElementById('logoutBtn').onclick = e => { e.preventDefault(); localStorage.removeItem('adminToken'); location.href = 'login.html'; };
-
-    // Refresh
-    document.getElementById('refreshBtn').onclick = () => { loadDashboard(); };
-
-    function toast(msg, type='ok') {
-      const t = document.getElementById('toast');
-      t.textContent = msg; t.className = `toast show ${type}`;
-      setTimeout(() => t.className = 'toast', 3500);
-    }
-
-    function animNum(el, target, prefix='') {
-      if (!el) return;
-      let v = 0, step = target / 40;
-      const t = setInterval(() => {
-        v += step; if (v >= target) { v = target; clearInterval(t); }
-        el.textContent = prefix + Math.floor(v).toLocaleString('en-IN');
-      }, 16);
-    }
-
-    function rankClass(i) { return i===0?'r1':i===1?'r2':i===2?'r3':''; }
-
-    function renderProducts(listId, items, isLow) {
-      const c = document.getElementById(listId);
-      if (!c) return;
-      if (!items || items.length === 0) { c.innerHTML = '<p style="color:var(--muted);font-size:13px;padding:10px 0">No data yet.</p>'; return; }
-      c.innerHTML = items.map((p,i) => {
-        const sales = p.sales ?? 0;
-        const cls = isLow ? (sales===0?'zero':'lo') : 'hi';
-        const ico = isLow ? (sales===0?'fa-times-circle':'fa-arrow-down') : 'fa-arrow-up';
-        const lbl = sales===0 ? 'No sales' : `${Number(sales).toLocaleString('en-IN')} sold`;
-        return `<div class="pi-item">
-          <div class="pi-rank ${isLow?'warn':rankClass(i)}">${isLow?'!':'#'+(i+1)}</div>
-          <img class="pi-img" src="${p.image||''}" alt="${p.name}" onerror="this.src='https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=80&h=80&fit=crop'">
-          <div class="pi-info"><div class="pi-name" title="${p.name}">${p.name}</div><div class="pi-cat">${p.category||'—'} · ₹${Number(p.price).toLocaleString('en-IN')}</div></div>
-          <div class="pi-sales ${cls}"><i class="fas ${ico}" style="font-size:9px;margin-right:3px"></i>${lbl}</div>
-        </div>`;
-      }).join('');
-    }
-
-    function renderBars(kpis) {
-      const vals = { bCart: kpis.cartItems, bConf: kpis.confirmed, bPend: kpis.deliveryPending, bDel: kpis.delivered };
-      const fills = { fCart: kpis.cartItems, fConf: kpis.confirmed, fPend: kpis.deliveryPending, fDel: kpis.delivered };
-      const total = Math.max(Object.values(vals).reduce((a,b)=>a+b,0), 1);
-      Object.entries(vals).forEach(([id,v]) => { const el=document.getElementById(id); if(el) el.textContent=Number(v).toLocaleString('en-IN'); });
-      requestAnimationFrame(() => setTimeout(() => {
-        Object.entries(fills).forEach(([id,v]) => { const el=document.getElementById(id); if(el) el.style.width=`${Math.round(v/total*100)}%`; });
-      }, 300));
-    }
-
-    function renderOrders(orders) {
-      const tbody = document.getElementById('ordersTbody');
-      if (!orders || orders.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="no-data">No orders yet. They will appear here once customers place them.</td></tr>';
-        return;
-      }
-      tbody.innerHTML = orders.map(o => {
-        const slug = (o.status||'placed').toLowerCase().replace(/\s+/g,'-');
-        const date = new Date(o.created_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
-        return `<tr>
-          <td><span class="oid">#${o.id}</span></td>
-          <td><div style="font-weight:600">${o.customer_name||'Guest'}</div><div style="font-size:11px;color:var(--muted)">${o.customer_email||'—'}</div></td>
-          <td style="font-weight:700;color:var(--green)">₹${Number(o.total).toLocaleString('en-IN')}</td>
-          <td><span class="badge b-${slug}">${o.status||'Placed'}</span></td>
-          <td style="color:var(--muted);font-size:12px">${date}</td>
-        </tr>`;
-      }).join('');
-    }
-
-    async function loadDashboard() {
-      const btn = document.getElementById('refreshBtn');
-      if (btn) btn.style.transform = 'rotate(360deg)';
-      try {
-        const res = await fetch(`${API}/api/admin/dashboard`, { headers: { Authorization: `Bearer ${token}` } });
-        if (res.status === 401 || res.status === 403) { localStorage.removeItem('adminToken'); location.href='login.html'; return; }
-        if (!res.ok) throw new Error(`Server error ${res.status}`);
-        const { kpis, topSelling, lowSelling, recentOrders } = await res.json();
-
-        animNum(document.getElementById('kTotal'), kpis.totalProducts);
-        animNum(document.getElementById('kCart'), kpis.cartItems);
-        animNum(document.getElementById('kConfirmed'), kpis.confirmed);
-        animNum(document.getElementById('kPending'), kpis.deliveryPending);
-        animNum(document.getElementById('kDelivered'), kpis.delivered);
-        animNum(document.getElementById('kRevenue'), kpis.totalRevenue, '₹');
-
-        const cn = document.getElementById('kCartNote');
-        if (cn) cn.textContent = `${kpis.usersWithCart} users with active cart`;
-        const on = document.getElementById('kOrdersNote');
-        if (on) on.textContent = `${kpis.totalOrders} total orders`;
-
-        renderBars(kpis);
-        renderProducts('topList', topSelling, false);
-        renderProducts('lowList', lowSelling, true);
-        renderOrders(recentOrders);
-        toast('Dashboard refreshed ✓', 'ok');
-      } catch (err) {
-        console.error(err);
-        toast('Failed to load data: ' + err.message, 'err');
-      } finally {
-        setTimeout(() => { if(btn) btn.style.transform=''; }, 600);
-      }
-    }
-
-    loadDashboard();
-  </script>
+  <script src="js/config.js"></script>
+  <script src="js/admin-common.js"></script>
+  <script src="js/dashboard.js"></script>
 </body>
 </html>

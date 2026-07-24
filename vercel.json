@@ -1,6 +1,10 @@
 {
   "cleanUrls": true,
   "rewrites": [
+    { "source": "/affiliate", "destination": "/frontend/affiliate/login.html" },
+    { "source": "/affiliate/(.*)", "destination": "/frontend/affiliate/$1" },
+    { "source": "/admin", "destination": "/admin/login.html" },
+    { "source": "/admin/(.*)", "destination": "/admin/$1" },
     { "source": "/(.*)", "destination": "/frontend/$1" }
   ],
   "headers": [
