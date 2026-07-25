@@ -15,7 +15,7 @@ function getAffUser() {
 
 function checkAuth(requireAuth = true) {
   const token = getAffToken();
-  const isLoginPage = window.location.pathname.endsWith('login.html') || window.location.pathname.endsWith('/affiliate');
+  const isLoginPage = window.location.pathname.endsWith('login.html') || window.location.pathname.endsWith('/affiliate') || window.location.pathname.endsWith('/affiliate/');
 
   if (requireAuth && !token) {
     if (!isLoginPage) window.location.href = 'login.html';

@@ -6,13 +6,12 @@
 // ── Page Protection ───────────────────────────────────────────────────────
 function protectPage() {
     // Check if user is authenticated
-    if (!window.AuthUnified?.isAuthenticated()) {
+    if (!window.AuthUnified?.isAuthenticated() && !localStorage.getItem('bg_token')) {
         // Save current page for redirect after login
         const currentPage = window.location.pathname + window.location.search;
-        localStorage.setItem('redirectAfterLogin', currentPage);
+        localStorage.setItem('redirectAfterLogin', currentPage.includes('checkout') ? 'checkout_cod.html' : currentPage);
         
-        // Redirect to login with message
-        alert("Please sign in to access this page.");
+        // Redirect to login
         window.location.href = 'login.html';
         return false;
     }

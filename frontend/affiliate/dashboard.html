@@ -23,7 +23,7 @@
 
     <div class="aff-user-bar">
       <div class="aff-user-info">
-        <div class="aff-avatar" id="affUserAvatar">A</div>
+        <div class="aff-avatar" id="affUserAvatar">?</div>
         <div>
           <div style="font-weight:700; font-size:0.9rem;" id="affUserName">Loading...</div>
           <div style="font-size:0.75rem; color:#94A3B8;" id="affUserEmail">...</div>
@@ -49,14 +49,25 @@
 
     <!-- Referral Link Banner -->
     <div class="ref-box-card">
-      <div class="ref-box-header">
-        <h3><i class="fas fa-link" style="color:var(--primary)"></i> Your Unique Referral Link</h3>
-        <p style="color:#94A3B8; font-size:0.88rem; margin-top:4px;">Share this link to earn 20% commission on every successful customer purchase!</p>
+      <div class="ref-box-header" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">
+        <div>
+          <h3><i class="fas fa-link" style="color:var(--primary)"></i> Your Unique Referral Link</h3>
+          <p style="color:#94A3B8; font-size:0.88rem; margin-top:4px;">Share this link to earn <span id="valCommissionPct" style="color:#FFE66D; font-weight:700;">20%</span> commission on every successful customer purchase!</p>
+        </div>
+        <div id="affCodeDisplay" style="font-size:0.8rem; background:rgba(255,255,255,0.1); color:#FFE66D; padding:4px 12px; border-radius:8px; font-weight:700; border:1px solid rgba(255,255,255,0.15);"></div>
       </div>
       <div class="ref-input-group">
-        <input type="text" id="refLinkInput" class="ref-input" readonly value="Loading referral link...">
+        <input type="text" id="refLinkInput" class="ref-input" readonly placeholder="Loading referral link...">
         <button id="btnCopyLink" class="copy-btn">
           <i class="fas fa-copy"></i> Copy Link
+        </button>
+      </div>
+      <div class="ref-actions" style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
+        <a id="btnShareWhatsApp" href="#" target="_blank" class="share-wa-btn">
+          <i class="fab fa-whatsapp"></i> Share on WhatsApp
+        </a>
+        <button id="btnShareCopy" class="btn-secondary" style="border-color:rgba(255,255,255,0.3); color:white;">
+          <i class="fas fa-share-alt"></i> Share Link
         </button>
       </div>
     </div>

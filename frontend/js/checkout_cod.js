@@ -163,7 +163,19 @@ async function prefillProfile(token) {
     const res = await fetch(`${API_BASE}/api/auth/me`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
-    if (!res.ok) return;
+
+    if (res.status === 401 || res.status === 403) {
+      if (window.AuthUnified?.clearAuth) window.AuthUnified.clearAuth();
+      else {
+        localStorage.removeItem('bg_token');
+        localStorage.removeItem('bg_user');
+      }
+      localStorage.setItem('redirectAfterLogin', 'checkout_cod.html');
+      window.location.href = 'login.html';
+      return false;
+    }
+
+    if (!res.ok) return true;
     const u = await res.json();
     userProfile = u;
     localStorage.setItem('bg_user', JSON.stringify(u));
@@ -183,6 +195,8 @@ async function prefillProfile(token) {
     setVal('codState',   u.state);
     setVal('codPincode', u.pincode);
 
+    return true;
+
   } catch (e) {
     console.warn('Profile prefill failed:', e);
     // Try from localStorage
@@ -193,6 +207,7 @@ async function prefillProfile(token) {
       document.getElementById('profileName').textContent    = cached.name  || 'User';
       document.getElementById('profileEmail').textContent   = cached.email || '';
     }
+    return true;
   }
 }
 
@@ -400,10 +415,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // 2. Parallel load: profile + cart
-  await Promise.all([
+  const [profileOk] = await Promise.all([
     prefillProfile(token),
     loadCart(token)
   ]);
+  if (profileOk === false) return;
 
   // 3. Render order summary
   const hasItems = renderSummary();

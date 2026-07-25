@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const path = require('path');
 const { Pool } = require('pg');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
@@ -283,6 +284,19 @@ async function initDBWithRetry(retries = 5) {
   console.error('❌ DB init failed after all retries. Tables may not be ready.');
 }
 
+// ── Phone Normalization Helper ───────────────────────────────────────────────
+// Strips all non-digit characters, removes leading country code (+91/0),
+// and returns a 10-digit number string, or null for empty input.
+function normalizePhone(raw) {
+  if (!raw) return null;
+  const digits = String(raw).replace(/\D/g, '');
+  if (!digits) return null;
+  // Strip leading 91 (India country code) if 12 digits total, or leading 0 if 11 digits
+  if (digits.length === 12 && digits.startsWith('91')) return digits.slice(2);
+  if (digits.length === 11 && digits.startsWith('0')) return digits.slice(1);
+  return digits;
+}
+
 // Initialize both DB and Redis on startup
 (async () => {
   await initDBWithRetry();
@@ -339,7 +353,9 @@ app.post('/api/auth/request-otp', otpLimiter, cors(), async (req, res) => {
     const redisOtpData = { email, otp, expires: expires.toISOString() };
     await setCache(CACHE_KEYS.OTP(email), redisOtpData, TTL.OTP);
     
-    // Also store in database for fallback
+    // Also store in database for fallback.
+    // Before inserting, clean up any orphaned (no email) rows that share a phone
+    // number with this user to prevent false phone-uniqueness conflicts later.
     await pool.query(`
       INSERT INTO users (email, otp, otp_expires)
       VALUES ($1, $2, $3)
@@ -594,18 +610,22 @@ app.post('/api/addresses', authenticateToken, async (req, res) => {
 // 6. Place Order (COD or post-Razorpay)
 app.post('/api/orders', authenticateToken, async (req, res) => {
   const { address_id, items, subtotal, total, payment_method = 'cod', payment_id = null, affiliate_ref = null } = req.body;
+  
+  const client = await pool.connect();
   try {
+    await client.query('BEGIN');
+
     let resolvedAffiliateId = null;
     let commPct = 20.00;
     if (affiliate_ref) {
-      const affCheck = await pool.query("SELECT id, commission_pct, status FROM affiliates WHERE affiliate_code=$1 AND status='ACTIVE'", [affiliate_ref.trim()]);
+      const affCheck = await client.query("SELECT id, commission_pct, status FROM affiliates WHERE affiliate_code=$1 AND status='ACTIVE'", [affiliate_ref.trim()]);
       if (affCheck.rows.length > 0) {
         resolvedAffiliateId = affCheck.rows[0].id;
         commPct = parseFloat(affCheck.rows[0].commission_pct) || 20.00;
       }
     }
 
-    const result = await pool.query(`
+    const result = await client.query(`
       INSERT INTO orders (user_id, address_id, items, subtotal, total, status, payment_method, payment_id, affiliate_id)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id
     `, [
@@ -621,7 +641,7 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
     // Process affiliate commission if order came via valid active affiliate
     if (resolvedAffiliateId) {
       const commAmount = Math.round((total * commPct) / 100);
-      const commRes = await pool.query(`
+      const commRes = await client.query(`
         INSERT INTO commissions (affiliate_id, order_id, order_amount, commission_pct, commission_amount, status)
         VALUES ($1, $2, $3, $4, $5, 'APPROVED')
         ON CONFLICT (order_id) DO NOTHING
@@ -629,7 +649,7 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
       `, [resolvedAffiliateId, orderId, total, commPct, commAmount]);
 
       if (commRes.rows.length > 0) {
-        await pool.query(`
+        await client.query(`
           INSERT INTO affiliate_wallets (affiliate_id, current_balance, total_earned)
           VALUES ($1, $2, $2)
           ON CONFLICT (affiliate_id) DO UPDATE
@@ -638,24 +658,29 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
               updated_at      = NOW()
         `, [resolvedAffiliateId, commAmount]);
 
-        await pool.query(`
+        await client.query(`
           INSERT INTO wallet_transactions (affiliate_id, transaction_type, amount, description, reference_id)
           VALUES ($1, 'COMMISSION', $2, $3, $4)
         `, [resolvedAffiliateId, commAmount, `Commission from Order #${orderId}`, commRes.rows[0].id]);
       }
     }
     
-    // Clear user's cart in DB and cache after successful order
-    await pool.query("UPDATE users SET cart = '[]' WHERE id = $1", [req.user.id]);
-    await deleteCache(CACHE_KEYS.USER_CART(req.user.id));
+    // Clear user's cart in DB after successful order
+    await client.query("UPDATE users SET cart = '[]' WHERE id = $1", [req.user.id]);
     
-    // Invalidate orders cache so fresh data is fetched
-    await deleteCache(CACHE_KEYS.USER_ORDERS(req.user.id));
+    await client.query('COMMIT');
+
+    // Invalidate caches outside transaction
+    await deleteCache(CACHE_KEYS.USER_CART(req.user.id)).catch(() => {});
+    await deleteCache(CACHE_KEYS.USER_ORDERS(req.user.id)).catch(() => {});
     
     res.status(201).json(result.rows[0]);
   } catch (err) {
+    await client.query('ROLLBACK');
     console.error('Order error:', err);
     res.status(500).json({ error: 'Failed to place order' });
+  } finally {
+    client.release();
   }
 });
 
@@ -828,6 +853,36 @@ app.get('/api/orders', authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch orders' });
   }
 });
+
+// ── Server-Side Protected Checkout Route ────────────────────────────────────
+// Blocks direct URL/unauthenticated access to checkout page & API
+app.get(['/checkout', '/checkout_cod.html', '/checkout.html'], (req, res) => {
+  const authHeader = req.headers['authorization'];
+  const token = (authHeader && authHeader.split(' ')[1]) || req.query.token;
+
+  if (!token) {
+    if (req.accepts('html')) {
+      return res.redirect('/login.html?redirect=checkout_cod.html');
+    }
+    return res.status(401).json({ error: 'Access Denied: Unauthenticated user cannot access checkout.' });
+  }
+
+  jwt.verify(token, SECRET_KEY, (err, user) => {
+    if (err) {
+      if (req.accepts('html')) {
+        return res.redirect('/login.html?redirect=checkout_cod.html');
+      }
+      return res.status(401).json({ error: 'Invalid or expired session token.' });
+    }
+    
+    const frontendDir = path.join(__dirname, '..', 'frontend');
+    res.sendFile(path.join(frontendDir, 'checkout_cod.html'));
+  });
+});
+
+// Serve static frontend files
+const frontendDir = path.join(__dirname, '..', 'frontend');
+app.use(express.static(frontendDir));
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ── ADMIN API ──────────────────────────────────────────────────────────────
@@ -1325,12 +1380,18 @@ app.get('/api/affiliate/stats', authenticateAffiliate, async (req, res) => {
     const usr = userRes.rows[0] || {};
     const wlt = walletRes.rows[0] || { current_balance: 0, total_earned: 0 };
 
+    let affCode = aff.affiliate_code;
+    if (!affCode) {
+      affCode = 'AFF' + String(affId).padStart(3, '0');
+      await pool.query('UPDATE affiliates SET affiliate_code=$1 WHERE id=$2', [affCode, affId]).catch(() => {});
+    }
+
     res.json({
       affiliate: {
         id: affId,
-        code: aff.affiliate_code,
+        code: affCode,
         commission_pct: parseFloat(aff.commission_pct || 20),
-        status: aff.status,
+        status: aff.status || 'ACTIVE',
         name: usr.name,
         email: usr.email,
         phone: usr.phone,
@@ -1411,25 +1472,77 @@ app.post('/api/admin/affiliates', authenticateAdmin, async (req, res) => {
     await client.query('BEGIN');
 
     const cleanEmail = email.trim().toLowerCase();
-    const existingUser = await client.query('SELECT id FROM users WHERE email=$1', [cleanEmail]);
-    if (existingUser.rows.length > 0) {
-      await client.query('ROLLBACK');
-      return res.status(400).json({ error: 'An account with this email already exists' });
-    }
+    const existingUser = await client.query('SELECT id, role FROM users WHERE email=$1', [cleanEmail]);
+    let userId;
 
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    // 1. Insert user
-    const userRes = await client.query(`
-      INSERT INTO users (name, email, phone, role, password_hash)
-      VALUES ($1, $2, $3, 'AFFILIATE', $4)
-      RETURNING id, name, email, phone
-    `, [name.trim(), cleanEmail, phone ? phone.trim() : null, passwordHash]);
+    // Normalize the submitted phone number (strips country code, whitespace, dashes)
+    const cleanPhone = normalizePhone(phone) || null;
 
-    const userId = userRes.rows[0].id;
+    if (existingUser.rows.length > 0) {
+      userId = existingUser.rows[0].id;
+      // Check if user is ALREADY an affiliate
+      const existingAff = await client.query('SELECT id FROM affiliates WHERE user_id=$1', [userId]);
+      if (existingAff.rows.length > 0) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'An affiliate account with this email already exists' });
+      }
 
-    // 2. Insert affiliate with generated code
+      // User exists as a customer/other role -> promote to AFFILIATE, update details & password.
+      // When updating phone, check uniqueness only against other fully-registered users
+      // (skip orphaned rows that have no email and profile_completed=false).
+      if (cleanPhone) {
+        const phoneConflict = await client.query(`
+          SELECT id FROM users 
+          WHERE phone = $1 
+            AND id != $2 
+            AND email IS NOT NULL 
+            AND profile_completed = true
+        `, [cleanPhone, userId]);
+        if (phoneConflict.rows.length > 0) {
+          await client.query('ROLLBACK');
+          return res.status(400).json({ error: 'This phone number is already registered to another account' });
+        }
+      }
+
+      await client.query(`
+        UPDATE users 
+        SET name = $1, 
+            phone = COALESCE($2, phone), 
+            role = 'AFFILIATE', 
+            password_hash = $3 
+        WHERE id = $4
+      `, [name.trim(), cleanPhone, passwordHash, userId]);
+
+    } else {
+      // New user record. Check phone uniqueness only against real accounts.
+      if (cleanPhone) {
+        const phoneConflict = await client.query(`
+          SELECT id FROM users 
+          WHERE phone = $1 
+            AND email IS NOT NULL 
+            AND profile_completed = true
+        `, [cleanPhone]);
+        if (phoneConflict.rows.length > 0) {
+          await client.query('ROLLBACK');
+          return res.status(400).json({ error: 'This phone number is already registered to another account' });
+        }
+        // Remove orphaned rows with this phone so INSERT doesn't hit the UNIQUE constraint
+        await client.query(`DELETE FROM users WHERE phone = $1 AND email IS NULL AND profile_completed = false`, [cleanPhone]);
+      }
+
+      const userRes = await client.query(`
+        INSERT INTO users (name, email, phone, role, password_hash)
+        VALUES ($1, $2, $3, 'AFFILIATE', $4)
+        RETURNING id, name, email, phone
+      `, [name.trim(), cleanEmail, cleanPhone, passwordHash]);
+
+      userId = userRes.rows[0].id;
+    }
+
+    // Insert affiliate with generated code
     const affInsert = await client.query(`
       INSERT INTO affiliates (user_id, affiliate_code, commission_pct, status)
       VALUES ($1, 'TEMP', $2, 'ACTIVE')
@@ -1441,10 +1554,11 @@ app.post('/api/admin/affiliates', authenticateAdmin, async (req, res) => {
 
     await client.query('UPDATE affiliates SET affiliate_code=$1 WHERE id=$2', [affCode, affId]);
 
-    // 3. Initialize wallet
+    // Initialize wallet
     await client.query(`
       INSERT INTO affiliate_wallets (affiliate_id, current_balance, total_earned)
       VALUES ($1, 0, 0)
+      ON CONFLICT (affiliate_id) DO NOTHING
     `, [affId]);
 
     await client.query('COMMIT');
@@ -1467,7 +1581,15 @@ app.post('/api/admin/affiliates', authenticateAdmin, async (req, res) => {
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('Admin create affiliate error:', err);
-    res.status(500).json({ error: 'Failed to create affiliate account' });
+    if (err.code === '23505') {
+      if (err.constraint === 'users_phone_key') {
+        return res.status(400).json({ error: 'This phone number is already registered to another account' });
+      }
+      if (err.constraint === 'users_email_key') {
+        return res.status(400).json({ error: 'This email address is already registered to another account' });
+      }
+    }
+    res.status(500).json({ error: err.message || 'Failed to create affiliate account' });
   } finally {
     client.release();
   }

@@ -102,12 +102,20 @@ function initCheckoutProtection() {
         if (checkoutLink) {
             e.preventDefault();
 
+            // 1. Check if cart is empty FIRST
+            const cart = (typeof getCart === 'function') ? getCart() : getLocalCart();
+            if (!cart || cart.length === 0) {
+                showAuthError('cartEmptyNotice', 'Your cart is empty. Add items before checking out.');
+                return;
+            }
+
+            // 2. Check auth status
             if (!isAuthenticated()) {
                 // Save redirect intent
                 const targetUrl = checkoutLink.href || checkoutLink.dataset.href || 'checkout_cod.html';
                 localStorage.setItem('redirectAfterLogin', targetUrl);
 
-                // Show custom login prompt modal instead of blocking confirm()
+                // Show custom login prompt modal with required message
                 let authModal = document.getElementById('authUnifiedModal');
                 if (!authModal) {
                     const modalHTML = `
@@ -117,7 +125,7 @@ function initCheckoutProtection() {
                                     <i class="fas fa-lock" style="font-size: 24px; color: #4f46e5;"></i>
                                 </div>
                                 <h3 style="font-family: 'Fredoka', sans-serif; font-size: 24px; color: #1e1e1e; margin-bottom: 10px; margin-top: 0;">Sign in Required</h3>
-                                <p style="color: #666; margin-bottom: 25px; font-size: 16px; line-height: 1.5; margin-top: 0;">Please sign in or create an account to proceed with checkout securely.</p>
+                                <p style="color: #666; margin-bottom: 25px; font-size: 16px; line-height: 1.5; margin-top: 0;">Please sign in to checkout your cart items.</p>
                                 <div style="display: flex; gap: 15px; justify-content: center;">
                                     <button onclick="document.getElementById('authUnifiedModal').style.display='none'" style="flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #ddd; background: white; color: #333; font-weight: bold; font-size: 16px; cursor: pointer;">Cancel</button>
                                     <button onclick="window.location.href='login.html'" style="flex: 1; padding: 12px; border-radius: 10px; border: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 4px 15px rgba(102,126,234,0.3);">Sign In</button>

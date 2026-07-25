@@ -289,6 +289,59 @@ body {
 .msg-alert.error { background: rgba(239,68,68,0.15); color: var(--danger); }
 .msg-alert.success { background: rgba(16,185,129,0.15); color: var(--success); }
 
+/* Retry / Secondary Button */
+.btn-retry, .btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border: 1.5px solid var(--primary);
+  background: transparent;
+  color: var(--primary);
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+.btn-retry:hover, .btn-secondary:hover {
+  background: var(--primary);
+  color: white;
+}
+
+/* WhatsApp Share Button */
+.share-wa-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #25D366;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: 0.2s ease;
+  text-decoration: none;
+}
+.share-wa-btn:hover { background: #1ebe5a; transform: translateY(-1px); }
+
+/* Loading skeleton pulse */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.skeleton-loading {
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+  color: #94A3B8 !important;
+}
+
+/* Status dot on avatar */
+.aff-avatar {
+  position: relative;
+}
+
 /* Responsive Mobile Navigation */
 .mobile-toggle {
   display: none;
@@ -302,4 +355,5 @@ body {
   .aff-main { margin-left: 0; padding: 1rem; }
   .mobile-toggle { display: block; }
   .ref-input-group { flex-direction: column; }
+  .ref-actions { flex-direction: column; }
 }

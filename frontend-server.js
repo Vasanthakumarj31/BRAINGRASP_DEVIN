@@ -26,6 +26,18 @@ const server = http.createServer((req, res) => {
     return;
   }
   
+  // Check for checkout page direct access protection
+  const cleanUrl = req.url.split('?')[0];
+  if (cleanUrl === '/checkout' || cleanUrl === '/checkout_cod.html' || cleanUrl === '/checkout.html') {
+    const hasToken = req.url.includes('token=') || (req.headers.authorization && req.headers.authorization.startsWith('Bearer '));
+    if (!hasToken) {
+      // Redirect unauthenticated direct URL access to login page
+      res.writeHead(302, { 'Location': '/login.html?redirect=checkout_cod.html' });
+      res.end();
+      return;
+    }
+  }
+
   // Handle requests
   let filePath = path.join(__dirname, 'frontend', req.url === '/' ? 'index.html' : req.url);
   
