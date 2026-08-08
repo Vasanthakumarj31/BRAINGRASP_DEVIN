@@ -46,14 +46,16 @@ function initHeroSlider() {
 // === Tab Functionality ===
 function initTabs() {
   document.querySelectorAll('.tab-bar').forEach(tabBar => {
-    const section = tabBar.closest('.section');
-    const gridId = section.querySelector('.products-grid')?.id;
- 
+    // Grid may be a sibling of tab-bar or inside the nearest section ancestor
+    const section = tabBar.closest('[id]') || tabBar.closest('.section') || tabBar.closest('.section-container');
+    const grid = section ? section.querySelector('.products-grid') : null;
+    const gridId = grid?.id;
+
     tabBar.querySelectorAll('.tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         tabBar.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
- 
+
         const tab = btn.dataset.tab;
         
         if (gridId === 'trendingGrid') {

@@ -9,6 +9,8 @@ const crypto = require('crypto');
 const { sendOTP } = require('./otpService');
 const { initRedis, getCached, setCache, deleteCache, clearCachePattern, CACHE_KEYS, TTL } = require('./redisClient');
 const bcrypt = require('bcryptjs');
+const shiprocket = require('./shiprocketService');
+const shiprocketRouter = require('./routes/shiprocket');
 
 // ── Rate Limiting ─────────────────────────────────────────────────────────────
 // Guard OTP endpoint: max 5 requests per IP per 15 minutes
@@ -21,8 +23,21 @@ try {
   rateLimit = null;
 }
 const otpLimiter = rateLimit
-  ? rateLimit({ windowMs: 15 * 60 * 1000, max: 5, standardHeaders: true, legacyHeaders: false,
-      message: { error: 'Too many OTP requests from this IP. Please wait 15 minutes.' } })
+  ? rateLimit({ 
+      windowMs: 15 * 60 * 1000, 
+      max: 20, 
+      standardHeaders: true, 
+      legacyHeaders: false,
+      skip: (req) => {
+        const ip = req.ip || req.socket?.remoteAddress || '';
+        return process.env.NODE_ENV !== 'production' || 
+               ip === '127.0.0.1' || 
+               ip === '::1' || 
+               ip === '::ffff:127.0.0.1' || 
+               ip.includes('127.0.0.1');
+      },
+      message: { error: 'Too many OTP requests from this IP. Please wait 15 minutes.' } 
+    })
   : (req, res, next) => next(); // no-op fallback
 
 // Razorpay instance
@@ -85,6 +100,20 @@ app.use((req, res, next) => {
   next();
 });
 app.use(express.json());
+app.use('/api/webhooks', shiprocketRouter);
+
+// ── Serve Static Frontend & Admin Files ─────────────────────────────────────
+const frontendPath = path.join(__dirname, '..', 'frontend');
+const adminPath = path.join(__dirname, '..', 'admin');
+
+app.use(express.static(frontendPath));
+app.use('/admin', express.static(adminPath));
+app.use('/affiliate', express.static(path.join(frontendPath, 'affiliate')));
+
+// Root route -> send frontend index.html
+app.get('/', (req, res) => {
+  res.sendFile(path.join(frontendPath, 'index.html'));
+});
 
 // ── Database Connection ─────────────────────────────────────────────────────
 // DB_PASSWORD is required — no insecure fallback
@@ -180,6 +209,13 @@ async function initDB() {
     await client.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS expected_delivery DATE`).catch(() => {});
     await client.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_date DATE`).catch(() => {});
     await client.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS admin_note TEXT`).catch(() => {});
+
+    // ── Shiprocket shipment columns (migration) ───────────────────────────────
+    await client.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipment_id       VARCHAR(100)`).catch(() => {});
+    await client.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS awb_number        VARCHAR(100)`).catch(() => {});
+    await client.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS tracking_status   VARCHAR(50)`).catch(() => {});
+    await client.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS estimated_delivery DATE`).catch(() => {});
+    await client.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS courier_name      VARCHAR(100)`).catch(() => {});
 
     // ── Affiliate System: extend existing tables ──────────────────────────────
     await client.query(`ALTER TABLE users  ADD COLUMN IF NOT EXISTS role          VARCHAR(20)  DEFAULT 'CUSTOMER'`).catch(() => {});
@@ -617,8 +653,12 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
 
     let resolvedAffiliateId = null;
     let commPct = 20.00;
-    if (affiliate_ref) {
-      const affCheck = await client.query("SELECT id, commission_pct, status FROM affiliates WHERE affiliate_code=$1 AND status='ACTIVE'", [affiliate_ref.trim()]);
+    const cleanRef = affiliate_ref && typeof affiliate_ref === 'string' ? affiliate_ref.trim() : null;
+    if (cleanRef && cleanRef !== 'null' && cleanRef !== 'undefined' && cleanRef.length > 0) {
+      const affCheck = await client.query(
+        "SELECT id, commission_pct, status FROM affiliates WHERE UPPER(affiliate_code) = UPPER($1) AND status = 'ACTIVE'",
+        [cleanRef]
+      );
       if (affCheck.rows.length > 0) {
         resolvedAffiliateId = affCheck.rows[0].id;
         commPct = parseFloat(affCheck.rows[0].commission_pct) || 20.00;
@@ -673,7 +713,38 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
     // Invalidate caches outside transaction
     await deleteCache(CACHE_KEYS.USER_CART(req.user.id)).catch(() => {});
     await deleteCache(CACHE_KEYS.USER_ORDERS(req.user.id)).catch(() => {});
-    
+
+    // ── Push to Shiprocket (outside DB transaction — non-fatal) ──────────────
+    // If Shiprocket is unavailable the order is still placed successfully.
+    // Admin can retry via POST /api/admin/orders/:id/push-shiprocket.
+    setImmediate(async () => {
+      try {
+        // Fetch address + user for the Shiprocket payload
+        const [addrRes, userRes] = await Promise.all([
+          pool.query('SELECT * FROM addresses WHERE id=$1', [address_id]),
+          pool.query('SELECT name, email, phone FROM users WHERE id=$1', [req.user.id])
+        ]);
+        const address  = addrRes.rows[0];
+        const user     = userRes.rows[0];
+        const orderRow = { id: orderId, created_at: new Date(), subtotal, total, payment_method };
+
+        const { shipmentId, awb, courierName } = await shiprocket.bookShipment(
+          orderRow, address, user, items
+        );
+
+        await pool.query(
+          'UPDATE orders SET shipment_id=$1, awb_number=$2, courier_name=$3, tracking_status=$4 WHERE id=$5',
+          [shipmentId, awb, courierName, 'Confirmed', orderId]
+        );
+        // Bust the cache again so the dashboard shows the AWB immediately
+        await deleteCache(CACHE_KEYS.USER_ORDERS(req.user.id)).catch(() => {});
+        console.log(`✅ Shiprocket shipment booked for order #${orderId}: AWB ${awb}`);
+      } catch (srErr) {
+        // Non-fatal — log and move on; admin retry route can re-push
+        console.error(`⚠️  Shiprocket push failed for order #${orderId}:`, srErr.message);
+      }
+    });
+
     res.status(201).json(result.rows[0]);
   } catch (err) {
     await client.query('ROLLBACK');
@@ -681,6 +752,106 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Failed to place order' });
   } finally {
     client.release();
+  }
+});
+
+// ── Admin: manually push a specific order to Shiprocket ─────────────────────
+// Used when the automatic push failed (Shiprocket was down, no AWB yet).
+app.post('/api/admin/orders/:id/push-shiprocket', authenticateAdmin, async (req, res) => {
+  const orderId = parseInt(req.params.id);
+  try {
+    const orderRes = await pool.query(`
+      SELECT o.*, a.full_name, a.line1, a.line2, a.city, a.state, a.pincode, a.phone AS addr_phone,
+             u.name AS user_name, u.email AS user_email, u.phone AS user_phone
+      FROM orders o
+      LEFT JOIN addresses a ON o.address_id = a.id
+      LEFT JOIN users u     ON o.user_id    = u.id
+      WHERE o.id = $1
+    `, [orderId]);
+
+    if (orderRes.rows.length === 0) return res.status(404).json({ error: 'Order not found' });
+
+    const o = orderRes.rows[0];
+    if (o.awb_number) {
+      return res.status(400).json({ error: `Order already has AWB: ${o.awb_number}` });
+    }
+
+    const address  = { full_name: o.full_name, line1: o.line1, line2: o.line2, city: o.city, state: o.state, pincode: o.pincode, phone: o.addr_phone };
+    const user     = { name: o.user_name, email: o.user_email, phone: o.user_phone };
+    const items    = typeof o.items === 'string' ? JSON.parse(o.items) : o.items;
+    const orderRow = { id: o.id, created_at: o.created_at, subtotal: o.subtotal, total: o.total, payment_method: o.payment_method };
+
+    const { shipmentId, awb, courierName } = await shiprocket.bookShipment(orderRow, address, user, items);
+
+    await pool.query(
+      'UPDATE orders SET shipment_id=$1, awb_number=$2, courier_name=$3, tracking_status=$4 WHERE id=$5',
+      [shipmentId, awb, courierName, 'Confirmed', orderId]
+    );
+    await deleteCache(CACHE_KEYS.USER_ORDERS(o.user_id)).catch(() => {});
+
+    res.json({ success: true, shipmentId, awb, courierName });
+  } catch (err) {
+    console.error('Admin push-shiprocket error:', err);
+    res.status(500).json({ error: err.message || 'Shiprocket push failed' });
+  }
+});
+
+// ── Admin: refresh tracking status directly from Shiprocket ───────────────
+app.post('/api/admin/orders/:id/refresh-tracking', authenticateAdmin, async (req, res) => {
+  const orderId = parseInt(req.params.id);
+  try {
+    const orderRes = await pool.query(
+      'SELECT id, user_id, awb_number FROM orders WHERE id = $1',
+      [orderId]
+    );
+
+    if (orderRes.rows.length === 0) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    const order = orderRes.rows[0];
+    if (!order.awb_number) {
+      return res.status(400).json({ error: 'No AWB assigned to this order yet.' });
+    }
+
+    const tracking = await shiprocket.getTracking(order.awb_number);
+
+    const updateParams = [
+      tracking.srStatus || null,
+      tracking.estimatedDelivery || null,
+      tracking.courierName || null
+    ];
+    let updateSql = `
+      UPDATE orders
+      SET tracking_status   = COALESCE($1, tracking_status),
+          estimated_delivery = COALESCE($2, estimated_delivery),
+          courier_name      = COALESCE(NULLIF($3, ''), courier_name)
+    `;
+
+    if (tracking.currentStatus) {
+      updateSql += `, status = $4 WHERE id = $5`;
+      updateParams.push(tracking.currentStatus, orderId);
+    } else {
+      updateSql += ` WHERE id = $4`;
+      updateParams.push(orderId);
+    }
+
+    await pool.query(updateSql, updateParams);
+
+    if (order.user_id) {
+      await deleteCache(CACHE_KEYS.USER_ORDERS(order.user_id)).catch(() => {});
+    }
+
+    res.json({
+      success: true,
+      tracking_status: tracking.srStatus,
+      status: tracking.currentStatus,
+      estimated_delivery: tracking.estimatedDelivery,
+      courier_name: tracking.courierName
+    });
+  } catch (err) {
+    console.error('Admin refresh-tracking error:', err);
+    res.status(500).json({ error: err.message || 'Failed to refresh tracking status' });
   }
 });
 

@@ -103,7 +103,7 @@
   </div>
 
   <!-- Mark As Paid Modal -->
-  <div id="payoutModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); backdrop-filter:blur(4px); z-index:1000; place-items:center;">
+  <div id="payoutModal" class="payout-modal-overlay">
     <div style="background:#1c2333; border:1px solid rgba(255,255,255,.08); border-radius:16px; padding:32px; width:90%; max-width:450px;">
       <h3 style="font-size:18px; font-weight:700; margin-bottom:8px; color:#e2e8f0" id="modalTitle">Confirm Manual Payout</h3>
       <p style="color:#64748b; font-size:14px; margin-bottom:20px" id="modalSub">Resetting balance to ₹0 and logging transaction.</p>
@@ -130,7 +130,19 @@
     .sidebar nav a i { width: 16px; text-align: center; font-size: 13px; }
     .logout-link { color: #ef4444 !important; margin-top: auto; }
     .logout-link:hover { background: rgba(239,68,68,.1) !important; }
-    #payoutModal.open { display: grid; }
+    /* Payout Modal Overlay — display is controlled via .open class only */
+    .payout-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.7);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      place-items: center;
+    }
+    .payout-modal-overlay.open {
+      display: grid !important;
+    }
   </style>
 
   <script src="js/config.js"></script>

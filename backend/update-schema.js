@@ -87,6 +87,32 @@ async function updateSchema() {
       }
     }
 
+    // ── Shiprocket shipment columns on orders table ──────────────────────────
+    const shipmentColumns = [
+      { name: 'shipment_id',       def: 'VARCHAR(100)' },
+      { name: 'awb_number',        def: 'VARCHAR(100)' },
+      { name: 'tracking_status',   def: 'VARCHAR(50)' },
+      { name: 'estimated_delivery', def: 'DATE' },
+      { name: 'courier_name',      def: 'VARCHAR(100)' },
+    ];
+
+    console.log('\n🚚 Checking Shiprocket shipment columns on orders table...');
+    for (const { name, def } of shipmentColumns) {
+      const result = await pool.query(`
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_name = 'orders' AND column_name = $1
+      `, [name]);
+
+      if (result.rows.length === 0) {
+        console.log(`📝 Adding orders.${name} column...`);
+        await pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS ${name} ${def}`);
+        console.log(`✅ orders.${name} added`);
+      } else {
+        console.log(`✅ orders.${name} already exists`);
+      }
+    }
+
     console.log('🎉 Database schema updated successfully!');
 
     // Optional: print row count to confirm DB connection is correct

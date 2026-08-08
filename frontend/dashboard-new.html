@@ -315,12 +315,102 @@
         .toast.show { transform: translateY(0); opacity: 1; }
         .toast.success { background: #00b894; color: white; }
         .toast.error { background: #f5576c; color: white; }
+
+        /* Tracking Progress Bar */
+        .tracking-container {
+            margin-top: 15px;
+            padding: 16px;
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+        }
+        .tracking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+            color: #636e72;
+        }
+        .tracking-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin: 18px 0 10px;
+        }
+        .tracking-steps::before {
+            content: '';
+            position: absolute;
+            top: 14px;
+            left: 20px;
+            right: 20px;
+            height: 4px;
+            background: #dfe6e9;
+            z-index: 1;
+        }
+        .tracking-progress-line {
+            position: absolute;
+            top: 14px;
+            left: 20px;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            z-index: 1;
+            transition: width 0.4s ease;
+        }
+        .tracking-step {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            flex: 1;
+        }
+        .step-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #dfe6e9;
+            color: #636e72;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 6px;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+        .step-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #b2bec3;
+        }
+        .tracking-step.completed .step-icon {
+            background: #667eea;
+            color: #ffffff;
+        }
+        .tracking-step.completed .step-label {
+            color: #2d3436;
+        }
+        .tracking-step.active .step-icon {
+            background: #764ba2;
+            color: #ffffff;
+            box-shadow: 0 0 0 4px rgba(118, 75, 162, 0.2);
+        }
+        .tracking-step.active .step-label {
+            color: #764ba2;
+            font-weight: 800;
+        }
+        .tracking-meta {
+            font-size: 0.8rem;
+            color: #636e72;
+            margin-top: 12px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed #eee;
+        }
     </style>
   <link rel="stylesheet" href="css/mobile-responsive.css">
   <link rel="stylesheet" href="css/policy-mobile.css">
-  <link rel="stylesheet" href="css/mobile-master.css">
-</head>
-<body>
 
     <nav class="navbar">
         <div class="nav-brand">
@@ -329,7 +419,7 @@
             </a>
         </div>
         <div class="nav-menu">
-            <a href="index.html" class="nav-link">??? Back to Shopping</a>
+            <a href="index.html" class="nav-link"><i class="fas fa-arrow-left"></i> Back to Shopping</a>
             <a href="#" class="nav-link active">Dashboard</a>
             <button id="logoutBtn" class="btn btn-secondary">Logout</button>
         </div>
@@ -403,8 +493,8 @@
     <div id="profileEditModal" class="modal" onclick="handleModalBackdrop(event)">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 style="font-family: 'Fredoka'; margin: 0; color: #764ba2;">?? Edit Profile</h2>
-                <button class="modal-close-btn" type="button" onclick="closeModal()" aria-label="Close">?</button>
+                <h2 style="font-family: 'Fredoka'; margin: 0; color: #764ba2;"><i class="fas fa-user-edit"></i> Edit Profile</h2>
+                <button class="modal-close-btn" type="button" onclick="closeModal()" aria-label="Close">&times;</button>
             </div>
 
             <form id="profileEditForm" novalidate>
@@ -420,15 +510,15 @@
                     <div class="gender-row">
                         <div class="gender-option">
                             <input type="radio" id="genderMale" name="gender" value="male">
-                            <label for="genderMale">?? Male</label>
+                            <label for="genderMale"><i class="fas fa-mars"></i> Male</label>
                         </div>
                         <div class="gender-option">
                             <input type="radio" id="genderFemale" name="gender" value="female">
-                            <label for="genderFemale">?? Female</label>
+                            <label for="genderFemale"><i class="fas fa-venus"></i> Female</label>
                         </div>
                         <div class="gender-option">
                             <input type="radio" id="genderOther" name="gender" value="other">
-                            <label for="genderOther">?? Other</label>
+                            <label for="genderOther"><i class="fas fa-genderless"></i> Other</label>
                         </div>
                     </div>
                 </div>
@@ -465,7 +555,7 @@
 
                 <!-- Actions -->
                 <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button type="submit" id="saveProfileBtn" class="btn btn-primary" style="flex: 2;">?? Save Changes</button>
+                    <button type="submit" id="saveProfileBtn" class="btn btn-primary" style="flex: 2;"><i class="fas fa-save"></i> Save Changes</button>
                     <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="closeModal()">Cancel</button>
                 </div>
             </form>

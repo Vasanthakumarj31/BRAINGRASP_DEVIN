@@ -1,0 +1,319 @@
+/* ============================================================
+   BrainyGrasp — Page-Specific Mobile Responsive Styles
+   Covers: Policy pages, About, Checkout, Blogs, FAQs, Login
+   Breakpoints: 768px (tablet), 480px (mobile), 360px (small)
+   ============================================================ */
+
+/* ── Global body overflow fix ───────────────────────────────── */
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   POLICY PAGES (refund-policy, privacy-policy, terms)
+───────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .policy-hero { padding: 40px 16px 32px; }
+  .policy-hero h1 { font-size: 26px; line-height: 1.2; }
+  .policy-hero p { font-size: 14px; }
+  .policy-hero .breadcrumb { font-size: 12px; }
+
+  .policy-body { padding: 32px 16px 60px; }
+
+  .policy-toc { padding: 16px 18px; margin-bottom: 28px; }
+  .policy-toc h3 { font-size: 15px; }
+  .policy-toc ol { font-size: 13px; line-height: 1.8; }
+
+  .policy-section { margin-bottom: 32px; }
+  .policy-section h2 { font-size: 18px; gap: 8px; }
+  .policy-section h2 .sec-icon { width: 30px; height: 30px; font-size: 13px; flex-shrink: 0; }
+  .policy-section p { font-size: 14px; line-height: 1.7; }
+  .policy-section ul li,
+  .policy-section ol li { font-size: 14px; line-height: 1.7; margin-bottom: 8px; }
+
+  /* Tables in policy pages — make them scroll horizontally */
+  .policy-section table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .policy-section table th,
+  .policy-section table td { font-size: 13px; padding: 10px 12px; white-space: nowrap; }
+
+  /* Contact CTA box in policy pages */
+  .contact-cta-box,
+  .policy-contact-box { padding: 24px 16px; border-radius: 14px; }
+  .policy-contact-box h3 { font-size: 20px; }
+
+  /* Button groups in policy pages */
+  .btn-group-policy { flex-direction: column; gap: 12px; }
+  .btn-wa, .btn-mail { width: 100%; justify-content: center; }
+
+  .policy-updated { font-size: 11px; padding: 5px 12px; }
+}
+
+@media (max-width: 480px) {
+  .policy-hero h1 { font-size: 22px; }
+  .policy-body { padding: 24px 14px 48px; }
+  .policy-section h2 { font-size: 16px; }
+  .policy-section p { font-size: 13px; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ABOUT US PAGE
+───────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .about-hero { padding: 40px 16px 32px; }
+  .about-hero h1 { font-size: 28px; }
+  .about-hero p { font-size: 14px; }
+
+  .about-section { padding: 40px 16px 48px; }
+  .story-grid { grid-template-columns: 1fr; gap: 28px; }
+  .story-content h2 { font-size: 22px; }
+  .story-content p { font-size: 14px; }
+  .story-image { border-radius: 14px; }
+
+  .pillars-section { padding: 40px 16px; }
+  .pillars-container h2 { font-size: 22px; margin-bottom: 24px; }
+  .pillars-grid { grid-template-columns: 1fr; gap: 16px; }
+  .pillar-card { padding: 28px 20px; border-radius: 14px; }
+  .pillar-icon { width: 56px; height: 56px; font-size: 22px; margin-bottom: 16px; }
+  .pillar-card h3 { font-size: 17px; }
+  .pillar-card p { font-size: 13px; }
+
+  .cta-box { padding: 32px 20px; margin-top: 40px; border-radius: 16px; }
+  .cta-box h3 { font-size: 22px; }
+  .cta-box p { font-size: 14px; margin-bottom: 20px; }
+  .cta-btn { padding: 12px 24px; font-size: 14px; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   FOOTER — all pages
+───────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .main-footer { padding: 40px 0 0; }
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 28px 16px;
+  }
+  .footer-brand { grid-column: 1 / -1; }
+  .footer-col h4 { font-size: 14px; margin-bottom: 12px; }
+  .footer-col ul li { margin-bottom: 8px; }
+  .footer-col ul li a { font-size: 13px; }
+  .footer-whatsapp { font-size: 13px; padding: 8px 14px; }
+  .footer-bottom { padding: 16px 0; }
+  .footer-bottom-inner { flex-direction: column; gap: 8px; text-align: center; font-size: 12px; }
+  .payment-icons { justify-content: center; flex-wrap: wrap; gap: 6px; }
+}
+
+@media (max-width: 480px) {
+  .footer-grid { grid-template-columns: 1fr; }
+  .footer-brand { grid-column: 1; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   LOGIN PAGE
+───────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .login-container { min-height: 100vh; padding: 60px 16px; }
+  .login-card { padding: 32px 20px; border-radius: 16px; max-width: 100%; }
+  .login-logo { font-size: 28px; margin-bottom: 20px; }
+  .login-card h2 { font-size: 20px; }
+  .input-group input { font-size: 14px; padding: 12px 14px; }
+  .btn-login { font-size: 14px; padding: 13px; }
+  .otp-input-group { gap: 8px; }
+  .otp-input-group input { width: 42px; height: 48px; font-size: 20px; }
+  .footer-note { font-size: 11px; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   CHECKOUT PAGE
+───────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .checkout-layout { flex-direction: column; gap: 24px; }
+  .checkout-main, .checkout-sidebar { width: 100%; max-width: 100%; }
+  .checkout-sidebar { order: -1; } /* Show order summary at top on mobile */
+  .checkout-card { padding: 20px 16px; border-radius: 14px; }
+  .checkout-card h3 { font-size: 16px; }
+  .address-tabs { flex-direction: column; gap: 8px; }
+  .tab-btn { font-size: 13px; padding: 10px 14px; }
+  .form-row { flex-direction: column; gap: 12px; }
+  .form-group label { font-size: 13px; }
+  .form-group input, .form-group select { font-size: 14px; padding: 11px 12px; }
+  .cod-confirm-btn, .razorpay-btn { font-size: 15px; padding: 14px; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   FAQs PAGE
+───────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .faq-hero { padding: 40px 16px 32px; }
+  .faq-hero h1 { font-size: 28px; }
+  .faq-category-tabs { flex-wrap: wrap; gap: 8px; justify-content: center; }
+  .faq-tab { font-size: 13px; padding: 8px 14px; }
+  .faq-item { padding: 16px; }
+  .faq-question { font-size: 14px; }
+  .faq-answer { font-size: 13px; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   BLOGS PAGE
+───────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .blogs-grid { grid-template-columns: 1fr; gap: 20px; }
+  .blog-card { border-radius: 14px; }
+  .blog-card-body { padding: 16px; }
+  .blog-card-title { font-size: 16px; }
+  .blog-card-excerpt { font-size: 13px; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   COLLECTIONS / SHOP-BY-AGE / SHOP-BY-CATEGORY
+───────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .filter-sidebar { display: none; }
+  .filter-sidebar.mobile-open { display: block; position: fixed; top: 0; left: 0; width: 85%; height: 100%; z-index: 999; overflow-y: auto; background: #fff; padding: 20px 16px; box-shadow: 4px 0 20px rgba(0,0,0,0.15); }
+  .products-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .product-card { border-radius: 12px; }
+  .product-card .product-image { height: 160px; }
+  .product-card .product-info { padding: 12px; }
+  .product-card .product-name { font-size: 13px; }
+  .product-card .product-price { font-size: 14px; }
+}
+
+@media (max-width: 480px) {
+  .products-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .product-card .product-image { height: 140px; }
+  .product-card .product-info { padding: 10px; }
+}
+
+@media (max-width: 360px) {
+  .products-grid { grid-template-columns: 1fr; }
+  .product-card .product-image { height: 200px; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   REWARDS PAGE
+───────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .rewards-hero { padding: 40px 16px 32px; }
+  .rewards-hero h1 { font-size: 26px; }
+  .rewards-grid { grid-template-columns: 1fr; gap: 16px; }
+  .reward-card { padding: 24px 20px; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   PROFILE SETUP / DASHBOARD
+───────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .profile-setup-container { padding: 20px 14px; }
+  .profile-card { padding: 24px 16px; border-radius: 14px; }
+  .profile-card h2 { font-size: 18px; }
+  .step-indicator { gap: 4px; }
+  .step { font-size: 11px; padding: 6px 10px; }
+  .form-section-grid { grid-template-columns: 1fr; gap: 14px; }
+
+  .dashboard-layout { flex-direction: column; }
+  .dashboard-sidebar { width: 100%; border-radius: 0; }
+  .dashboard-content { padding: 16px; }
+  .kpi-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   NEWSLETTER SECTION (all pages with it)
+───────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .newsletter-section { padding: 40px 16px; border-radius: 16px; margin: 0 12px; }
+  .newsletter-section h2 { font-size: 22px; }
+  .newsletter-section p { font-size: 14px; }
+  .newsletter-form { flex-direction: column; gap: 10px; max-width: 100%; }
+  .newsletter-form input { width: 100%; padding: 12px 16px; border-radius: 10px; }
+  .newsletter-form button { width: 100%; padding: 13px; border-radius: 10px; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   CART SIDEBAR — prevent overflow on very small screens
+───────────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .cart-sidebar { width: 100%; max-width: 100%; }
+  .cart-header { padding: 16px 14px; }
+  .cart-header h3 { font-size: 16px; }
+  .cart-body { padding: 0; }
+  .cart-item { padding: 12px 14px; gap: 10px; }
+  .cart-item-img { width: 60px; height: 60px; }
+  .cart-item-name { font-size: 13px; }
+  .cart-item-price { font-size: 13px; }
+  .cart-footer { padding: 14px 14px; }
+  .cart-total-row { font-size: 15px; }
+  .cart-footer .btn { font-size: 14px; padding: 13px; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   SEARCH RESULTS PAGE
+───────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .search-results-header { padding: 24px 16px; }
+  .search-results-header h1 { font-size: 20px; }
+  .search-results-grid { grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 12px; }
+}
+
+@media (max-width: 480px) {
+  .search-results-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   GIFT FINDER
+───────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .gift-finder-hero { padding: 40px 16px 32px; }
+  .gift-quiz-card { padding: 24px 16px; border-radius: 14px; }
+  .quiz-options { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .quiz-option { padding: 14px 10px; font-size: 13px; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   PARENTS CHOICE PAGE
+───────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .parents-hero { padding: 40px 16px 32px; }
+  .parents-hero h1 { font-size: 26px; }
+  .testimonials-grid { grid-template-columns: 1fr; gap: 16px; }
+  .testimonial-card { padding: 20px 16px; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   UTILITY — Viewport & touch fixes for ALL pages
+───────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Prevent content from overflowing container */
+  .container { padding-left: 14px; padding-right: 14px; }
+
+  /* Fix any image that might overflow */
+  img { max-width: 100%; height: auto; }
+
+  /* Body padding-top for fixed header */
+  body { padding-top: 56px; }
+
+  /* Wider tap targets for all buttons on touch */
+  button, .btn, a.btn { min-height: 44px; }
+
+  /* Tables always scroll horizontally */
+  table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  /* Float-based WhatsApp button — bottom right */
+  .whatsapp-float {
+    bottom: 70px !important;
+    right: 14px !important;
+    width: 48px !important;
+    height: 48px !important;
+    font-size: 22px !important;
+  }
+
+  /* Hide elements that bloat mobile */
+  .desktop-only { display: none !important; }
+}
+
+@media (max-width: 480px) {
+  .container { padding-left: 12px; padding-right: 12px; }
+  body { font-size: 14px; }
+  h1 { font-size: 24px; }
+  h2 { font-size: 20px; }
+  h3 { font-size: 17px; }
+}

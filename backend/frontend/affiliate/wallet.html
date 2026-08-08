@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wallet & Payouts | BrainyGrasp Affiliate</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/affiliate.css">
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="aff-sidebar">
+    <div class="aff-brand">
+      🧠 BrainyGrasp <span style="font-size:0.75rem; background:var(--primary); color:white; padding:2px 8px; border-radius:10px;">PARTNER</span>
+    </div>
+
+    <ul class="aff-nav">
+      <li><a href="dashboard.html"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+      <li><a href="wallet.html" class="active"><i class="fas fa-wallet"></i> Wallet & Payouts</a></li>
+    </ul>
+
+    <div class="aff-user-bar">
+      <div class="aff-user-info">
+        <div class="aff-avatar" id="affUserAvatar">?</div>
+        <div>
+          <div style="font-weight:700; font-size:0.9rem;" id="affUserName">Loading...</div>
+          <div style="font-size:0.75rem; color:#94A3B8;" id="affUserEmail">...</div>
+        </div>
+      </div>
+      <button class="aff-logout-btn" id="btnLogout">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="aff-main">
+    <div class="aff-header">
+      <div class="aff-title">
+        <h1>Wallet & Monthly Payouts</h1>
+        <p>View your current balance and complete manual payout transaction history</p>
+      </div>
+      <div class="mobile-toggle" id="mobileToggle">
+        <i class="fas fa-bars"></i>
+      </div>
+    </div>
+
+    <!-- Wallet Summary Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon purple"><i class="fas fa-wallet"></i></div>
+        <div class="stat-info">
+          <h4>Unpaid Wallet Balance</h4>
+          <div class="val" id="valWalletBalance">₹0</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon green"><i class="fas fa-hand-holding-usd"></i></div>
+        <div class="stat-info">
+          <h4>Lifetime Total Earned</h4>
+          <div class="val" id="valTotalEarned">₹0</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon blue"><i class="fas fa-clock"></i></div>
+        <div class="stat-info">
+          <h4>Next Monthly Payout</h4>
+          <div class="val" id="valNextPayoutDate" style="font-size:1.1rem;">-</div>
+          <div style="font-size:0.75rem; color:var(--primary); font-weight:700;" id="valDaysRemaining">Countdown...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payout Information Alert -->
+    <div style="background:rgba(59, 130, 246, 0.1); border:1px solid rgba(59, 130, 246, 0.2); border-radius:12px; padding:1.25rem; margin-bottom:2rem; color:#1E3A8A; font-size:0.92rem; display:flex; gap:12px; align-items:flex-start;">
+      <i class="fas fa-info-circle" style="font-size:1.4rem; color:#2563EB; margin-top:2px;"></i>
+      <div>
+        <strong>Monthly Payout Policy:</strong> Your wallet balance is processed manually by the store administrator on the <strong>1st of every month</strong> via bank transfer/UPI. Upon payout, your unpaid balance is reset to ₹0, and your total lifetime earnings will remain saved.
+      </div>
+    </div>
+
+    <!-- Payout History Table -->
+    <div class="table-card">
+      <h3><i class="fas fa-file-invoice-dollar" style="color:var(--primary)"></i> Monthly Payout History</h3>
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Payout Amount</th>
+            <th>Paid Date</th>
+            <th>Status</th>
+            <th>Payment Reference / UTR</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody id="payoutsTableBody">
+          <tr><td colspan="5" style="text-align:center; padding:20px;">Loading payout history...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/wallet.js"></script>
+</body>
+</html>

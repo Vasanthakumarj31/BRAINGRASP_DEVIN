@@ -123,11 +123,13 @@
       <button class="filter-btn" data-status="paid">Paid</button>
       <button class="filter-btn" data-status="confirmed">Confirmed</button>
       <button class="filter-btn" data-status="shipped">Shipped</button>
+      <button class="filter-btn" data-status="out for delivery">Out for Delivery</button>
       <button class="filter-btn" data-status="delivered">Delivered</button>
+      <button class="filter-btn" data-status="rto">RTO</button>
       <button class="filter-btn" data-status="cancelled">Cancelled</button>
       <div class="search-box">
         <i class="fas fa-search"></i>
-        <input type="text" id="searchInput" placeholder="Search order, customer...">
+        <input type="text" id="searchInput" placeholder="Search order, customer, AWB...">
       </div>
     </div>
 
@@ -138,16 +140,17 @@
           <tr>
             <th>Order #</th>
             <th>Customer</th>
-            <th>Delivery Address</th>
-            <th>Items</th>
             <th>Amount</th>
-            <th>Status</th>
-            <th>Expected Delivery</th>
+            <th>Pay Mode</th>
+            <th>Shipment Status</th>
+            <th>AWB</th>
+            <th>Courier</th>
             <th>Ordered On</th>
+            <th style="text-align:center;">Action</th>
           </tr>
         </thead>
         <tbody id="ordersTbody">
-          <tr><td colspan="8" class="loading"><i class="fas fa-spinner"></i></td></tr>
+          <tr><td colspan="9" class="loading"><i class="fas fa-spinner"></i></td></tr>
         </tbody>
       </table>
       <div class="pagination">
@@ -172,6 +175,10 @@
         <div class="section-title">Customer & Delivery</div>
         <div class="info-grid" id="modalInfo"></div>
 
+        <!-- Shipment Info -->
+        <div class="section-title">Shiprocket Info</div>
+        <div id="modalShipment"></div>
+
         <!-- Products -->
         <div class="section-title">Products Ordered</div>
         <div id="modalItems"></div>
@@ -190,7 +197,9 @@
                 <option value="Paid">Paid</option>
                 <option value="Confirmed">Confirmed</option>
                 <option value="Shipped">Shipped</option>
+                <option value="Out for Delivery">Out for Delivery</option>
                 <option value="Delivered">Delivered</option>
+                <option value="RTO">RTO</option>
                 <option value="Cancelled">Cancelled</option>
               </select>
             </div>

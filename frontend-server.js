@@ -9,6 +9,7 @@ const MIME_TYPES = {
   '.json': 'application/json',
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
   '.gif': 'image/gif',
   '.svg': 'image/svg+xml',
   '.ico': 'image/x-icon'
@@ -26,49 +27,77 @@ const server = http.createServer((req, res) => {
     return;
   }
   
-  // Check for checkout page direct access protection
-  const cleanUrl = req.url.split('?')[0];
-  if (cleanUrl === '/checkout' || cleanUrl === '/checkout_cod.html' || cleanUrl === '/checkout.html') {
+  // Extract clean path without query parameters
+  const rawUrl = req.url || '/';
+  const cleanPath = rawUrl.split('?')[0];
+
+  // Direct checkout protection check
+  if (cleanPath === '/checkout' || cleanPath === '/checkout_cod.html' || cleanPath === '/checkout.html') {
     const hasToken = req.url.includes('token=') || (req.headers.authorization && req.headers.authorization.startsWith('Bearer '));
     if (!hasToken) {
-      // Redirect unauthenticated direct URL access to login page
       res.writeHead(302, { 'Location': '/login.html?redirect=checkout_cod.html' });
       res.end();
       return;
     }
   }
 
-  // Handle requests
-  let filePath = path.join(__dirname, 'frontend', req.url === '/' ? 'index.html' : req.url);
-  
-  // Remove query parameters
-  filePath = filePath.split('?')[0];
-  
-  // Get file extension
+  // Resolve disk path
+  let relativePath = cleanPath;
+  if (relativePath.startsWith('/frontend/')) {
+    relativePath = relativePath.substring('/frontend/'.length);
+  } else if (relativePath === '/frontend') {
+    relativePath = 'index.html';
+  }
+
+  if (relativePath === '/' || relativePath === '') {
+    relativePath = 'index.html';
+  }
+
+  let filePath = path.join(__dirname, 'frontend', relativePath);
+
+  // If path is a directory, append index.html
+  if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
+    filePath = path.join(filePath, 'index.html');
+  }
+
   const ext = path.extname(filePath);
-  const contentType = MIME_TYPES[ext] || 'text/plain';
-  
-  // Read file
+  const contentType = MIME_TYPES[ext] || 'text/html';
+
   fs.readFile(filePath, (err, data) => {
     if (err) {
-      console.log(`File not found: ${filePath}`);
-      res.writeHead(404, { 'Content-Type': 'text/html' });
-      res.end(`
-        <html>
-          <body>
-            <h1>404 - File Not Found</h1>
-            <p>The file ${req.url} was not found.</p>
-            <p><a href="/">Go to homepage</a></p>
-          </body>
-        </html>
-      `);
+      // Fallback: check if root index.html exists
+      const rootIndex = path.join(__dirname, 'index.html');
+      if (fs.existsSync(rootIndex)) {
+        return fs.readFile(rootIndex, (rErr, rData) => {
+          if (!rErr) {
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            return res.end(rData);
+          }
+          send404(res, req.url);
+        });
+      }
+      send404(res, req.url);
     } else {
-      console.log(`Serving: ${filePath} (${contentType})`);
       res.writeHead(200, { 'Content-Type': contentType });
       res.end(data);
     }
   });
 });
+
+function send404(res, url) {
+  res.writeHead(404, { 'Content-Type': 'text/html' });
+  res.end(`
+    <!DOCTYPE html>
+    <html>
+      <head><title>404 - Page Not Found</title></head>
+      <body style="font-family: sans-serif; text-align: center; padding: 40px;">
+        <h1>404 - Page Not Found</h1>
+        <p>The path <code>${url}</code> was not found.</p>
+        <p><a href="/" style="color: #667eea;">Return to BrainyGrasp Home</a></p>
+      </body>
+    </html>
+  `);
+}
 
 const PORT = 5501;
 server.listen(PORT, '0.0.0.0', () => {

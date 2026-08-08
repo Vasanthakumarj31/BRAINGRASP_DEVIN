@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monthly Payouts — BrainGrasp Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <div class="admin-layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="logo">
+        <i class="fas fa-brain"></i>
+        <span>BrainGrasp</span>
+      </div>
+      <nav>
+        <a href="dashboard.html"><i class="fas fa-chart-pie"></i> Dashboard</a>
+        <a href="index.html"><i class="fas fa-box-open"></i> Products</a>
+        <a href="orders.html"><i class="fas fa-receipt"></i> Orders</a>
+        <a href="affiliates.html"><i class="fas fa-user-tie"></i> Affiliates</a>
+        <a href="affiliate-payouts.html" class="active"><i class="fas fa-hand-holding-usd"></i> Monthly Payouts</a>
+        <a href="#" id="logoutBtn" class="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="content">
+      <header class="page-header">
+        <div>
+          <h1>Monthly Manual Payouts</h1>
+          <p class="page-subtitle">Review unpaid wallet balances and mark monthly payments as completed</p>
+        </div>
+      </header>
+
+      <!-- Payout Settings Card -->
+      <section class="card" style="margin-bottom:24px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+          <div>
+            <h3 style="font-size:1rem; font-weight:700; color:#e2e8f0;"><i class="fas fa-calendar-check" style="color:#4f7ef7"></i> Monthly Payout Schedule</h3>
+            <p style="font-size:0.85rem; color:#64748b; margin-top:4px;" id="scheduleInfo">Loading schedule config...</p>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <label style="font-size:0.85rem; color:#94a3b8; font-weight:600;">Payout Day of Month:</label>
+            <input type="number" id="payoutDayInput" min="1" max="28" style="width:70px; padding:6px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:#161b27; color:white;" value="1">
+            <button id="btnSaveDay" class="btn-primary" style="padding:6px 14px; font-size:0.85rem;">Save</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Toast Notification -->
+      <div id="toast" class="toast"></div>
+
+      <!-- Unpaid Wallets Table -->
+      <section class="card" style="margin-bottom:24px;">
+        <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:16px;"><i class="fas fa-wallet" style="color:#22c55e"></i> Affiliate Unpaid Balances</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Affiliate Code</th>
+                <th>Name</th>
+                <th>Email / Phone</th>
+                <th>Unpaid Balance</th>
+                <th>Total Lifetime Earned</th>
+                <th>Last Paid Date</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="walletsTableBody">
+              <tr><td colspan="7" class="loading-row">Loading wallet balances...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Payout History Table -->
+      <section class="card">
+        <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:16px;"><i class="fas fa-history" style="color:#8b5cf6"></i> Completed Payout Logs</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Paid Date</th>
+                <th>Affiliate</th>
+                <th>Code</th>
+                <th>Amount Paid</th>
+                <th>Payment UTR / Reference</th>
+                <th>Note</th>
+              </tr>
+            </thead>
+            <tbody id="payoutHistoryTableBody">
+              <tr><td colspan="6" class="loading-row">Loading payout history...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Mark As Paid Modal -->
+  <div id="payoutModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); backdrop-filter:blur(4px); z-index:1000; place-items:center;">
+    <div style="background:#1c2333; border:1px solid rgba(255,255,255,.08); border-radius:16px; padding:32px; width:90%; max-width:450px;">
+      <h3 style="font-size:18px; font-weight:700; margin-bottom:8px; color:#e2e8f0" id="modalTitle">Confirm Manual Payout</h3>
+      <p style="color:#64748b; font-size:14px; margin-bottom:20px" id="modalSub">Resetting balance to ₹0 and logging transaction.</p>
+
+      <div class="input-group" style="margin-bottom:14px;">
+        <label style="color:#94a3b8; font-size:12px; font-weight:600; margin-bottom:4px; display:block;">Payment Reference / UTR Number (Optional)</label>
+        <input type="text" id="m_ref" placeholder="e.g. UTR19283746501" style="width:100%; padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:#161b27; color:white;">
+      </div>
+
+      <div class="input-group" style="margin-bottom:24px;">
+        <label style="color:#94a3b8; font-size:12px; font-weight:600; margin-bottom:4px; display:block;">Admin Note (Optional)</label>
+        <input type="text" id="m_note" placeholder="e.g. Paid via GPay / HDFC Bank" style="width:100%; padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:#161b27; color:white;">
+      </div>
+
+      <div style="display:flex; gap:12px; justify-content:flex-end;">
+        <button id="modalCancelBtn" class="btn-secondary">Cancel</button>
+        <button id="modalConfirmBtn" class="btn-primary" style="background:#22c55e;">Confirm & Mark Paid</button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .logo i { font-size: 1.3rem; color: #4f7ef7; }
+    .sidebar nav a i { width: 16px; text-align: center; font-size: 13px; }
+    .logout-link { color: #ef4444 !important; margin-top: auto; }
+    .logout-link:hover { background: rgba(239,68,68,.1) !important; }
+    #payoutModal.open { display: grid; }
+  </style>
+
+  <script src="js/config.js"></script>
+  <script src="js/admin-common.js"></script>
+  <script src="js/affiliate-payouts.js"></script>
+</body>
+</html>

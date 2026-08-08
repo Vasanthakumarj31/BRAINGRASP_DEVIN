@@ -64,6 +64,72 @@ async function loadOrders(token) {
     }
 }
 
+function renderTrackingBar(order) {
+    if (order.status === 'Cancelled' || order.status === 'RTO') {
+        return `
+            <div class="tracking-container" style="background:#fff5f5; border-color:#feb2b2;">
+                <div style="color:#c53030; font-weight:700; font-size:0.85rem;">
+                    <i class="fas fa-exclamation-circle"></i> Status: ${order.status}
+                </div>
+            </div>
+        `;
+    }
+
+    const stages = [
+        { key: 'Placed', label: 'Placed', icon: 'fa-shopping-cart' },
+        { key: 'Confirmed', label: 'Confirmed', icon: 'fa-check' },
+        { key: 'Shipped', label: 'Shipped', icon: 'fa-truck' },
+        { key: 'Out for Delivery', label: 'Out for Delivery', icon: 'fa-shipping-fast' },
+        { key: 'Delivered', label: 'Delivered', icon: 'fa-box-open' }
+    ];
+
+    const statusMap = {
+        'placed': 0,
+        'paid': 0,
+        'confirmed': 1,
+        'shipped': 2,
+        'out for delivery': 3,
+        'delivered': 4
+    };
+
+    const currentStatusKey = (order.status || 'placed').toLowerCase();
+    const activeIndex = statusMap[currentStatusKey] !== undefined ? statusMap[currentStatusKey] : 0;
+    const progressWidth = activeIndex === 0 ? 0 : (activeIndex / (stages.length - 1)) * 100;
+
+    const estDelivery = order.estimated_delivery ? new Date(order.estimated_delivery).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) : null;
+
+    return `
+        <div class="tracking-container">
+            <div class="tracking-header">
+                <span><strong>Tracking:</strong> ${order.tracking_status || order.status || 'Processing'}</span>
+                ${estDelivery ? `<span><i class="fas fa-clock"></i> Est. Delivery: <strong>${estDelivery}</strong></span>` : ''}
+            </div>
+            
+            <div class="tracking-steps">
+                <div class="tracking-progress-line" style="width: calc(${progressWidth}% - 20px);"></div>
+                ${stages.map((stage, idx) => {
+                    let cls = '';
+                    if (idx < activeIndex) cls = 'completed';
+                    else if (idx === activeIndex) cls = 'active';
+                    return `
+                        <div class="tracking-step ${cls}">
+                            <div class="step-icon"><i class="fas ${stage.icon}"></i></div>
+                            <div class="step-label">${stage.label}</div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+
+            ${order.awb_number ? `
+                <div class="tracking-meta">
+                    <span><i class="fas fa-barcode"></i> AWB: <strong>${order.awb_number}</strong></span>
+                    ${order.courier_name ? `<span><i class="fas fa-shipping-fast"></i> Courier: <strong>${order.courier_name}</strong></span>` : ''}
+                </div>
+            ` : ''}
+        </div>
+    `;
+}
+
 function renderOrders(orders, type) {
     const container = type === 'current' ? document.getElementById('currentOrdersList') : document.getElementById('historyOrdersList');
     
@@ -107,6 +173,8 @@ function renderOrders(orders, type) {
                     `).join('')}
                 </div>
 
+                ${renderTrackingBar(order)}
+
                 ${order.full_name ? `
                 <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #ddd; font-size: 0.85rem; color: #666;">
                     <i class="fas fa-map-marker-alt" style="color: #667eea;"></i>
@@ -123,7 +191,7 @@ function renderOrders(orders, type) {
 function getStatusClass(status) {
     if (!status) return 'status-placed';
     if (status === 'Delivered') return 'status-delivered';
-    if (status === 'Shipped') return 'status-shipped';
+    if (status === 'Shipped' || status === 'Out for Delivery') return 'status-shipped';
     return 'status-placed';
 }
 
@@ -134,28 +202,10 @@ function switchOrderTab(tab) {
         btn.style.borderBottom = 'none';
     });
     const activeBtn = document.querySelector(`[data-tab="${tab}"]`);
-    activeBtn.style.color = '#667eea';
-    activeBtn.style.borderBottom = '3px solid #667eea';
-
-    // Update sections
-    if (tab === 'current') {
-        document.getElementById('currentOrdersSection').style.display = 'block';
-        document.getElementById('historyOrdersSection').style.display = 'none';
-    } else {
-        document.getElementById('currentOrdersSection').style.display = 'none';
-        document.getElementById('historyOrdersSection').style.display = 'block';
+    if (activeBtn) {
+        activeBtn.style.color = '#667eea';
+        activeBtn.style.borderBottom = '3px solid #667eea';
     }
-}
-
-function switchOrderTab(tab) {
-    // Update tab buttons
-    document.querySelectorAll('.order-tab').forEach(btn => {
-        btn.style.color = '#b2bec3';
-        btn.style.borderBottom = 'none';
-    });
-    const activeBtn = document.querySelector(`[data-tab="${tab}"]`);
-    activeBtn.style.color = '#667eea';
-    activeBtn.style.borderBottom = '3px solid #667eea';
 
     // Update sections
     if (tab === 'current') {

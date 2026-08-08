@@ -124,20 +124,63 @@ function initMobileMenu() {
 
   if (overlay) overlay.addEventListener('click', closeMenu);
 
+  // Close menu on Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && nav.classList.contains('active')) closeMenu();
+  });
+
+  // Inject a close (X) button at top of nav sidebar
+  if (!nav.querySelector('.nav-close-btn')) {
+    const closeDiv = document.createElement('div');
+    closeDiv.className = 'nav-close-btn';
+    closeDiv.style.textAlign = 'right';
+    closeDiv.style.marginBottom = '15px';
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.setAttribute('aria-label', 'Close menu');
+    closeBtn.innerHTML = '<i class="fas fa-times" style="font-size: 24px; color: #333;"></i>';
+    closeBtn.style.background = 'none';
+    closeBtn.style.border = 'none';
+    closeBtn.style.cursor = 'pointer';
+    closeBtn.style.padding = '10px';
+    closeBtn.addEventListener('click', closeMenu);
+    closeDiv.appendChild(closeBtn);
+    nav.insertBefore(closeDiv, nav.firstChild);
+  }
+
+  // Mega-menu items: first tap opens dropdown, second tap navigates to page.
   document.querySelectorAll('.nav-item.has-mega .nav-link').forEach(link => {
-
     link.addEventListener('click', (e) => {
-
       if (window.innerWidth <= 768) {
-
+        const navItem = link.closest('.nav-item');
+        if (navItem.classList.contains('open')) {
+          // Already open — let the browser navigate to the href
+          closeMenu();
+          return;
+        }
+        // First tap — open the mega dropdown, don't navigate
         e.preventDefault();
-
-        link.closest('.nav-item').classList.toggle('open');
-
+        // Close any other open mega menus
+        document.querySelectorAll('.nav-item.has-mega.open').forEach(item => {
+          if (item !== navItem) item.classList.remove('open');
+        });
+        navItem.classList.add('open');
       }
-
     });
+  });
 
+  // Non-mega nav items — navigate and close the menu
+  document.querySelectorAll('.nav-item:not(.has-mega) .nav-link').forEach(link => {
+    link.addEventListener('click', () => {
+      closeMenu();
+    });
+  });
+
+  // Links inside mega-menu dropdowns — navigate and close menu
+  document.querySelectorAll('.mega-menu a').forEach(link => {
+    link.addEventListener('click', () => {
+      closeMenu();
+    });
   });
 
 }
@@ -388,7 +431,7 @@ function renderCartSidebar() {
   const total = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
   const SHIPPING_THRESHOLD = 999;
   const shippingFill = document.getElementById('shippingBarFill');
-  const shippingMsg  = document.getElementById('shippingBarMsg');
+  const shippingMsg = document.getElementById('shippingBarMsg');
   if (shippingFill && shippingMsg) {
     const pct = Math.min((total / SHIPPING_THRESHOLD) * 100, 100);
     shippingFill.style.width = pct + '%';
@@ -417,8 +460,8 @@ function renderCartSidebar() {
       <div class="cart-item">
 
         ${item.image
-          ? `<img class="cart-item-img" src="${escapeHTML(item.image)}" alt="${escapeHTML(item.name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
-          : ''}
+        ? `<img class="cart-item-img" src="${escapeHTML(item.image)}" alt="${escapeHTML(item.name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+        : ''}
         <div class="cart-item-img-placeholder" style="${item.image ? 'display:none' : ''}">🧸</div>
 
         <div class="cart-item-body">
@@ -626,14 +669,23 @@ function initCommerceRoutes() {
 
   if (checkoutBtn) {
 
-    checkoutBtn.addEventListener('click', () => {
-
+    checkoutBtn.addEventListener('click', (e) => {
       const cart = typeof getCart === 'function' ? getCart() : [];
+      if (!cart.length) {
+        e.preventDefault();
+        e.stopPropagation();
+        return; // don't navigate or prompt if cart is empty
+      }
 
-      if (!cart.length) return; // don't navigate with empty cart
+      // If the unified auth script is loaded and the user is NOT logged in,
+      // we must NOT redirect here. We let the event bubble up so that
+      // auth-unified.js can intercept it and show the login modal.
+      if (typeof isAuthenticated === 'function' && !isAuthenticated()) {
+        e.preventDefault();
+        return;
+      }
 
       window.location.href = 'checkout_cod.html';
-
     });
 
   }
@@ -1148,7 +1200,7 @@ function syncAuthHeader() {
 
       <i class="fas fa-user-check" style="color:#FF6B35"></i>
 
-      <span class="user-name-label" style="font-size:11px;font-weight:700;color:#FF6B35;display:block;line-height:1;margin-top:2px">${firstName}</span>
+      <span class="user-name-label">${firstName}</span>
 
     `;
 
@@ -1235,3 +1287,22 @@ function initMegaNavigation() {
   });
 
 }
+
+// === Affiliate Referral Link Tracking ===
+function initAffiliateTracking() {
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const ref = urlParams.get('ref');
+    if (ref && ref.trim()) {
+      const cleanRef = ref.trim().toUpperCase();
+      localStorage.setItem('bg_ref', cleanRef);
+      document.cookie = `bg_ref=${cleanRef}; path=/; max-age=2592000`; // 30 days
+      const apiBase = (window.BG_CONFIG && window.BG_CONFIG.API_BASE) || 'http://localhost:3000';
+      fetch(`${apiBase}/api/affiliate/track?ref=${encodeURIComponent(cleanRef)}`).catch(() => {});
+    }
+  } catch (e) {}
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initAffiliateTracking();
+});

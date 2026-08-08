@@ -350,7 +350,7 @@
             </button>
             
             <div class="success-message" id="successMessage">
-                ? Profile saved! Redirecting you now...
+                ✅ Profile saved! Redirecting you now...
             </div>
             
             <div class="skip-text">
@@ -454,8 +454,8 @@
                         const successMsg = document.getElementById('successMessage');
                         if (successMsg) {
                             successMsg.textContent = postRedirect.includes('checkout')
-                                ? '? Profile saved! Taking you to checkout...'
-                                : '? Profile saved! Taking you to your dashboard...';
+                                ? '✅ Profile saved! Taking you to checkout...'
+                                : '✅ Profile saved! Taking you to your dashboard...';
                             successMsg.style.display = 'block';
                         }
                         localStorage.removeItem('postProfileRedirect');

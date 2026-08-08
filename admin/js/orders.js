@@ -18,14 +18,15 @@
   function badgeClass(s) {
     const m = {
       placed: 'b-placed', confirmed: 'b-confirmed', shipped: 'b-shipped',
-      delivered: 'b-delivered', cancelled: 'b-cancelled', paid: 'b-paid'
+      'out for delivery': 'b-shipped', delivered: 'b-delivered',
+      cancelled: 'b-cancelled', rto: 'b-cancelled', paid: 'b-paid'
     };
     return m[(s || '').toLowerCase()] || 'b-placed';
   }
 
   async function loadOrders() {
     const tbody = document.getElementById('ordersTbody');
-    tbody.innerHTML = '<tr><td colspan="8" class="loading"><i class="fas fa-spinner"></i></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9" class="loading"><i class="fas fa-spinner"></i></td></tr>';
 
     try {
       const params = new URLSearchParams({ page: currentPage, limit: PAGE_SIZE });
@@ -46,43 +47,100 @@
       document.getElementById('nextBtn').disabled = currentPage * PAGE_SIZE >= total;
     } catch (err) {
       if (err.message !== 'Session expired') {
-        tbody.innerHTML = '<tr><td colspan="8" class="no-data">Failed to load orders. Check that the API is running.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" class="no-data">Failed to load orders. Check that the API is running.</td></tr>';
       }
+    }
+  }
+
+  async function refreshTracking(id, btn) {
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; }
+    try {
+      const res = await adminFetch(`/admin/orders/${id}/refresh-tracking`, { method: 'POST' });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        showToast(`✅ Status updated: ${data.tracking_status || data.status}`, 'ok');
+        loadOrders();
+      } else {
+        showToast(`❌ ${data.error || 'Refresh failed'}`, 'err');
+      }
+    } catch (err) {
+      if (err.message !== 'Session expired') showToast('❌ Network error', 'err');
+    } finally {
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh'; }
+    }
+  }
+
+  async function pushShiprocket(id, btn) {
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Booking...'; }
+    try {
+      const res = await adminFetch(`/admin/orders/${id}/push-shiprocket`, { method: 'POST' });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        showToast(`✅ Shipment booked! AWB: ${data.awb}`, 'ok');
+        loadOrders();
+      } else {
+        showToast(`❌ ${data.error || 'Shipment booking failed'}`, 'err');
+      }
+    } catch (err) {
+      if (err.message !== 'Session expired') showToast('❌ Network error', 'err');
+    } finally {
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Book'; }
     }
   }
 
   function renderTable(orders) {
     const tbody = document.getElementById('ordersTbody');
     if (!orders.length) {
-      tbody.innerHTML = '<tr><td colspan="8" class="no-data">No orders found.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" class="no-data">No orders found.</td></tr>';
       return;
     }
 
     tbody.innerHTML = orders.map(o => {
-      const addr = [o.line1, o.city, o.state, o.pincode].filter(Boolean).join(', ');
-      const items = Array.isArray(o.items) ? o.items : [];
-      const itemCount = items.reduce((s, i) => s + (i.quantity || 1), 0);
+      const shipStatus = o.tracking_status || o.status || 'Placed';
+      const awb = o.awb_number || '—';
+      const courier = o.courier_name || '—';
+      const payMode = (o.payment_method || 'COD').toUpperCase();
+
+      let actionBtn = '';
+      if (o.awb_number) {
+        actionBtn = `<button class="btn-refresh-shipment" data-id="${o.id}" style="padding:4px 8px;font-size:11px;cursor:pointer;border-radius:6px;border:1px solid #cbd5e1;background:#fff;" title="Refresh status from Shiprocket"><i class="fas fa-sync-alt"></i> Refresh</button>`;
+      } else {
+        actionBtn = `<button class="btn-push-shipment" data-id="${o.id}" style="padding:4px 8px;font-size:11px;cursor:pointer;border-radius:6px;border:none;background:#667eea;color:#fff;" title="Push order to Shiprocket"><i class="fas fa-paper-plane"></i> Book</button>`;
+      }
+
       return `<tr data-id="${o.id}">
         <td><span class="oid">#${o.id}</span></td>
         <td>
           <div style="font-weight:600">${esc(o.customer_name || 'Guest')}</div>
           <div style="font-size:11px;color:var(--muted)">${esc(o.customer_email || '—')}</div>
         </td>
-        <td style="font-size:12px;max-width:180px">
-          ${esc(o.addr_name || '')}<br>
-          <span style="color:var(--muted)">${esc(addr || '—')}</span><br>
-          <span style="color:var(--muted)">${esc(o.addr_phone || '')}</span>
-        </td>
-        <td style="font-weight:600">${itemCount} item${itemCount !== 1 ? 's' : ''}</td>
         <td style="font-weight:700;color:var(--green)">${fmtRupee(o.total)}</td>
-        <td><span class="badge ${badgeClass(o.status)}">${esc(o.status || 'Placed')}</span></td>
-        <td style="font-size:12px">${fmtDate(o.expected_delivery)}</td>
+        <td><span class="badge" style="background:#eef2ff;color:#4f46e5;font-weight:700;">${payMode}</span></td>
+        <td><span class="badge ${badgeClass(shipStatus)}">${esc(shipStatus)}</span></td>
+        <td><span style="font-family:monospace;font-size:12px;font-weight:600;color:#334155">${esc(awb)}</span></td>
+        <td style="font-size:12px;color:var(--muted)">${esc(courier)}</td>
         <td style="font-size:12px;color:var(--muted)">${fmtDate(o.created_at)}</td>
+        <td style="text-align:center" onclick="event.stopPropagation()">
+          ${actionBtn}
+        </td>
       </tr>`;
     }).join('');
 
     tbody.querySelectorAll('tr[data-id]').forEach(tr => {
       tr.onclick = () => openModal(tr.dataset.id);
+    });
+
+    tbody.querySelectorAll('.btn-refresh-shipment').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        refreshTracking(btn.dataset.id, btn);
+      };
+    });
+    tbody.querySelectorAll('.btn-push-shipment').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        pushShiprocket(btn.dataset.id, btn);
+      };
     });
   }
 
@@ -92,6 +150,7 @@
     overlay.classList.add('open');
     document.getElementById('modalInfo').innerHTML =
       '<div style="color:var(--muted);grid-column:1/-1">Loading…</div>';
+    document.getElementById('modalShipment').innerHTML = '';
     document.getElementById('modalItems').innerHTML = '';
     document.getElementById('modalTotals').innerHTML = '';
 
@@ -115,6 +174,35 @@
         <div class="info-block"><label>Order Date</label><span>${fmtDate(o.created_at)}</span></div>
         ${o.admin_note ? `<div class="info-block" style="grid-column:1/-1"><label>Admin Note</label><span>${esc(o.admin_note)}</span></div>` : ''}
       `;
+
+      const shipmentEl = document.getElementById('modalShipment');
+      if (o.awb_number || o.shipment_id) {
+        shipmentEl.innerHTML = `
+          <div style="background:#f8fafc;padding:12px;border-radius:8px;border:1px solid #e2e8f0;font-size:13px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <div><strong>Shipment ID:</strong> ${esc(o.shipment_id || 'N/A')}</div>
+              <button class="btn-refresh-shipment" data-id="${o.id}" style="padding:4px 8px;font-size:11px;cursor:pointer;border-radius:6px;border:1px solid #cbd5e1;background:#fff;"><i class="fas fa-sync-alt"></i> Refresh</button>
+            </div>
+            <div><strong>AWB Code:</strong> <span style="font-family:monospace;font-weight:700;">${esc(o.awb_number || 'N/A')}</span></div>
+            <div><strong>Courier:</strong> ${esc(o.courier_name || 'N/A')}</div>
+            <div><strong>Shiprocket Status:</strong> ${esc(o.tracking_status || o.status || 'N/A')}</div>
+            ${o.estimated_delivery ? `<div><strong>Est. Delivery:</strong> ${fmtDate(o.estimated_delivery)}</div>` : ''}
+          </div>
+        `;
+        shipmentEl.querySelector('.btn-refresh-shipment')?.addEventListener('click', (e) => {
+          refreshTracking(o.id, e.currentTarget);
+        });
+      } else {
+        shipmentEl.innerHTML = `
+          <div style="background:#fffbe6;padding:12px;border-radius:8px;border:1px solid #ffe58f;font-size:13px;display:flex;justify-content:space-between;align-items:center;">
+            <span><i class="fas fa-exclamation-triangle" style="color:#faad14;"></i> Not yet pushed to Shiprocket</span>
+            <button class="btn-push-shipment" data-id="${o.id}" style="padding:4px 10px;font-size:12px;cursor:pointer;border-radius:6px;border:none;background:#667eea;color:#fff;"><i class="fas fa-paper-plane"></i> Book Shipment</button>
+          </div>
+        `;
+        shipmentEl.querySelector('.btn-push-shipment')?.addEventListener('click', (e) => {
+          pushShiprocket(o.id, e.currentTarget);
+        });
+      }
 
       const items = Array.isArray(o.items) ? o.items : [];
       document.getElementById('modalItems').innerHTML = items.map(it => `
