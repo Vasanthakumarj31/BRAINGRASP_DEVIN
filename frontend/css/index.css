@@ -1016,14 +1016,225 @@
 }
 
 
+/* =========================================================
+   SECTION CONTAINER — shared wrapper for Trending + Handpicked
+   ========================================================= */
+.section-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 60px 20px;
+}
 
+.section-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 28px;
+  gap: 8px;
+}
 
+.section-title {
+  font-family: var(--font-display, 'Fredoka', cursive);
+  font-size: 2.2rem;
+  color: #1e293b;
+  margin: 0;
+}
+
+.title-emoji {
+  margin-left: 6px;
+}
+
+.see-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #f97316;
+  font-weight: 700;
+  font-size: 0.92rem;
+  text-decoration: none;
+  transition: gap 0.2s ease;
+}
+
+.see-all:hover {
+  gap: 10px;
+  color: #ea6c0b;
+}
+
+/* ---- Product Grid ---- */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 22px;
+}
+
+@media (max-width: 600px) {
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
+/* Skeleton loader */
+.product-skeleton {
+  background: #f1f5f9;
+  border-radius: 16px;
+  min-height: 280px;
+  animation: shimmer 1.5s ease-in-out infinite;
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ---- Tab Bar (Handpicked section) ---- */
+.tab-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  padding: 9px 20px;
+  border: 2px solid #e2e8f0;
+  border-radius: 50px;
+  background: #fff;
+  color: #64748b;
+  font-family: var(--font-primary, 'Nunito', sans-serif);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.22s ease;
+}
+
+.tab-btn:hover {
+  border-color: #f97316;
+  color: #f97316;
+}
+
+.tab-btn.active {
+  background: #f97316;
+  border-color: #f97316;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.3);
+}
+
+/* =========================================================
+   PROMO STRIP — "Summer Learning Festival" banner
+   ========================================================= */
+.promo-strip {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 60%, #f97316 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle radial sparkle overlay */
+.promo-strip::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 15% 50%, rgba(255,255,255,0.12) 0%, transparent 55%),
+    radial-gradient(circle at 85% 50%, rgba(255,255,255,0.10) 0%, transparent 55%);
+  pointer-events: none;
+}
+
+.promo-strip-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 44px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  position: relative;
+  z-index: 1;
+  flex-wrap: wrap;
+}
+
+.promo-strip-content h2 {
+  font-family: var(--font-display, 'Fredoka', cursive);
+  font-size: 1.9rem;
+  color: #fff;
+  margin: 0 0 6px;
+  line-height: 1.2;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+
+.promo-strip-content p {
+  font-size: 1rem;
+  color: rgba(255,255,255,0.88);
+  margin: 0;
+  font-weight: 500;
+  line-height: 1.5;
+  max-width: 480px;
+}
+
+.promo-strip-content p strong {
+  color: #fcd34d;
+}
+
+.promo-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  color: #764ba2;
+  font-family: var(--font-primary, 'Nunito', sans-serif);
+  font-size: 1rem;
+  font-weight: 800;
+  padding: 14px 32px;
+  border-radius: 50px;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  flex-shrink: 0;
+}
+
+.promo-btn:hover {
+  background: #fcd34d;
+  color: #92400e;
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.22);
+}
+
+.promo-btn i {
+  font-size: 0.9rem;
+}
+
+@media (max-width: 640px) {
+  .promo-strip-content {
+    flex-direction: column;
+    text-align: center;
+    padding: 36px 20px;
+    gap: 18px;
+  }
+  .promo-strip-content h2 {
+    font-size: 1.5rem;
+  }
+  .promo-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .section-container {
+    padding: 40px 16px;
+  }
+  .section-title {
+    font-size: 1.55rem;
+  }
+}
 
 /* === Promo Banner === */
 .promo-banner {
   background: linear-gradient(135deg, #FFF7ED 0%, #FAF5FF 100%);
   padding: 0;
 }
+
 
 .promo-inner {
   display: grid;
@@ -1805,6 +2016,21 @@
 
 .logo:hover .animated-logo-text,
 .footer-logo:hover .animated-logo-text {
+  animation: logoRubberBand 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Image Logo Sizing & Animation */
+.logo img.brand-logo,
+.footer-logo img.brand-logo {
+  height: 44px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.logo:hover img.brand-logo,
+.footer-logo:hover img.brand-logo {
   animation: logoRubberBand 0.8s cubic-bezier(0.25, 1, 0.5, 1);
 }
 

@@ -11,15 +11,17 @@ const { initRedis, getCached, setCache, deleteCache, clearCachePattern, CACHE_KE
 const bcrypt = require('bcryptjs');
 const shiprocket = require('./shiprocketService');
 const shiprocketRouter = require('./routes/shiprocket');
+const affiliateRouter  = require('./routes/affiliate');
+const authRouter       = require('./routes/auth');
 
-// ── Rate Limiting ─────────────────────────────────────────────────────────────
+// â”€â”€ Rate Limiting â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Guard OTP endpoint: max 5 requests per IP per 15 minutes
 let rateLimit;
 try {
   rateLimit = require('express-rate-limit');
 } catch {
-  // express-rate-limit not installed — skip rate limiting (run: npm install express-rate-limit)
-  console.warn('⚠️  express-rate-limit not found. OTP endpoint is unprotected. Run: npm install express-rate-limit');
+  // express-rate-limit not installed â€” skip rate limiting (run: npm install express-rate-limit)
+  console.warn('âš ï¸  express-rate-limit not found. OTP endpoint is unprotected. Run: npm install express-rate-limit');
   rateLimit = null;
 }
 const otpLimiter = rateLimit
@@ -46,19 +48,19 @@ const razorpay = new Razorpay({
     key_secret: process.env.RAZORPAY_KEY_SECRET
 });
 
-// ── Startup validation ────────────────────────────────────────────────────
+// â”€â”€ Startup validation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 if (!process.env.JWT_SECRET) {
-  throw new Error('❌ Missing required env var: JWT_SECRET must be set in .env');
+  throw new Error('âŒ Missing required env var: JWT_SECRET must be set in .env');
 }
 const SECRET_KEY = process.env.JWT_SECRET;
 const app = express();
 const port = process.env.PORT || 3000;
 
-// ── Trust Proxy (required on Render/Heroku behind a load balancer) ──────────
+// â”€â”€ Trust Proxy (required on Render/Heroku behind a load balancer) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Fixes express-rate-limit ERR_ERL_UNEXPECTED_X_FORWARDED_FOR error
 app.set('trust proxy', 1);
 
-// ── Middleware ──────────────────────────────────────────────────────────────
+// â”€â”€ Middleware â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // CORS: allow origins listed in ALLOWED_ORIGINS env var (comma-separated).
 // In development (ALLOWED_ORIGINS not set), all origins are allowed so that
 // local file:// and localhost work out of the box.
@@ -70,14 +72,14 @@ app.use((req, res, next) => {
   const origin = req.headers.origin;
 
   if (!ALLOWED_ORIGINS) {
-    // Dev mode — no restriction
+    // Dev mode â€” no restriction
     res.header('Access-Control-Allow-Origin', '*');
   } else if (origin && ALLOWED_ORIGINS.includes(origin)) {
     // Known, explicitly allowed origin
     res.header('Access-Control-Allow-Origin', origin);
     res.header('Vary', 'Origin');
   } else if (origin) {
-    // ── BUG FIX: Unknown origin — reject with 403 instead of echoing it back.
+    // â”€â”€ BUG FIX: Unknown origin â€” reject with 403 instead of echoing it back.
     // Echoing an unknown origin would effectively whitelist every domain.
     if (req.method === 'OPTIONS') {
       // Respond to preflight so the browser receives a proper rejection
@@ -101,10 +103,32 @@ app.use((req, res, next) => {
 });
 app.use(express.json());
 app.use('/api/webhooks', shiprocketRouter);
+app.use('/', affiliateRouter);  // ← All /api/affiliate/* and /api/admin/affiliate* routes
+app.use('/', authRouter);       // ← All /api/auth/* routes
 
-// ── Serve Static Frontend & Admin Files ─────────────────────────────────────
+// ── Serve Static Frontend & Admin Files ───────────────────────────────────────────────────────
 const frontendPath = path.join(__dirname, '..', 'frontend');
 const adminPath = path.join(__dirname, '..', 'admin');
+
+// ── Protected pages: prevent browser/proxy caching ────────────────────────
+// These routes must be registered BEFORE express.static so the no-store
+// header is set on every response, ensuring logout clears the browser cache.
+const PROTECTED_PAGES = [
+  'dashboard-new.html',
+  'profile-setup.html',
+  'checkout_cod.html',
+];
+const noCacheHeaders = (req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  next();
+};
+PROTECTED_PAGES.forEach(page => {
+  app.get(`/${page}`, noCacheHeaders, (req, res) => {
+    res.sendFile(path.join(frontendPath, page));
+  });
+});
 
 app.use(express.static(frontendPath));
 app.use('/admin', express.static(adminPath));
@@ -115,10 +139,10 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(frontendPath, 'index.html'));
 });
 
-// ── Database Connection ─────────────────────────────────────────────────────
-// DB_PASSWORD is required — no insecure fallback
+// â”€â”€ Database Connection â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// DB_PASSWORD is required â€” no insecure fallback
 if (!process.env.DB_PASSWORD) {
-  throw new Error('❌ Missing required env var: DB_PASSWORD must be set in .env');
+  throw new Error('âŒ Missing required env var: DB_PASSWORD must be set in .env');
 }
 // Support DATABASE_URL (Neon/Supabase) or individual DB_* vars (local Docker)
 const pool = process.env.DATABASE_URL
@@ -132,7 +156,7 @@ const pool = process.env.DATABASE_URL
     });
 
 
-// ── Database Initialization (Tables) ────────────────────────────────────────
+// â”€â”€ Database Initialization (Tables) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function initDB() {
   let client;
   try {
@@ -210,14 +234,14 @@ async function initDB() {
     await client.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_date DATE`).catch(() => {});
     await client.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS admin_note TEXT`).catch(() => {});
 
-    // ── Shiprocket shipment columns (migration) ───────────────────────────────
+    // â”€â”€ Shiprocket shipment columns (migration) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     await client.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipment_id       VARCHAR(100)`).catch(() => {});
     await client.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS awb_number        VARCHAR(100)`).catch(() => {});
     await client.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS tracking_status   VARCHAR(50)`).catch(() => {});
     await client.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS estimated_delivery DATE`).catch(() => {});
     await client.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS courier_name      VARCHAR(100)`).catch(() => {});
 
-    // ── Affiliate System: extend existing tables ──────────────────────────────
+    // â”€â”€ Affiliate System: extend existing tables â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     await client.query(`ALTER TABLE users  ADD COLUMN IF NOT EXISTS role          VARCHAR(20)  DEFAULT 'CUSTOMER'`).catch(() => {});
     await client.query(`ALTER TABLE users  ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255)`).catch(() => {});
     await client.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS affiliate_id  INTEGER`).catch(() => {});
@@ -303,7 +327,7 @@ async function initDB() {
   }
 }
 
-// ── Database Initialization with Retry ──────────────────────────────────────
+// â”€â”€ Database Initialization with Retry â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Retries up to 5 times with exponential back-off (2s, 4s, 8s, 16s, 32s).
 // This replaces the fragile setTimeout(initDB, 2000) pattern.
 async function initDBWithRetry(retries = 5) {
@@ -313,14 +337,14 @@ async function initDBWithRetry(retries = 5) {
       return; // success
     } catch (err) {
       const wait = Math.pow(2, attempt) * 1000;
-      console.error(`DB init attempt ${attempt} failed. Retrying in ${wait / 1000}s…`, err.message);
+      console.error(`DB init attempt ${attempt} failed. Retrying in ${wait / 1000}sâ€¦`, err.message);
       if (attempt < retries) await new Promise(r => setTimeout(r, wait));
     }
   }
-  console.error('❌ DB init failed after all retries. Tables may not be ready.');
+  console.error('â Œ DB init failed after all retries. Tables may not be ready.');
 }
 
-// ── Phone Normalization Helper ───────────────────────────────────────────────
+// â”€â”€ Phone Normalization Helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Strips all non-digit characters, removes leading country code (+91/0),
 // and returns a 10-digit number string, or null for empty input.
 function normalizePhone(raw) {
@@ -339,7 +363,7 @@ function normalizePhone(raw) {
   await initRedis();
 })();
 
-// ── Auth Middleware ─────────────────────────────────────────────────────────
+// â”€â”€ Auth Middleware â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -352,7 +376,7 @@ function authenticateToken(req, res, next) {
   });
 }
 
-// ── Affiliate Auth Middleware ───────────────────────────────────────────────
+// â”€â”€ Affiliate Auth Middleware â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function authenticateAffiliate(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -365,230 +389,11 @@ function authenticateAffiliate(req, res, next) {
     next();
   });
 }
-
 // ── User Authentication Endpoints ───────────────────────────────────────────
+// All auth routes (/api/auth/*) are handled in routes/auth.js and mounted via authRouter.
 
-// Handle preflight requests for auth endpoints
-app.options('/api/auth/request-otp', cors());
-app.options('/api/auth/verify-otp', cors());
 
-// 1. Request OTP (Email Only) — rate-limited to 5 req / 15 min per IP
-app.post('/api/auth/request-otp', otpLimiter, cors(), async (req, res) => {
-  console.log('📧 Received OTP request for email:', req.body.email);
-  
-  const { email } = req.body;
-  if (!email) return res.status(400).json({ error: 'Email is required' });
-
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 min
-
-  try {
-    console.log('💾 Storing OTP in cache...');
-    
-    // Store OTP in Redis with 10-minute expiry
-    const redisOtpData = { email, otp, expires: expires.toISOString() };
-    await setCache(CACHE_KEYS.OTP(email), redisOtpData, TTL.OTP);
-    
-    // Also store in database for fallback.
-    // Before inserting, clean up any orphaned (no email) rows that share a phone
-    // number with this user to prevent false phone-uniqueness conflicts later.
-    await pool.query(`
-      INSERT INTO users (email, otp, otp_expires)
-      VALUES ($1, $2, $3)
-      ON CONFLICT (email) DO UPDATE SET otp=$2, otp_expires=$3
-    `, [email, otp, expires]);
-    
-    console.log('✅ OTP stored in Redis and database');
-
-    console.log('📧 Sending OTP to user email...');
-    // Send OTP to user's email
-    const otpSent = await sendOTP('email', email, otp);
-    
-    console.log('📧 sendOTP result:', otpSent);
-    
-    if (!otpSent) {
-      console.log('❌ OTP service failed');
-      return res.status(500).json({ error: 'Failed to send OTP. Please try again.' });
-    }
-
-    console.log('✅ OTP sent successfully');
-    // Real OTP delivery - no demo OTP returned
-    console.log(`🔐 OTP sent to email: ${email}`);
-    res.json({ 
-      success: true, 
-      message: 'OTP sent to your email'
-    });
-  } catch (err) {
-    console.error('❌ OTP request error:', err);
-    console.error('❌ Error stack:', err.stack);
-    res.status(500).json({ error: 'Failed to send OTP' });
-  }
-});
-
-// 2. Verify OTP
-app.post('/api/auth/verify-otp', cors(), async (req, res) => {
-  const { email, otp } = req.body;
-  if (!email || !otp) return res.status(400).json({ error: 'Email and OTP required' });
-
-  try {
-    // Try to get OTP from Redis cache first (faster)
-    const cachedOTP = await getCached(CACHE_KEYS.OTP(email));
-    
-    let otpData = cachedOTP;
-    
-    // Fallback to database if not in cache
-    if (!otpData) {
-      const result = await pool.query('SELECT * FROM users WHERE email=$1', [email]);
-      // Return the same error regardless of whether the email exists (prevents email enumeration)
-      if (result.rows.length === 0) return res.status(401).json({ error: 'Invalid or expired OTP' });
-      
-      const user = result.rows[0];
-      if (!user.otp || new Date() > new Date(user.otp_expires)) {
-        return res.status(401).json({ error: 'Invalid or expired OTP' });
-      }
-      
-      otpData = { email: user.email, otp: user.otp, expires: user.otp_expires };
-    }
-    
-    // Verify OTP
-    if (otpData.otp !== otp || new Date() > new Date(otpData.expires)) {
-      return res.status(401).json({ error: 'Invalid or expired OTP' });
-    }
-    
-    // Get user from database
-    const userResult = await pool.query('SELECT id, name, email, phone FROM users WHERE email=$1', [email]);
-    if (userResult.rows.length === 0) return res.status(401).json({ error: 'Invalid or expired OTP' });
-    
-    const user = userResult.rows[0];
-    
-    // Clear OTP from both Redis and database
-    await deleteCache(CACHE_KEYS.OTP(email));
-    await pool.query('UPDATE users SET otp=NULL, otp_expires=NULL WHERE id=$1', [user.id]);
-    
-    // Generate JWT
-    const token = jwt.sign({ id: user.id }, SECRET_KEY, { expiresIn: '7d' });
-
-    res.json({ token, user: { id: user.id, name: user.name, phone: user.phone, email: user.email } });
-  } catch (err) {
-    console.error('OTP verification error:', err);
-    res.status(500).json({ error: 'Verification failed' });
-  }
-});
-
-// Debug OTP endpoint removed for security.
-// Use direct DB inspection during local development only.
-
-// 3. Get User Profile (For Dashboard)
-app.get('/api/auth/me', authenticateToken, async (req, res) => {
-  try {
-    // Try cache first
-    const cachedProfile = await getCached(CACHE_KEYS.USER_PROFILE(req.user.id));
-    if (cachedProfile) {
-      return res.json(cachedProfile);
-    }
-    
-    // Fetch from database
-    const result = await pool.query('SELECT id, name, email, phone, gender, address, city, state, pincode, country, profile_completed, created_at FROM users WHERE id=$1', [req.user.id]);
-    
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-    
-    const profile = result.rows[0];
-    
-    // Cache the profile
-    await setCache(CACHE_KEYS.USER_PROFILE(req.user.id), profile, TTL.USER_PROFILE);
-    
-    res.json(profile);
-  } catch (err) {
-    console.error('Profile fetch error:', err);
-    res.status(500).json({ error: 'Server Error' });
-  }
-});
-
-// 4. Save User Profile
-app.post('/api/auth/profile', authenticateToken, async (req, res) => {
-  const { name, gender, phone, address, city, state, pincode, country } = req.body;
-  
-  try {
-    // Validate required fields
-    if (!name || !gender || !phone || !address || !city || !state || !pincode) {
-      return res.status(400).json({ error: 'All required fields must be provided' });
-    }
-
-    // Get current user's phone number
-    const currentUser = await pool.query('SELECT phone FROM users WHERE id=$1', [req.user.id]);
-    const currentPhone = currentUser.rows[0]?.phone;
-    
-    // Only check phone uniqueness if it's different from current phone
-    if (phone !== currentPhone) {
-      const phoneCheck = await pool.query('SELECT id FROM users WHERE phone=$1 AND id != $2', [phone, req.user.id]);
-      if (phoneCheck.rows.length > 0) {
-        return res.status(400).json({ error: 'Phone number is already in use by another account' });
-      }
-    }
-
-    // Update user profile
-    const result = await pool.query(`
-      UPDATE users 
-      SET name=$1, gender=$2, phone=$3, address=$4, city=$5, state=$6, pincode=$7, country=$8, profile_completed=TRUE, updated_at=NOW()
-      WHERE id=$9
-      RETURNING id, name, email, phone, gender, address, city, state, pincode, country, profile_completed
-    `, [name, gender, phone, address, city, state, pincode, country || 'India', req.user.id]);
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    // Invalidate cache for this user
-    await deleteCache(CACHE_KEYS.USER_PROFILE(req.user.id));
-
-    res.json({ 
-      success: true, 
-      message: 'Profile saved successfully',
-      user: result.rows[0]
-    });
-  } catch (err) {
-    console.error('Profile save error:', err);
-    if (err.code === '23505') {
-      // Unique constraint violation
-      res.status(400).json({ error: 'Phone number is already in use by another account' });
-    } else {
-      res.status(500).json({ error: 'Failed to save profile' });
-    }
-  }
-});
-
-// 5. Check if Profile is Completed
-app.get('/api/auth/profile-status', authenticateToken, async (req, res) => {
-  try {
-    const result = await pool.query('SELECT profile_completed FROM users WHERE id=$1', [req.user.id]);
-    
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    // Handle case where profile_completed column doesn't exist
-    const profileCompleted = result.rows[0].profile_completed !== undefined ? 
-      result.rows[0].profile_completed : false;
-
-    res.json({ 
-      profile_completed: profileCompleted 
-    });
-  } catch (err) {
-    console.error('Profile status error:', err);
-    // If column doesn't exist, assume profile is not completed
-    if (err.message && err.message.includes('column')) {
-      res.json({ 
-        profile_completed: false 
-      });
-    } else {
-      res.status(500).json({ error: 'Server Error' });
-    }
-  }
-});
-
-// ── Cart & Orders ───────────────────────────────────────────────────────────
+// â”€â”€ Cart & Orders â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 // 4. Sync Cart (Guest -> Database)
 app.post('/api/cart/sync', authenticateToken, async (req, res) => {
@@ -714,7 +519,7 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
     await deleteCache(CACHE_KEYS.USER_CART(req.user.id)).catch(() => {});
     await deleteCache(CACHE_KEYS.USER_ORDERS(req.user.id)).catch(() => {});
 
-    // ── Push to Shiprocket (outside DB transaction — non-fatal) ──────────────
+    // â”€â”€ Push to Shiprocket (outside DB transaction â€” non-fatal) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // If Shiprocket is unavailable the order is still placed successfully.
     // Admin can retry via POST /api/admin/orders/:id/push-shiprocket.
     setImmediate(async () => {
@@ -738,10 +543,10 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
         );
         // Bust the cache again so the dashboard shows the AWB immediately
         await deleteCache(CACHE_KEYS.USER_ORDERS(req.user.id)).catch(() => {});
-        console.log(`✅ Shiprocket shipment booked for order #${orderId}: AWB ${awb}`);
+        console.log(`âœ… Shiprocket shipment booked for order #${orderId}: AWB ${awb}`);
       } catch (srErr) {
-        // Non-fatal — log and move on; admin retry route can re-push
-        console.error(`⚠️  Shiprocket push failed for order #${orderId}:`, srErr.message);
+        // Non-fatal â€” log and move on; admin retry route can re-push
+        console.error(`âš ï¸  Shiprocket push failed for order #${orderId}:`, srErr.message);
       }
     });
 
@@ -755,7 +560,7 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
   }
 });
 
-// ── Admin: manually push a specific order to Shiprocket ─────────────────────
+// â”€â”€ Admin: manually push a specific order to Shiprocket â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Used when the automatic push failed (Shiprocket was down, no AWB yet).
 app.post('/api/admin/orders/:id/push-shiprocket', authenticateAdmin, async (req, res) => {
   const orderId = parseInt(req.params.id);
@@ -796,7 +601,7 @@ app.post('/api/admin/orders/:id/push-shiprocket', authenticateAdmin, async (req,
   }
 });
 
-// ── Admin: refresh tracking status directly from Shiprocket ───────────────
+// â”€â”€ Admin: refresh tracking status directly from Shiprocket â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.post('/api/admin/orders/:id/refresh-tracking', authenticateAdmin, async (req, res) => {
   const orderId = parseInt(req.params.id);
   try {
@@ -855,7 +660,7 @@ app.post('/api/admin/orders/:id/refresh-tracking', authenticateAdmin, async (req
   }
 });
 
-// ── Razorpay Payment Endpoints ───────────────────────────────────────────────
+// â”€â”€ Razorpay Payment Endpoints â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 // Create Razorpay Order
 app.post('/api/payment/create-order', authenticateToken, async (req, res) => {
@@ -1025,7 +830,7 @@ app.get('/api/orders', authenticateToken, async (req, res) => {
   }
 });
 
-// ── Server-Side Protected Checkout Route ────────────────────────────────────
+// â”€â”€ Server-Side Protected Checkout Route â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Blocks direct URL/unauthenticated access to checkout page & API
 app.get(['/checkout', '/checkout_cod.html', '/checkout.html'], (req, res) => {
   const authHeader = req.headers['authorization'];
@@ -1055,16 +860,16 @@ app.get(['/checkout', '/checkout_cod.html', '/checkout.html'], (req, res) => {
 const frontendDir = path.join(__dirname, '..', 'frontend');
 app.use(express.static(frontendDir));
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ── ADMIN API ──────────────────────────────────────────────────────────────
-// ═══════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// â”€â”€ ADMIN API â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
-// ── Admin Auth Middleware ──────────────────────────────────────────────────
+// â”€â”€ Admin Auth Middleware â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Verifies that the JWT was signed with role === 'admin'.
 function authenticateAdmin(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
-  if (!token) return res.status(401).json({ error: 'Admin access denied — no token' });
+  if (!token) return res.status(401).json({ error: 'Admin access denied â€” no token' });
 
   jwt.verify(token, SECRET_KEY, (err, decoded) => {
     if (err || decoded.role !== 'admin') {
@@ -1075,13 +880,13 @@ function authenticateAdmin(req, res, next) {
   });
 }
 
-// ── A1. Admin Login ────────────────────────────────────────────────────────
+// â”€â”€ A1. Admin Login â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Credentials MUST be set via env vars (ADMIN_USERNAME / ADMIN_PASSWORD).
-// ── BUG FIX: Removed insecure fallback defaults ('admin'/'admin123').
+// â”€â”€ BUG FIX: Removed insecure fallback defaults ('admin'/'admin123').
 // The server will refuse to start if these vars are missing (see startup check below).
 if (!process.env.ADMIN_USERNAME || !process.env.ADMIN_PASSWORD) {
   throw new Error(
-    '❌ Missing required env vars: ADMIN_USERNAME and ADMIN_PASSWORD must be set in .env'
+    'âŒ Missing required env vars: ADMIN_USERNAME and ADMIN_PASSWORD must be set in .env'
   );
 }
 
@@ -1097,7 +902,7 @@ app.post('/api/admin/login', (req, res) => {
   };
 
   if (!username || !password || !matches(username, ADMIN_USER) || !matches(password, ADMIN_PASS)) {
-    // Uniform error message — don't reveal which field is wrong.
+    // Uniform error message â€” don't reveal which field is wrong.
     return res.status(401).json({ error: 'Invalid admin credentials' });
   }
 
@@ -1105,8 +910,8 @@ app.post('/api/admin/login', (req, res) => {
   res.json({ token });
 });
 
-// ── A2. Admin Products — Grouped (read) ───────────────────────────────────
-// Returns products grouped by group_name: { trending:[…], bestsellers:[…] }
+// â”€â”€ A2. Admin Products â€” Grouped (read) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Returns products grouped by group_name: { trending:[â€¦], bestsellers:[â€¦] }
 app.get('/api/admin/products', authenticateAdmin, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM products ORDER BY id DESC');
@@ -1123,7 +928,7 @@ app.get('/api/admin/products', authenticateAdmin, async (req, res) => {
   }
 });
 
-// ── Helper: parse skills field ─────────────────────────────────────────────
+// â”€â”€ Helper: parse skills field â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function parseSkills(skills) {
   if (Array.isArray(skills)) return JSON.stringify(skills);
   if (typeof skills === 'string' && skills.trim()) {
@@ -1132,7 +937,7 @@ function parseSkills(skills) {
   return '[]';
 }
 
-// ── A3. Add Product ────────────────────────────────────────────────────────
+// â”€â”€ A3. Add Product â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.post('/api/admin/products', authenticateAdmin, async (req, res) => {
   const {
     name, group_name, price, original_price, save, age, age_group,
@@ -1172,7 +977,7 @@ app.post('/api/admin/products', authenticateAdmin, async (req, res) => {
   }
 });
 
-// ── A4. Edit Product ───────────────────────────────────────────────────────
+// â”€â”€ A4. Edit Product â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.put('/api/admin/products/:id', authenticateAdmin, async (req, res) => {
   const { id } = req.params;
   const {
@@ -1211,7 +1016,7 @@ app.put('/api/admin/products/:id', authenticateAdmin, async (req, res) => {
   }
 });
 
-// ── A5. Delete Product ─────────────────────────────────────────────────────
+// â”€â”€ A5. Delete Product â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.delete('/api/admin/products/:id', authenticateAdmin, async (req, res) => {
   const { id } = req.params;
   try {
@@ -1227,7 +1032,7 @@ app.delete('/api/admin/products/:id', authenticateAdmin, async (req, res) => {
   }
 });
 
-// ── A6. Dashboard KPIs ─────────────────────────────────────────────────────
+// â”€â”€ A6. Dashboard KPIs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get('/api/admin/dashboard', authenticateAdmin, async (req, res) => {
   try {
     const [
@@ -1287,7 +1092,7 @@ app.get('/api/admin/dashboard', authenticateAdmin, async (req, res) => {
   }
 });
 
-// ── A7. Orders — Paginated List ────────────────────────────────────────────
+// â”€â”€ A7. Orders â€” Paginated List â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get('/api/admin/orders', authenticateAdmin, async (req, res) => {
   const page   = Math.max(1, parseInt(req.query.page)  || 1);
   const limit  = Math.min(100, parseInt(req.query.limit) || 20);
@@ -1345,7 +1150,7 @@ app.get('/api/admin/orders', authenticateAdmin, async (req, res) => {
   }
 });
 
-// ── A8. Order Detail ───────────────────────────────────────────────────────
+// â”€â”€ A8. Order Detail â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get('/api/admin/orders/:id', authenticateAdmin, async (req, res) => {
   try {
     const result = await pool.query(`
@@ -1371,7 +1176,7 @@ app.get('/api/admin/orders/:id', authenticateAdmin, async (req, res) => {
   }
 });
 
-// ── A9. Update Order Status ────────────────────────────────────────────────
+// â”€â”€ A9. Update Order Status â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.put('/api/admin/orders/:id/status', authenticateAdmin, async (req, res) => {
   const { status, expected_delivery, delivery_date, admin_note } = req.body;
   if (!status) return res.status(400).json({ error: 'status is required' });
@@ -1420,11 +1225,11 @@ app.put('/api/admin/orders/:id/status', authenticateAdmin, async (req, res) => {
   }
 });
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ── AFFILIATE SYSTEM API ───────────────────────────────────────────────────
-// ═══════════════════════════════════════════════════════════════════════════
+// â”€â”€ Affiliate System API â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// All affiliate routes (partner + admin) are now in routes/affiliate.js
+// and mounted via: app.use('/', affiliateRouter)
 
-// Helper: Calculate next payout date & remaining days based on configured payout_day
+// Helper retained here for legacy internal use (e.g., admin order routes)
 async function getPayoutConfig() {
   try {
     const res = await pool.query('SELECT payout_day FROM affiliate_settings WHERE id=1');
@@ -1453,512 +1258,24 @@ async function getPayoutConfig() {
   }
 }
 
-// 1. Referral Track Endpoint (Public)
-app.get('/api/affiliate/track', async (req, res) => {
-  const { ref } = req.query;
-  if (!ref) return res.status(400).json({ error: 'Referral code is required' });
-
-  try {
-    const aff = await pool.query("SELECT id FROM affiliates WHERE affiliate_code=$1 AND status='ACTIVE'", [ref.trim()]);
-    if (aff.rows.length === 0) {
-      return res.status(404).json({ error: 'Invalid or inactive affiliate code' });
-    }
-
-    const affiliateId = aff.rows[0].id;
-    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
-    
-    await pool.query(`
-      INSERT INTO affiliate_clicks (affiliate_id, ip_address, session_id, page_url)
-      VALUES ($1, $2, $3, $4)
-    `, [affiliateId, String(ip).split(',')[0].trim(), req.headers['user-agent'] || 'browser', req.headers['referer'] || '/']);
-
-    res.json({ success: true, message: 'Click tracked successfully' });
-  } catch (err) {
-    console.error('Affiliate click track error:', err);
-    res.status(500).json({ error: 'Tracking failed' });
-  }
-});
-
-// 2. Affiliate Login
-app.post('/api/affiliate/login', async (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password) return res.status(400).json({ error: 'Email and password are required' });
-
-  try {
-    const userRes = await pool.query("SELECT * FROM users WHERE email=$1 AND role='AFFILIATE'", [email.trim().toLowerCase()]);
-    if (userRes.rows.length === 0) {
-      return res.status(401).json({ error: 'Invalid affiliate credentials' });
-    }
-
-    const user = userRes.rows[0];
-    if (!user.password_hash) {
-      return res.status(401).json({ error: 'Invalid affiliate credentials' });
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password_hash);
-    if (!isMatch) {
-      return res.status(401).json({ error: 'Invalid affiliate credentials' });
-    }
-
-    const affRes = await pool.query('SELECT * FROM affiliates WHERE user_id=$1', [user.id]);
-    if (affRes.rows.length === 0) {
-      return res.status(404).json({ error: 'Affiliate record not found' });
-    }
-
-    const aff = affRes.rows[0];
-    if (aff.status !== 'ACTIVE') {
-      return res.status(403).json({ error: 'Account is inactive. Contact admin.' });
-    }
-
-    const token = jwt.sign({
-      id: user.id,
-      affiliate_id: aff.id,
-      affiliate_code: aff.affiliate_code,
-      role: 'affiliate'
-    }, SECRET_KEY, { expiresIn: '7d' });
-
-    res.json({
-      token,
-      affiliate: {
-        id: aff.id,
-        code: aff.affiliate_code,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        commission_pct: aff.commission_pct
-      }
-    });
-  } catch (err) {
-    console.error('Affiliate login error:', err);
-    res.status(500).json({ error: 'Login failed' });
-  }
-});
-
-// 3. Get Current Affiliate Profile & Dashboard Data
-app.get('/api/affiliate/stats', authenticateAffiliate, async (req, res) => {
-  const affId = req.affiliate.affiliate_id;
-  try {
-    const [clicksRes, salesRes, walletRes, affRes, userRes, payoutConfig] = await Promise.all([
-      pool.query('SELECT COUNT(*) FROM affiliate_clicks WHERE affiliate_id=$1', [affId]),
-      pool.query("SELECT COUNT(*), COALESCE(SUM(order_amount),0) AS total_sales_val FROM commissions WHERE affiliate_id=$1 AND status!='CANCELLED'", [affId]),
-      pool.query('SELECT current_balance, total_earned FROM affiliate_wallets WHERE affiliate_id=$1', [affId]),
-      pool.query('SELECT affiliate_code, commission_pct, status, created_at FROM affiliates WHERE id=$1', [affId]),
-      pool.query('SELECT name, email, phone FROM users WHERE id=$1', [req.affiliate.id]),
-      getPayoutConfig()
-    ]);
-
-    const aff = affRes.rows[0] || {};
-    const usr = userRes.rows[0] || {};
-    const wlt = walletRes.rows[0] || { current_balance: 0, total_earned: 0 };
-
-    let affCode = aff.affiliate_code;
-    if (!affCode) {
-      affCode = 'AFF' + String(affId).padStart(3, '0');
-      await pool.query('UPDATE affiliates SET affiliate_code=$1 WHERE id=$2', [affCode, affId]).catch(() => {});
-    }
-
-    res.json({
-      affiliate: {
-        id: affId,
-        code: affCode,
-        commission_pct: parseFloat(aff.commission_pct || 20),
-        status: aff.status || 'ACTIVE',
-        name: usr.name,
-        email: usr.email,
-        phone: usr.phone,
-        created_at: aff.created_at
-      },
-      stats: {
-        totalClicks: parseInt(clicksRes.rows[0].count || 0),
-        totalSalesCount: parseInt(salesRes.rows[0].count || 0),
-        totalSalesValue: parseInt(salesRes.rows[0].total_sales_val || 0),
-        totalEarned: parseInt(wlt.total_earned || 0),
-        currentWalletBalance: parseInt(wlt.current_balance || 0),
-        nextPayoutDate: payoutConfig.nextPayoutDate,
-        daysRemaining: payoutConfig.daysRemaining
-      }
-    });
-  } catch (err) {
-    console.error('Affiliate stats error:', err);
-    res.status(500).json({ error: 'Failed to fetch affiliate stats' });
-  }
-});
-
-// 4. Get Affiliate Commissions List
-app.get('/api/affiliate/commissions', authenticateAffiliate, async (req, res) => {
-  const affId = req.affiliate.affiliate_id;
-  try {
-    const result = await pool.query(`
-      SELECT c.*, o.status AS order_status, o.total AS order_total, o.created_at AS order_date
-      FROM commissions c
-      LEFT JOIN orders o ON c.order_id = o.id
-      WHERE c.affiliate_id = $1
-      ORDER BY c.created_at DESC
-    `, [affId]);
-
-    res.json(result.rows);
-  } catch (err) {
-    console.error('Affiliate commissions fetch error:', err);
-    res.status(500).json({ error: 'Failed to fetch commissions' });
-  }
-});
-
-// 5. Get Affiliate Payouts History
-app.get('/api/affiliate/payouts', authenticateAffiliate, async (req, res) => {
-  const affId = req.affiliate.affiliate_id;
-  try {
-    const result = await pool.query(`
-      SELECT * FROM affiliate_payouts
-      WHERE affiliate_id = $1
-      ORDER BY paid_at DESC
-    `, [affId]);
-
-    res.json(result.rows);
-  } catch (err) {
-    console.error('Affiliate payouts fetch error:', err);
-    res.status(500).json({ error: 'Failed to fetch payout history' });
-  }
-});
-
-// 6. Get Payout Date Config
-app.get('/api/affiliate/payout-config', async (req, res) => {
-  const cfg = await getPayoutConfig();
-  res.json(cfg);
-});
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ── ADMIN AFFILIATE MANAGEMENT APIs ─────────────────────────────────────────
-// ═══════════════════════════════════════════════════════════════════════════
-
-// A10. Create Affiliate Account (Admin)
-app.post('/api/admin/affiliates', authenticateAdmin, async (req, res) => {
-  const { name, email, password, phone, commission_pct = 20 } = req.body;
-
-  if (!name || !email || !password) {
-    return res.status(400).json({ error: 'Name, email, and password are required' });
-  }
-
-  const client = await pool.connect();
-  try {
-    await client.query('BEGIN');
-
-    const cleanEmail = email.trim().toLowerCase();
-    const existingUser = await client.query('SELECT id, role FROM users WHERE email=$1', [cleanEmail]);
-    let userId;
-
-    const salt = await bcrypt.genSalt(10);
-    const passwordHash = await bcrypt.hash(password, salt);
-
-    // Normalize the submitted phone number (strips country code, whitespace, dashes)
-    const cleanPhone = normalizePhone(phone) || null;
-
-    if (existingUser.rows.length > 0) {
-      userId = existingUser.rows[0].id;
-      // Check if user is ALREADY an affiliate
-      const existingAff = await client.query('SELECT id FROM affiliates WHERE user_id=$1', [userId]);
-      if (existingAff.rows.length > 0) {
-        await client.query('ROLLBACK');
-        return res.status(400).json({ error: 'An affiliate account with this email already exists' });
-      }
-
-      // User exists as a customer/other role -> promote to AFFILIATE, update details & password.
-      // When updating phone, check uniqueness only against other fully-registered users
-      // (skip orphaned rows that have no email and profile_completed=false).
-      if (cleanPhone) {
-        const phoneConflict = await client.query(`
-          SELECT id FROM users 
-          WHERE phone = $1 
-            AND id != $2 
-            AND email IS NOT NULL 
-            AND profile_completed = true
-        `, [cleanPhone, userId]);
-        if (phoneConflict.rows.length > 0) {
-          await client.query('ROLLBACK');
-          return res.status(400).json({ error: 'This phone number is already registered to another account' });
-        }
-      }
-
-      await client.query(`
-        UPDATE users 
-        SET name = $1, 
-            phone = COALESCE($2, phone), 
-            role = 'AFFILIATE', 
-            password_hash = $3 
-        WHERE id = $4
-      `, [name.trim(), cleanPhone, passwordHash, userId]);
-
-    } else {
-      // New user record. Check phone uniqueness only against real accounts.
-      if (cleanPhone) {
-        const phoneConflict = await client.query(`
-          SELECT id FROM users 
-          WHERE phone = $1 
-            AND email IS NOT NULL 
-            AND profile_completed = true
-        `, [cleanPhone]);
-        if (phoneConflict.rows.length > 0) {
-          await client.query('ROLLBACK');
-          return res.status(400).json({ error: 'This phone number is already registered to another account' });
-        }
-        // Remove orphaned rows with this phone so INSERT doesn't hit the UNIQUE constraint
-        await client.query(`DELETE FROM users WHERE phone = $1 AND email IS NULL AND profile_completed = false`, [cleanPhone]);
-      }
-
-      const userRes = await client.query(`
-        INSERT INTO users (name, email, phone, role, password_hash)
-        VALUES ($1, $2, $3, 'AFFILIATE', $4)
-        RETURNING id, name, email, phone
-      `, [name.trim(), cleanEmail, cleanPhone, passwordHash]);
-
-      userId = userRes.rows[0].id;
-    }
-
-    // Insert affiliate with generated code
-    const affInsert = await client.query(`
-      INSERT INTO affiliates (user_id, affiliate_code, commission_pct, status)
-      VALUES ($1, 'TEMP', $2, 'ACTIVE')
-      RETURNING id
-    `, [userId, parseFloat(commission_pct) || 20.00]);
-
-    const affId = affInsert.rows[0].id;
-    const affCode = 'AFF' + String(affId).padStart(3, '0');
-
-    await client.query('UPDATE affiliates SET affiliate_code=$1 WHERE id=$2', [affCode, affId]);
-
-    // Initialize wallet
-    await client.query(`
-      INSERT INTO affiliate_wallets (affiliate_id, current_balance, total_earned)
-      VALUES ($1, 0, 0)
-      ON CONFLICT (affiliate_id) DO NOTHING
-    `, [affId]);
-
-    await client.query('COMMIT');
-
-    res.status(201).json({
-      success: true,
-      message: 'Affiliate created successfully',
-      affiliate: {
-        id: affId,
-        user_id: userId,
-        name,
-        email: cleanEmail,
-        phone,
-        affiliate_code: affCode,
-        commission_pct: parseFloat(commission_pct) || 20.00,
-        status: 'ACTIVE'
-      }
-    });
-
-  } catch (err) {
-    await client.query('ROLLBACK');
-    console.error('Admin create affiliate error:', err);
-    if (err.code === '23505') {
-      if (err.constraint === 'users_phone_key') {
-        return res.status(400).json({ error: 'This phone number is already registered to another account' });
-      }
-      if (err.constraint === 'users_email_key') {
-        return res.status(400).json({ error: 'This email address is already registered to another account' });
-      }
-    }
-    res.status(500).json({ error: err.message || 'Failed to create affiliate account' });
-  } finally {
-    client.release();
-  }
-});
-
-// A11. Get All Affiliates (Admin)
-app.get('/api/admin/affiliates', authenticateAdmin, async (req, res) => {
-  try {
-    const result = await pool.query(`
-      SELECT 
-        a.id, a.user_id, a.affiliate_code, a.commission_pct, a.status, a.created_at,
-        u.name, u.email, u.phone,
-        COALESCE(w.current_balance, 0) AS current_balance,
-        COALESCE(w.total_earned, 0) AS total_earned,
-        (SELECT COUNT(*) FROM affiliate_clicks WHERE affiliate_id = a.id) AS total_clicks,
-        (SELECT COUNT(*) FROM commissions WHERE affiliate_id = a.id AND status!='CANCELLED') AS total_sales
-      FROM affiliates a
-      JOIN users u ON a.user_id = u.id
-      LEFT JOIN affiliate_wallets w ON a.id = w.affiliate_id
-      ORDER BY a.id DESC
-    `);
-
-    res.json(result.rows);
-  } catch (err) {
-    console.error('Admin list affiliates error:', err);
-    res.status(500).json({ error: 'Failed to fetch affiliates' });
-  }
-});
-
-// A12. Update Affiliate (Admin)
-app.put('/api/admin/affiliates/:id', authenticateAdmin, async (req, res) => {
-  const affId = parseInt(req.params.id);
-  const { name, phone, commission_pct, status } = req.body;
-
-  try {
-    const affRes = await pool.query('SELECT user_id FROM affiliates WHERE id=$1', [affId]);
-    if (affRes.rows.length === 0) return res.status(404).json({ error: 'Affiliate not found' });
-
-    const userId = affRes.rows[0].user_id;
-
-    if (name || phone !== undefined) {
-      await pool.query('UPDATE users SET name=COALESCE($1, name), phone=COALESCE($2, phone) WHERE id=$3', [name, phone, userId]);
-    }
-
-    if (commission_pct !== undefined || status !== undefined) {
-      await pool.query(`
-        UPDATE affiliates 
-        SET commission_pct = COALESCE($1, commission_pct),
-            status         = COALESCE($2, status),
-            updated_at     = NOW()
-        WHERE id = $3
-      `, [commission_pct !== undefined ? parseFloat(commission_pct) : null, status || null, affId]);
-    }
-
-    res.json({ success: true, message: 'Affiliate updated successfully' });
-  } catch (err) {
-    console.error('Admin update affiliate error:', err);
-    res.status(500).json({ error: 'Failed to update affiliate' });
-  }
-});
-
-// A13. Get Monthly Payouts Overview (Admin)
-app.get('/api/admin/affiliate-wallets', authenticateAdmin, async (req, res) => {
-  try {
-    const [payoutConfig, walletsRes] = await Promise.all([
-      getPayoutConfig(),
-      pool.query(`
-        SELECT 
-          a.id AS affiliate_id, a.affiliate_code, a.status AS affiliate_status,
-          u.name, u.email, u.phone,
-          COALESCE(w.current_balance, 0) AS current_balance,
-          COALESCE(w.total_earned, 0) AS total_earned,
-          (SELECT MAX(paid_at) FROM affiliate_payouts WHERE affiliate_id = a.id) AS last_payout_date
-        FROM affiliates a
-        JOIN users u ON a.user_id = u.id
-        LEFT JOIN affiliate_wallets w ON a.id = w.affiliate_id
-        ORDER BY w.current_balance DESC, a.id ASC
-      `)
-    ]);
-
-    res.json({
-      payoutConfig,
-      affiliates: walletsRes.rows
-    });
-  } catch (err) {
-    console.error('Admin affiliate wallets error:', err);
-    res.status(500).json({ error: 'Failed to fetch payout wallets' });
-  }
-});
-
-// A14. Mark Affiliate As Paid (Admin Manual Payout)
-app.post('/api/admin/affiliate-payouts/:affiliateId', authenticateAdmin, async (req, res) => {
-  const affId = parseInt(req.params.affiliateId);
-  const { payment_reference, admin_note } = req.body;
-
-  const client = await pool.connect();
-  try {
-    await client.query('BEGIN');
-
-    const walletRes = await client.query('SELECT current_balance FROM affiliate_wallets WHERE affiliate_id=$1 FOR UPDATE', [affId]);
-    if (walletRes.rows.length === 0) {
-      await client.query('ROLLBACK');
-      return res.status(404).json({ error: 'Affiliate wallet not found' });
-    }
-
-    const currentBalance = parseInt(walletRes.rows[0].current_balance || 0);
-    if (currentBalance <= 0) {
-      await client.query('ROLLBACK');
-      return res.status(400).json({ error: 'Wallet balance is ₹0. Nothing to payout.' });
-    }
-
-    // 1. Create payout record
-    const payoutRes = await client.query(`
-      INSERT INTO affiliate_payouts (affiliate_id, amount, status, payment_reference, admin_note, paid_at)
-      VALUES ($1, $2, 'PAID', $3, $4, NOW())
-      RETURNING id, amount, paid_at
-    `, [affId, currentBalance, payment_reference || null, admin_note || null]);
-
-    const payout = payoutRes.rows[0];
-
-    // 2. Log transaction
-    await client.query(`
-      INSERT INTO wallet_transactions (affiliate_id, transaction_type, amount, description, reference_id)
-      VALUES ($1, 'PAYOUT', $2, $3, $4)
-    `, [affId, currentBalance, `Monthly payout recorded by admin`, payout.id]);
-
-    // 3. Reset wallet balance to 0 (total_earned remains unchanged)
-    await client.query(`
-      UPDATE affiliate_wallets
-      SET current_balance = 0, updated_at = NOW()
-      WHERE affiliate_id = $1
-    `, [affId]);
-
-    // 4. Update status of approved commissions to PAID
-    await client.query(`
-      UPDATE commissions
-      SET status = 'PAID'
-      WHERE affiliate_id = $1 AND status = 'APPROVED'
-    `, [affId]);
-
-    await client.query('COMMIT');
-
-    res.json({
-      success: true,
-      message: `Successfully paid ₹${currentBalance} to affiliate and reset wallet to ₹0`,
-      payout
-    });
-
-  } catch (err) {
-    await client.query('ROLLBACK');
-    console.error('Admin mark payout paid error:', err);
-    res.status(500).json({ error: 'Failed to process payout' });
-  } finally {
-    client.release();
-  }
-});
-
-// A15. Get All Payment History (Admin)
-app.get('/api/admin/affiliate-payouts', authenticateAdmin, async (req, res) => {
-  try {
-    const result = await pool.query(`
-      SELECT p.*, a.affiliate_code, u.name AS affiliate_name, u.email AS affiliate_email
-      FROM affiliate_payouts p
-      JOIN affiliates a ON p.affiliate_id = a.id
-      JOIN users u ON a.user_id = u.id
-      ORDER BY p.paid_at DESC
-    `);
-    res.json(result.rows);
-  } catch (err) {
-    console.error('Admin payout history error:', err);
-    res.status(500).json({ error: 'Failed to fetch payout history' });
-  }
-});
-
-// A16. Get / Update Payout Settings (Admin)
-app.get('/api/admin/affiliate-settings', authenticateAdmin, async (req, res) => {
-  const cfg = await getPayoutConfig();
-  res.json(cfg);
-});
-
-app.put('/api/admin/affiliate-settings', authenticateAdmin, async (req, res) => {
-  const { payout_day } = req.body;
-  let day = parseInt(payout_day);
-  if (isNaN(day) || day < 1 || day > 28) {
-    return res.status(400).json({ error: 'Payout day must be a number between 1 and 28' });
-  }
-  try {
-    await pool.query('UPDATE affiliate_settings SET payout_day=$1 WHERE id=1', [day]);
-    const updatedCfg = await getPayoutConfig();
-    res.json({ success: true, message: `Monthly payout day updated to ${day}st/th`, config: updatedCfg });
-  } catch (err) {
-    console.error('Update affiliate settings error:', err);
-    res.status(500).json({ error: 'Failed to update settings' });
-  }
-});
-
-// ── Startup ─────────────────────────────────────────────────────────────────
+// â”€â”€ (Affiliate API routes moved to routes/affiliate.js) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// The following routes are handled by affiliateRouter:
+//   GET  /api/affiliate/track
+//   POST /api/affiliate/login
+//   GET  /api/affiliate/stats
+//   GET  /api/affiliate/commissions
+//   GET  /api/affiliate/payouts
+//   GET  /api/affiliate/payout-config
+//   POST /api/admin/affiliates
+//   GET  /api/admin/affiliates
+//   PUT  /api/admin/affiliates/:id
+//   GET  /api/admin/affiliate-wallets
+//   POST /api/admin/affiliate-payouts/:affiliateId
+//   GET  /api/admin/affiliate-payouts
+//   GET  /api/admin/affiliate-settings
+//   PUT  /api/admin/affiliate-settings
+// â”€â”€ Startup â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.listen(port, '0.0.0.0', () => {
-  console.log(`🚀 BrainyGrasp API running on http://localhost:${port}`);
-  console.log(`🌐 Accessible from network devices at http://0.0.0.0:${port}`);
+  console.log(`ðŸš€ BrainyGrasp API running on http://localhost:${port}`);
+  console.log(`ðŸŒ Accessible from network devices at http://0.0.0.0:${port}`);
 });

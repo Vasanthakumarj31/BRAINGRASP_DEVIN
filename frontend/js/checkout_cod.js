@@ -430,18 +430,72 @@ document.addEventListener('DOMContentLoaded', async () => {
     r.addEventListener('change', () => { clearMsg(); updatePayBtn(); });
   });
 
-  // 5. Place Order button
+  // 5. Place Order button - Shows confirmation modal for COD
   document.getElementById('btnPlaceOrder').addEventListener('click', async () => {
     clearMsg();
     const method = currentPayMethod();
 
+    const addr = getAddress();
+    if (!validateAddress(addr)) return;
+
     if (method === 'cod') {
-      const orderId = await placeOrder(token, 'cod');
-      if (orderId) showSuccess(orderId, '🏠 Pay cash when your order arrives at your door.');
+      // Show confirmation dialog before booking
+      const namePhone = `${addr.name} (${addr.phone})`;
+      const fullAddress = `${addr.line1}, ${addr.city}, ${addr.state} - ${addr.pincode}`;
+      
+      const elName = document.getElementById('confirmNamePhone');
+      const elAddr = document.getElementById('confirmAddressLine');
+      const elTotal = document.getElementById('confirmTotalPayable');
+      const elOverlay = document.getElementById('confirmOverlay');
+
+      if (elName) elName.textContent = namePhone;
+      if (elAddr) elAddr.textContent = fullAddress;
+      if (elTotal) elTotal.textContent = `₹${activeTotal}`;
+      if (elOverlay) elOverlay.style.display = 'flex';
     } else {
       await startRazorpay(token);
     }
   });
+
+  // Modal Cancel listener
+  const cancelBtn = document.getElementById('btnCancelConfirm');
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', () => {
+      const elOverlay = document.getElementById('confirmOverlay');
+      if (elOverlay) elOverlay.style.display = 'none';
+    });
+  }
+
+  // Backdrop click listener
+  const confirmOverlayEl = document.getElementById('confirmOverlay');
+  if (confirmOverlayEl) {
+    confirmOverlayEl.addEventListener('click', (e) => {
+      if (e.target === confirmOverlayEl) {
+        confirmOverlayEl.style.display = 'none';
+      }
+    });
+  }
+
+  // Modal Final Confirm listener
+  const finalConfirmBtn = document.getElementById('btnFinalConfirmOrder');
+  if (finalConfirmBtn) {
+    finalConfirmBtn.addEventListener('click', async () => {
+      const elOverlay = document.getElementById('confirmOverlay');
+      
+      finalConfirmBtn.disabled = true;
+      finalConfirmBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Confirming...';
+
+      const orderId = await placeOrder(token, 'cod');
+      
+      finalConfirmBtn.disabled = false;
+      finalConfirmBtn.innerHTML = '<i class="fas fa-check-circle"></i> Confirm Order';
+
+      if (elOverlay) elOverlay.style.display = 'none';
+      if (orderId) {
+        showSuccess(orderId, '🏠 Pay cash when your order arrives at your door.');
+      }
+    });
+  }
 
   // 6. Live form validation feedback
   ['codPhone', 'newPhone'].forEach(id => {

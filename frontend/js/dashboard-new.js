@@ -4,99 +4,135 @@
 
 const API_BASE = (window.BG_CONFIG && window.BG_CONFIG.API_BASE) || 'http://localhost:3000';
 
-// 1. Initial Load & Auth check
-const checkAuth = () => {
-    if (!localStorage.getItem('bg_token')) window.location.href = 'login.html';
-};
+// ── 1. Auth helpers ──────────────────────────────────────────
+function clearAuthAndRedirect() {
+    localStorage.removeItem('bg_token');
+    localStorage.removeItem('bg_user');
+    localStorage.removeItem('bg_cart');
+    localStorage.removeItem('redirectAfterLogin');
+    localStorage.removeItem('postProfileRedirect');
+    // Use replace() so the dashboard is removed from browser history.
+    // The Back button will skip over it and cannot return to this page.
+    window.location.replace('login.html');
+}
 
+function checkAuth() {
+    if (!localStorage.getItem('bg_token')) {
+        // Hide page body immediately — prevents any flash of protected UI
+        document.body.style.visibility = 'hidden';
+        clearAuthAndRedirect();
+        return false;
+    }
+    return true;
+}
+
+// ── 2. Load profile + orders from API ───────────────────────
 async function loadData() {
     try {
         const token = localStorage.getItem('bg_token');
+        if (!token) { clearAuthAndRedirect(); return; }
+
         const res = await fetch(`${API_BASE}/api/auth/me`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
+
+        if (res.status === 401 || res.status === 403) {
+            console.warn('Authentication token expired or invalid');
+            clearAuthAndRedirect();
+            return;
+        }
+
+        if (!res.ok) throw new Error(`Profile fetch failed (${res.status})`);
+
         const user = await res.json();
-        
-        // Update dashboard header with user's first name
+
+        // Update welcome header
         const dashTitle = document.getElementById('dashboardWelcomeTitle');
-        const dashSub = document.getElementById('dashboardWelcomeSub');
+        const dashSub   = document.getElementById('dashboardWelcomeSub');
         if (dashTitle && user.name) dashTitle.textContent = `Welcome back, ${user.name.split(' ')[0]}! 👋`;
-        if (dashSub) dashSub.textContent = `Manage your profile and track your orders`;
+        if (dashSub) dashSub.textContent = 'Manage your profile and track your orders';
 
-        // Update profile UI
-        document.getElementById('profileName').textContent = user.name || 'User';
-        document.getElementById('profileEmail').textContent = user.email;
-        document.getElementById('profilePhone').textContent = user.phone || 'Not set';
-        document.getElementById('profileCity').textContent = user.city || 'Not set';
-        document.getElementById('profileState').textContent = user.state || 'Not set';
-        document.getElementById('profileAvatar').textContent = user.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2) : 'U';
+        // Update profile card
+        const nameEl   = document.getElementById('profileName');
+        const emailEl  = document.getElementById('profileEmail');
+        const phoneEl  = document.getElementById('profilePhone');
+        const avatarEl = document.getElementById('profileAvatar');
 
+        if (nameEl)   nameEl.textContent   = user.name  || 'User';
+        if (emailEl)  emailEl.textContent  = user.email || 'Not set';
+        if (phoneEl)  phoneEl.textContent  = user.phone || 'Not set';
+        if (avatarEl) avatarEl.textContent = user.name
+            ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+            : 'U';
+
+        // Location — gracefully handle missing city/state
+        const locationEl = document.getElementById('profileLocation');
+        if (locationEl) {
+            const parts = [user.city, user.state].filter(Boolean);
+            locationEl.textContent = parts.length ? parts.join(', ') : 'Not set';
+        }
+
+        // Cache user in localStorage for modal pre-fill
         localStorage.setItem('bg_user', JSON.stringify(user));
 
-        // Load orders
         await loadOrders(token);
     } catch (err) {
-        console.error("Data fetch failed", err);
-        showToast('Failed to load profile', 'error');
+        console.error('Data fetch failed', err);
+        showToast('Failed to load profile data', 'error');
     }
 }
 
+// ── 3. Load & render orders ──────────────────────────────────
 async function loadOrders(token) {
     try {
         const res = await fetch(`${API_BASE}/api/orders`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        
-        if (!res.ok) throw new Error('Failed to fetch orders');
-        
+
+        if (res.status === 401 || res.status === 403) { clearAuthAndRedirect(); return; }
+        if (!res.ok) throw new Error(`Failed to fetch orders (${res.status})`);
+
         const orders = await res.json();
-        
-        // Separate orders by status
-        const currentOrders = orders.filter(o => o.status && o.status !== 'Delivered');
-        const historyOrders = orders.filter(o => o.status === 'Delivered' || !o.status);
+        if (!Array.isArray(orders)) throw new Error('Invalid orders format received');
+
+        const terminalStatuses = ['delivered', 'cancelled', 'rto', 'returned'];
+        const currentOrders = orders.filter(o => !terminalStatuses.includes((o.status || '').toLowerCase()));
+        const historyOrders = orders.filter(o =>  terminalStatuses.includes((o.status || '').toLowerCase()));
 
         renderOrders(currentOrders, 'current');
         renderOrders(historyOrders, 'history');
     } catch (err) {
         console.error('Orders fetch error:', err);
-        document.getElementById('currentOrdersList').innerHTML = '<p style="color:#999;">Unable to load orders. Please try again later.</p>';
-        document.getElementById('historyOrdersList').innerHTML = '<p style="color:#999;">Unable to load order history. Please try again later.</p>';
+        document.getElementById('currentOrdersList').innerHTML =
+            '<p style="color:#999;text-align:center;padding:20px;">Unable to load orders. Please try again later.</p>';
+        document.getElementById('historyOrdersList').innerHTML =
+            '<p style="color:#999;text-align:center;padding:20px;">Unable to load order history. Please try again later.</p>';
     }
 }
 
 function renderTrackingBar(order) {
     if (order.status === 'Cancelled' || order.status === 'RTO') {
         return `
-            <div class="tracking-container" style="background:#fff5f5; border-color:#feb2b2;">
-                <div style="color:#c53030; font-weight:700; font-size:0.85rem;">
+            <div class="tracking-container" style="background:#fff5f5;border-color:#feb2b2;">
+                <div style="color:#c53030;font-weight:700;font-size:0.85rem;">
                     <i class="fas fa-exclamation-circle"></i> Status: ${order.status}
                 </div>
-            </div>
-        `;
+            </div>`;
     }
 
     const stages = [
-        { key: 'Placed', label: 'Placed', icon: 'fa-shopping-cart' },
-        { key: 'Confirmed', label: 'Confirmed', icon: 'fa-check' },
-        { key: 'Shipped', label: 'Shipped', icon: 'fa-truck' },
-        { key: 'Out for Delivery', label: 'Out for Delivery', icon: 'fa-shipping-fast' },
-        { key: 'Delivered', label: 'Delivered', icon: 'fa-box-open' }
+        { label: 'Placed',           icon: 'fa-shopping-cart' },
+        { label: 'Confirmed',        icon: 'fa-check' },
+        { label: 'Shipped',          icon: 'fa-truck' },
+        { label: 'Out for Delivery', icon: 'fa-shipping-fast' },
+        { label: 'Delivered',        icon: 'fa-box-open' }
     ];
-
-    const statusMap = {
-        'placed': 0,
-        'paid': 0,
-        'confirmed': 1,
-        'shipped': 2,
-        'out for delivery': 3,
-        'delivered': 4
-    };
-
-    const currentStatusKey = (order.status || 'placed').toLowerCase();
-    const activeIndex = statusMap[currentStatusKey] !== undefined ? statusMap[currentStatusKey] : 0;
+    const statusMap = { placed: 0, paid: 0, confirmed: 1, shipped: 2, 'out for delivery': 3, delivered: 4 };
+    const activeIndex   = statusMap[(order.status || 'placed').toLowerCase()] ?? 0;
     const progressWidth = activeIndex === 0 ? 0 : (activeIndex / (stages.length - 1)) * 100;
-
-    const estDelivery = order.estimated_delivery ? new Date(order.estimated_delivery).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) : null;
+    const estDelivery   = order.estimated_delivery
+        ? new Date(order.estimated_delivery).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })
+        : null;
 
     return `
         <div class="tracking-container">
@@ -104,87 +140,70 @@ function renderTrackingBar(order) {
                 <span><strong>Tracking:</strong> ${order.tracking_status || order.status || 'Processing'}</span>
                 ${estDelivery ? `<span><i class="fas fa-clock"></i> Est. Delivery: <strong>${estDelivery}</strong></span>` : ''}
             </div>
-            
             <div class="tracking-steps">
-                <div class="tracking-progress-line" style="width: calc(${progressWidth}% - 20px);"></div>
+                <div class="tracking-progress-line" style="width:calc(${progressWidth}% - 20px);"></div>
                 ${stages.map((stage, idx) => {
-                    let cls = '';
-                    if (idx < activeIndex) cls = 'completed';
-                    else if (idx === activeIndex) cls = 'active';
-                    return `
-                        <div class="tracking-step ${cls}">
-                            <div class="step-icon"><i class="fas ${stage.icon}"></i></div>
-                            <div class="step-label">${stage.label}</div>
-                        </div>
-                    `;
+                    const cls = idx < activeIndex ? 'completed' : idx === activeIndex ? 'active' : '';
+                    return `<div class="tracking-step ${cls}">
+                        <div class="step-icon"><i class="fas ${stage.icon}"></i></div>
+                        <div class="step-label">${stage.label}</div>
+                    </div>`;
                 }).join('')}
             </div>
-
             ${order.awb_number ? `
                 <div class="tracking-meta">
                     <span><i class="fas fa-barcode"></i> AWB: <strong>${order.awb_number}</strong></span>
                     ${order.courier_name ? `<span><i class="fas fa-shipping-fast"></i> Courier: <strong>${order.courier_name}</strong></span>` : ''}
-                </div>
-            ` : ''}
-        </div>
-    `;
+                </div>` : ''}
+        </div>`;
 }
 
 function renderOrders(orders, type) {
-    const container = type === 'current' ? document.getElementById('currentOrdersList') : document.getElementById('historyOrdersList');
-    
+    const container = document.getElementById(type === 'current' ? 'currentOrdersList' : 'historyOrdersList');
+
     if (!orders || orders.length === 0) {
-        container.innerHTML = `<p style="color: var(--text-light); text-align: center; padding: 30px 0;">
-            <i class="fas fa-inbox" style="font-size: 2rem; color: #ccc; display: block; margin-bottom: 10px;"></i>
+        container.innerHTML = `<p style="color:var(--text-light);text-align:center;padding:30px 0;">
+            <i class="fas fa-inbox" style="font-size:2rem;color:#ccc;display:block;margin-bottom:10px;"></i>
             No ${type === 'current' ? 'current' : 'past'} orders yet.
         </p>`;
         return;
     }
 
     container.innerHTML = orders.map(order => {
-        const items = order.items ? (typeof order.items === 'string' ? JSON.parse(order.items) : order.items) : [];
+        const items      = order.items ? (typeof order.items === 'string' ? JSON.parse(order.items) : order.items) : [];
         const statusClass = getStatusClass(order.status);
-        const statusText = order.status || 'Pending';
-        const orderDate = new Date(order.created_at).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
-        
+        const orderDate  = new Date(order.created_at).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
+
         return `
             <div class="order-card">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
                     <div>
                         <div class="order-id">
                             Order #${order.id}
-                            <span class="order-status ${statusClass}">${statusText}</span>
+                            <span class="order-status ${statusClass}">${order.status || 'Pending'}</span>
                         </div>
-                        <div class="order-date">
-                            <i class="fas fa-calendar-alt"></i> ${orderDate}
-                        </div>
+                        <div class="order-date"><i class="fas fa-calendar-alt"></i> ${orderDate}</div>
                     </div>
-                    <div style="text-align: right;">
-                        <div style="font-size: 1.2rem; font-weight: 800; color: #333;">₹${order.total || 0}</div>
-                        <div style="font-size: 0.8rem; color: #999;">${items.length} item${items.length !== 1 ? 's' : ''}</div>
+                    <div style="text-align:right;">
+                        <div style="font-size:1.2rem;font-weight:800;color:#333;">₹${order.total || 0}</div>
+                        <div style="font-size:0.8rem;color:#999;">${items.length} item${items.length !== 1 ? 's' : ''}</div>
                     </div>
                 </div>
-                
                 <div class="order-items">
                     ${items.map(item => `
                         <div class="order-item-line">
-                            ${item.name} <span style="color: #999;">x${item.quantity || 1}</span> - <strong>₹${item.price}</strong>
-                        </div>
-                    `).join('')}
+                            ${item.name} <span style="color:#999;">x${item.quantity || 1}</span> - <strong>₹${item.price}</strong>
+                        </div>`).join('')}
                 </div>
-
                 ${renderTrackingBar(order)}
-
                 ${order.full_name ? `
-                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #ddd; font-size: 0.85rem; color: #666;">
-                    <i class="fas fa-map-marker-alt" style="color: #667eea;"></i>
+                <div style="margin-top:12px;padding-top:12px;border-top:1px solid #ddd;font-size:0.85rem;color:#666;">
+                    <i class="fas fa-map-marker-alt" style="color:#667eea;"></i>
                     <strong>${order.full_name}</strong><br>
                     ${order.line1}${order.line2 ? ', ' + order.line2 : ''}<br>
                     ${order.city}, ${order.state} - ${order.pincode}
-                </div>
-                ` : ''}
-            </div>
-        `;
+                </div>` : ''}
+            </div>`;
     }).join('');
 }
 
@@ -196,50 +215,44 @@ function getStatusClass(status) {
 }
 
 function switchOrderTab(tab) {
-    // Update tab buttons
     document.querySelectorAll('.order-tab').forEach(btn => {
-        btn.style.color = '#b2bec3';
+        btn.style.color       = '#b2bec3';
         btn.style.borderBottom = 'none';
     });
     const activeBtn = document.querySelector(`[data-tab="${tab}"]`);
     if (activeBtn) {
-        activeBtn.style.color = '#667eea';
+        activeBtn.style.color       = '#667eea';
         activeBtn.style.borderBottom = '3px solid #667eea';
     }
-
-    // Update sections
-    if (tab === 'current') {
-        document.getElementById('currentOrdersSection').style.display = 'block';
-        document.getElementById('historyOrdersSection').style.display = 'none';
-    } else {
-        document.getElementById('currentOrdersSection').style.display = 'none';
-        document.getElementById('historyOrdersSection').style.display = 'block';
-    }
+    document.getElementById('currentOrdersSection').style.display = tab === 'current' ? 'block' : 'none';
+    document.getElementById('historyOrdersSection').style.display = tab === 'history' ? 'block' : 'none';
 }
 
-// 2. Toast helper
+// ── 4. Toast ─────────────────────────────────────────────────
 function showToast(message, type = 'success') {
     const toast = document.getElementById('dashToast');
     toast.textContent = message;
-    toast.className = `toast ${type} show`;
+    toast.className   = `toast ${type} show`;
     setTimeout(() => toast.classList.remove('show'), 3500);
 }
 
-// 3. Modal Controls
+// ── 5. Edit Profile Modal ────────────────────────────────────
 const modal = document.getElementById('profileEditModal');
 
 const openModal = () => {
     const user = JSON.parse(localStorage.getItem('bg_user')) || {};
 
-    // Pre-fill all fields
+    // Pre-fill all editable fields
     document.getElementById('editName').value    = user.name    || '';
+    document.getElementById('editEmail').value   = user.email   || '';   // read-only display
     document.getElementById('editPhone').value   = user.phone   || '';
     document.getElementById('editAddress').value = user.address || '';
     document.getElementById('editCity').value    = user.city    || '';
     document.getElementById('editState').value   = user.state   || '';
     document.getElementById('editPincode').value = user.pincode || '';
 
-    // Set gender radio
+    // Restore gender radio
+    document.querySelectorAll('input[name="gender"]').forEach(r => r.checked = false);
     if (user.gender) {
         const radio = document.querySelector(`input[name="gender"][value="${user.gender}"]`);
         if (radio) radio.checked = true;
@@ -249,64 +262,93 @@ const openModal = () => {
     document.getElementById('editName').focus();
 };
 
-const closeModal = () => modal.style.display = 'none';
+const closeModal = () => {
+    modal.style.display = 'none';
+};
 
-// Close on backdrop click
 function handleModalBackdrop(e) {
     if (e.target === modal) closeModal();
 }
 
-// 4. Form Submission
+// ── 6. Save Profile ──────────────────────────────────────────
 document.getElementById('profileEditForm').onsubmit = async (e) => {
     e.preventDefault();
-    const saveBtn = document.getElementById('saveProfileBtn');
-    saveBtn.disabled = true;
-    saveBtn.textContent = 'Saving...';
 
-    const formData = Object.fromEntries(new FormData(e.target));
+    const saveBtn = document.getElementById('saveProfileBtn');
+    saveBtn.disabled  = true;
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+    // Collect form data — exclude disabled fields (email won't be sent)
+    const rawData = Object.fromEntries(new FormData(e.target));
 
     try {
-        const res = await fetch(`${API_BASE}/api/auth/profile`, {
+        // Try PUT first (updated server); fall back to POST for compatibility
+        let res = await fetch(`${API_BASE}/api/auth/profile`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${localStorage.getItem('bg_token')}`
             },
-            body: JSON.stringify(formData)
+            body: JSON.stringify(rawData)
         });
+
+        // If server doesn't know PUT yet (needs restart), retry as POST
+        if (res.status === 404 || res.status === 405) {
+            res = await fetch(`${API_BASE}/api/auth/profile`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('bg_token')}`
+                },
+                body: JSON.stringify(rawData)
+            });
+        }
 
         const data = await res.json();
 
         if (res.ok && data.success) {
-            // Update cached user
+            // Cache the updated user
             if (data.user) localStorage.setItem('bg_user', JSON.stringify(data.user));
+
+            // Close modal first, then refresh UI
             closeModal();
             await loadData();
-            showToast('✅ Profile updated successfully!');
+            showToast('✅ Profile updated successfully!', 'success');
         } else {
-            showToast(data.error || 'Update failed. Please try again.', 'error');
+            // Keep modal open — show error
+            const errMsg = data.error || 'Update failed. Please check your details and try again.';
+            showToast(`❌ ${errMsg}`, 'error');
         }
     } catch (err) {
         console.error('Profile update error:', err);
         showToast('❌ Server error. Please try again.', 'error');
     } finally {
-        saveBtn.disabled = false;
-        saveBtn.textContent = '💾 Save Changes';
+        saveBtn.disabled  = false;
+        saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
     }
 };
 
-// Event Listeners
+// ── 7. Event Listeners ───────────────────────────────────────
 document.getElementById('editProfileBtn').onclick = openModal;
-document.getElementById('refreshBtn').onclick = loadData;
-document.getElementById('logoutBtn').onclick = () => {
-    localStorage.removeItem('bg_token');
-    localStorage.removeItem('bg_user');
-    localStorage.removeItem('bg_cart');
-    localStorage.removeItem('redirectAfterLogin');
-    localStorage.removeItem('postProfileRedirect');
-    window.location.href = 'index.html';
-};
+document.getElementById('logoutBtn').onclick = () => clearAuthAndRedirect();
 
-// Run
-checkAuth();
-loadData();
+// ── 8. Init ──────────────────────────────────────────────────
+// Run auth check immediately on normal page load
+if (checkAuth()) {
+    loadData();
+}
+
+// ── 9. bfcache Guard (Back/Forward button fix) ───────────────
+// The browser's back-forward cache (bfcache) restores pages from memory
+// without re-running the load event. The 'pageshow' event fires in both
+// cases. When event.persisted is true, the page was restored from bfcache
+// — we must re-run the auth check to prevent showing protected content.
+window.addEventListener('pageshow', (event) => {
+    if (event.persisted) {
+        // Page was restored from bfcache (browser Back/Forward)
+        // Re-check auth — if no token, redirect immediately
+        if (!checkAuth()) return;
+        // Token present but may have been invalidated — reload to be safe
+        loadData();
+    }
+});

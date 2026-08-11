@@ -42,18 +42,21 @@ body {
 /* ── Sidebar ─────────────────────────────────────────────────────────────── */
 .sidebar {
   width: 230px;
-  min-height: 100vh;
+  height: 100vh;
   background: var(--surface);
   border-right: 1px solid var(--border);
   padding: 24px 16px;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 24px;
   position: sticky;
   top: 0;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
-.logo {
+.logo,
+.sidebar-logo {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -67,13 +70,18 @@ body {
   font-size: 1.4rem;
 }
 
-.sidebar nav {
+.sidebar nav,
+.sidebar .sidebar-nav {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
-.sidebar nav a {
+.sidebar nav a,
+.sidebar .sidebar-nav a {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -86,12 +94,15 @@ body {
 }
 
 .sidebar nav a:hover,
-.sidebar nav a.active {
+.sidebar nav a.active,
+.sidebar .sidebar-nav a:hover,
+.sidebar .sidebar-nav a.active {
   background: rgba(108, 99, 255, .15);
   color: var(--text);
 }
 
-.sidebar nav a.active {
+.sidebar nav a.active,
+.sidebar .sidebar-nav a.active {
   color: var(--accent);
   font-weight: 600;
 }
@@ -100,12 +111,14 @@ body {
   font-size: 1rem;
 }
 
-.logout-link {
-  margin-top: auto;
+.logout-link,
+.logout {
+  margin-top: auto !important;
   color: var(--red) !important;
 }
 
-.logout-link:hover {
+.logout-link:hover,
+.logout:hover {
   background: rgba(239, 68, 68, .12) !important;
 }
 

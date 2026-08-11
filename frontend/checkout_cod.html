@@ -199,23 +199,51 @@
     .order-id-pill{display:inline-block;background:#f0fff8;border:1.5px solid var(--green);
       color:var(--green-dark);padding:8px 20px;border-radius:50px;
       font-weight:800;font-size:.95rem;margin:12px 0}
-    .success-pay-note{color:var(--green-dark);font-weight:700;font-size:.9rem;margin-top:6px}
-    .redirect-note{font-size:.75rem;color:var(--muted);margin-top:16px;
+    .success-pay-note{color:var(--green-dark);font-weight:700;font-size:.9rem;margin-top:6px}    .redirect-note{font-size:.75rem;color:var(--muted);margin-top:16px;
       display:flex;align-items:center;justify-content:center;gap:6px}
     .redirect-bar{height:3px;background:var(--border);border-radius:3px;margin-top:10px;overflow:hidden}
     .redirect-bar-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--green));
       width:0;transition:width 3s linear}
 
+    /* -- CONFIRM OVERLAY -- */
+    .confirm-overlay{position:fixed;inset:0;background:rgba(20,25,40,.75);
+      display:none;justify-content:center;align-items:center;z-index:9998;
+      backdrop-filter:blur(6px)}
+    .confirm-box{background:var(--white);border-radius:24px;padding:32px 28px;
+      text-align:left;max-width:480px;width:92%;
+      box-shadow:0 24px 72px rgba(0,0,0,.25);animation:popIn .3s cubic-bezier(.34,1.56,.64,1);
+      max-height:90vh;overflow-y:auto}
+    .confirm-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;
+      border-bottom:1px solid var(--border);padding-bottom:12px}
+    .confirm-header i{font-size:1.6rem;color:var(--primary)}
+    .confirm-header h3{font-family:'Fredoka';font-size:1.35rem;color:var(--text);margin:0}
+    .confirm-details{background:#f8f9fa;border:1px solid var(--border);border-radius:12px;
+      padding:16px;margin-bottom:18px;font-size:0.88rem}
+    .confirm-row{display:flex;justify-content:space-between;margin-bottom:8px;align-items:center}
+    .confirm-row:last-child{margin-bottom:0}
+    .confirm-label{color:var(--muted);font-weight:600}
+    .confirm-val{font-weight:800;color:var(--text);text-align:right}
+    .confirm-actions{display:flex;gap:12px;margin-top:20px}
+    .btn-confirm-final{flex:2;padding:14px;border:none;border-radius:12px;
+      background:linear-gradient(135deg,var(--green-dark),var(--green));
+      color:#fff;font-family:inherit;font-size:0.98rem;font-weight:800;
+      cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+      transition:all 0.2s ease}
+    .btn-confirm-final:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,184,148,0.4)}
+    .btn-confirm-cancel{flex:1;padding:14px;border:1.5px solid var(--border);border-radius:12px;
+      background:#f8f9fa;color:var(--muted);font-family:inherit;font-size:0.88rem;
+      font-weight:700;cursor:pointer;text-align:center;transition:all 0.2s ease}
+    .btn-confirm-cancel:hover{background:#edf2f7;color:var(--text)}
+
     /* -- RESPONSIVE -- */
     @media(max-width:600px){
       .card{padding:18px}
-      .success-box{padding:30px 20px}
+      .success-box,.confirm-box{padding:26px 18px}
       .payment-grid{grid-template-columns:1fr 1fr}
     }
   </style>
   <link rel="stylesheet" href="css/mobile-responsive.css">
   <link rel="stylesheet" href="css/policy-mobile.css">
-  <link rel="stylesheet" href="css/mobile-master.css">
 </head>
 <body>
 
@@ -223,7 +251,7 @@
 <header class="co-header">
   <a href="javascript:history.back()"><i class="fas fa-arrow-left"></i> Back</a>
   <a href="index.html" style="text-decoration: none; display: flex; align-items: center; gap: 8px; margin: 0 auto;">
-    <span class="animated-logo-text" style="font-family: 'Chewy', cursive; font-size: 30px; color: #4280ca; letter-spacing: 0.5px;">brainy<span style="color: #ffc107;">grasp</span></span>
+    <img src="images/logo.jpeg" alt="BrainyGrasp Logo" class="brand-logo" style="height: 40px;">
   </a>
   <a href="index.html"><i class="fas fa-home"></i> Shop</a>
 </header>
@@ -404,7 +432,7 @@
       <div id="coItems">
         <div class="empty-cart">
           <i class="fas fa-shopping-bag"></i>
-          <p>Loading your cart�</p>
+          <p>Loading your cart...</p>
         </div>
       </div>
 
@@ -419,15 +447,59 @@
 
 </div><!-- /layout -->
 
+<!-- CONFIRMATION OVERLAY (COD) -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-header">
+      <i class="fas fa-clipboard-check"></i>
+      <h3>Confirm Your Order</h3>
+    </div>
+    <p style="color:var(--muted); font-size:0.88rem; margin-bottom:16px;">
+      Please review your delivery details and order summary before booking your Cash on Delivery order.
+    </p>
+
+    <div class="confirm-details">
+      <div class="confirm-row">
+        <span class="confirm-label">Payment Method:</span>
+        <span class="confirm-val" id="confirmPayMethod">Cash on Delivery</span>
+      </div>
+      <div class="confirm-row">
+        <span class="confirm-label">Deliver To:</span>
+        <span class="confirm-val" id="confirmNamePhone"></span>
+      </div>
+      <div style="font-size:0.84rem; color:var(--muted); margin:4px 0 10px 0; line-height:1.4;" id="confirmAddressLine"></div>
+      
+      <div style="border-top:1px dashed var(--border); margin:10px 0; padding-top:10px;">
+        <div class="confirm-row" style="font-size:1.05rem;">
+          <span class="confirm-label" style="color:var(--text); font-weight:700;">Total Amount:</span>
+          <span class="confirm-val" style="color:var(--orange); font-size:1.15rem;" id="confirmTotalPayable">₹0</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cod-info" style="margin-bottom:18px;">
+      <i class="fas fa-info-circle"></i>
+      <span>Pay exact cash to the courier agent when your order arrives.</span>
+    </div>
+
+    <div class="confirm-actions">
+      <button type="button" class="btn-confirm-cancel" id="btnCancelConfirm">Cancel</button>
+      <button type="button" class="btn-confirm-final" id="btnFinalConfirmOrder">
+        <i class="fas fa-check-circle"></i> Confirm Order
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- SUCCESS OVERLAY -->
 <div class="success-overlay" id="successOverlay">
   <div class="success-box">
     <div class="success-lottie"><i class="fas fa-check-circle" style="font-size: 3rem; color: #00b894;"></i></div>
     <h2>Order Confirmed!</h2>
     <p>Your BrainyGrasp order is placed successfully.</p>
-    <div class="order-id-pill" id="successOrderId">Order #�</div>
+    <div class="order-id-pill" id="successOrderId">Order #...</div>
     <p class="success-pay-note" id="successPayNote"></p>
-    <p class="redirect-note"><i class="fas fa-circle-notch fa-spin"></i> Redirecting to dashboard�</p>
+    <p class="redirect-note"><i class="fas fa-circle-notch fa-spin"></i> Redirecting to dashboard...</p>
     <div class="redirect-bar"><div class="redirect-bar-fill" id="redirectFill"></div></div>
   </div>
 </div>
