@@ -34,43 +34,11 @@ const pool = process.env.DATABASE_URL
       port:     parseInt(process.env.DB_PORT) || 5432,
     });
 
-// Auth Middleware
-function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-  if (!token) return res.status(401).json({ error: "Access Denied" });
+const { authenticateToken } = require('../middleware/auth');
 
-  jwt.verify(token, SECRET_KEY, (err, user) => {
-    if (err) return res.status(403).json({ error: "Invalid Token" });
-    req.user = user;
-    next();
-  });
-}
 
-// Pass-through rate limiter setup (received from app if needed, or express fallback)
-let rateLimit;
-try {
-  rateLimit = require('express-rate-limit');
-} catch {
-  rateLimit = null;
-}
-const otpLimiter = rateLimit
-  ? rateLimit({ 
-      windowMs: 15 * 60 * 1000, 
-      max: 20, 
-      standardHeaders: true, 
-      legacyHeaders: false,
-      skip: (req) => {
-        const ip = req.ip || req.socket?.remoteAddress || '';
-        return process.env.NODE_ENV !== 'production' || 
-               ip === '127.0.0.1' || 
-               ip === '::1' || 
-               ip === '::ffff:127.0.0.1' || 
-               ip.includes('127.0.0.1');
-      },
-      message: { error: 'Too many OTP requests from this IP. Please wait 15 minutes.' } 
-    })
-  : (req, res, next) => next();
+const { otpLimiter } = require('../middleware/rateLimiters');
+
 
 // Preflight CORS
 router.options('/api/auth/request-otp', cors());

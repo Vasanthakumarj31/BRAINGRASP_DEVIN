@@ -18,31 +18,109 @@
     return str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
   }
 
+  // ── Image URL Helper & Validation ─────────────────────────────────────────
+  function validateImageUrl(url) {
+    if (!url) return { valid: false, message: 'Image URL is required' };
+    const trimmed = url.trim();
+
+    if (trimmed.includes('photos.google.com') || trimmed.includes('photos.app.goo.gl')) {
+      return {
+        valid: false,
+        isGooglePhotos: true,
+        message: 'Google Photos web sharing links are not direct image files. Please enter a direct image URL (e.g. ending in .jpg, .png, .webp or from a direct image host).'
+      };
+    }
+
+    if (trimmed.includes('drive.google.com/file/d/')) {
+      return {
+        valid: false,
+        message: 'Google Drive view links are not direct image files. Please enter a direct image URL.'
+      };
+    }
+
+    if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://') && !trimmed.startsWith('/')) {
+      return { valid: false, message: 'Please enter a valid HTTP/HTTPS image URL.' };
+    }
+
+    return { valid: true };
+  }
+
+  function handleImagePreview(url) {
+    const preview = document.getElementById('imagePreview');
+    const img = document.getElementById('previewImg');
+    const warning = document.getElementById('imageWarning');
+
+    if (!url) {
+      if (warning) warning.style.display = 'none';
+      if (preview) preview.style.display = 'none';
+      return;
+    }
+
+    const validation = validateImageUrl(url);
+    if (!validation.valid) {
+      if (warning) {
+        warning.textContent = `⚠️ ${validation.message}`;
+        warning.style.display = 'block';
+      }
+      if (preview) preview.style.display = 'none';
+    } else {
+      if (warning) warning.style.display = 'none';
+      if (img) {
+        img.onerror = () => {
+          if (warning) {
+            warning.textContent = '⚠️ Image failed to load. Please verify the URL is a direct, publicly accessible image.';
+            warning.style.display = 'block';
+          }
+          if (preview) preview.style.display = 'none';
+        };
+        img.onload = () => {
+          if (warning) warning.style.display = 'none';
+          if (preview) preview.style.display = 'block';
+        };
+        img.src = url;
+      }
+    }
+  }
+
+  // ── Load Products API Flow ────────────────────────────────────────────────
   async function loadProducts() {
     tbody.innerHTML = '<tr><td colspan="8" class="loading-row">Loading…</td></tr>';
 
     try {
       const res = await adminFetch('/admin/products');
-      const grouped = await res.json();
-
-      allProducts = [];
-      for (const [group, items] of Object.entries(grouped)) {
-        items.forEach(p => {
-          p.group_name = p.group_name || group;
-          allProducts.push(p);
-        });
+      
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `Failed to fetch products (HTTP ${res.status})`);
       }
-      allProducts.sort((a, b) => b.id - a.id);
 
+      const grouped = await res.json();
+      allProducts = [];
+
+      if (Array.isArray(grouped)) {
+        allProducts = grouped;
+      } else if (grouped && typeof grouped === 'object') {
+        for (const [group, items] of Object.entries(grouped)) {
+          if (Array.isArray(items)) {
+            items.forEach(p => {
+              p.group_name = p.group_name || group;
+              allProducts.push(p);
+            });
+          }
+        }
+      }
+
+      allProducts.sort((a, b) => b.id - a.id);
       renderTable(allProducts);
+
       const countEl = document.getElementById('productCount');
       if (countEl) {
         countEl.textContent = `${allProducts.length} product${allProducts.length !== 1 ? 's' : ''} in database`;
       }
     } catch (err) {
       if (err.message !== 'Session expired') {
-        tbody.innerHTML = '<tr><td colspan="8" class="error-row">⚠️ Failed to load products. Check that the API is running.</td></tr>';
-        console.error(err);
+        console.error('Error loading products:', err);
+        tbody.innerHTML = `<tr><td colspan="8" class="error-row">⚠️ Failed to load products: ${esc(err.message)}</td></tr>`;
       }
     }
   }
@@ -79,6 +157,7 @@
     );
   }
 
+  // ── Search & Form Toggle Listeners ────────────────────────────────────────
   document.getElementById('searchInput')?.addEventListener('input', (e) => {
     const q = e.target.value.toLowerCase();
     renderTable(allProducts.filter(p =>
@@ -103,21 +182,16 @@
   });
 
   document.getElementById('f_image')?.addEventListener('input', (e) => {
-    const url = e.target.value.trim();
-    const preview = document.getElementById('imagePreview');
-    const img = document.getElementById('previewImg');
-    if (url) {
-      img.src = url;
-      preview.style.display = 'block';
-    } else {
-      preview.style.display = 'none';
-    }
+    handleImagePreview(e.target.value.trim());
   });
 
   function resetForm() {
     document.getElementById('productForm').reset();
     document.getElementById('editProductId').value = '';
-    document.getElementById('imagePreview').style.display = 'none';
+    const warning = document.getElementById('imageWarning');
+    if (warning) warning.style.display = 'none';
+    const preview = document.getElementById('imagePreview');
+    if (preview) preview.style.display = 'none';
   }
 
   function openEditForm(id) {
@@ -146,10 +220,7 @@
     const skills = Array.isArray(p.skills) ? p.skills.join(', ') : (p.skills || '');
     document.getElementById('f_skills').value = skills;
 
-    if (p.image) {
-      document.getElementById('previewImg').src = p.image;
-      document.getElementById('imagePreview').style.display = 'block';
-    }
+    handleImagePreview(p.image || '');
 
     document.getElementById('formTitle').textContent = 'Edit Product';
     document.getElementById('submitBtn').textContent = '💾 Update Product';
@@ -157,31 +228,65 @@
     formSection.scrollIntoView({ behavior: 'smooth' });
   }
 
+  // ── Create & Update Product Flow ──────────────────────────────────────────
   document.getElementById('productForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
+
+    const name = document.getElementById('f_name').value.trim();
+    const group_name = document.getElementById('f_group_name').value;
+    const priceStr = document.getElementById('f_price').value.trim();
+    const image = document.getElementById('f_image').value.trim();
+
+    if (!name) {
+      showToast('⚠️ Please enter a product name', 'error');
+      document.getElementById('f_name').focus();
+      return;
+    }
+
+    const price = Number(priceStr);
+    if (!priceStr || isNaN(price) || price <= 0) {
+      showToast('⚠️ Please enter a valid positive price', 'error');
+      document.getElementById('f_price').focus();
+      return;
+    }
+
+    const imgValidation = validateImageUrl(image);
+    if (!imgValidation.valid) {
+      showToast(`⚠️ ${imgValidation.message}`, 'error');
+      const warning = document.getElementById('imageWarning');
+      if (warning) {
+        warning.textContent = `⚠️ ${imgValidation.message}`;
+        warning.style.display = 'block';
+      }
+      document.getElementById('f_image').focus();
+      return;
+    }
+
     const submitBtn = document.getElementById('submitBtn');
     submitBtn.disabled = true;
     submitBtn.textContent = 'Saving…';
 
-    const skillsRaw = document.getElementById('f_skills').value.trim();
+    const origPriceStr = document.getElementById('f_original_price').value.trim();
+    const origPrice = origPriceStr ? Number(origPriceStr) : price;
+
     const payload = {
-      name: document.getElementById('f_name').value.trim(),
-      group_name: document.getElementById('f_group_name').value,
+      name,
+      group_name,
       badge: document.getElementById('f_badge').value,
-      price: document.getElementById('f_price').value,
-      original_price: document.getElementById('f_original_price').value || document.getElementById('f_price').value,
-      save: document.getElementById('f_save').value || '0%',
-      reviews: document.getElementById('f_reviews').value || 0,
+      price,
+      original_price: isNaN(origPrice) ? price : origPrice,
+      save: document.getElementById('f_save').value.trim() || '0%',
+      reviews: Number(document.getElementById('f_reviews').value || 0),
       age: document.getElementById('f_age').value.trim(),
       age_group: document.getElementById('f_age_group').value,
       category: document.getElementById('f_category').value,
       type: document.getElementById('f_type').value,
       theme: document.getElementById('f_theme').value,
       launch_date: document.getElementById('f_launch_date').value || new Date().toISOString().split('T')[0],
-      sales: document.getElementById('f_sales').value || 0,
+      sales: Number(document.getElementById('f_sales').value || 0),
       offer: document.getElementById('f_offer').value.trim() || 'Buy any 2 | Get FLAT 10% OFF',
-      image: document.getElementById('f_image').value.trim(),
-      skills: skillsRaw
+      image,
+      skills: document.getElementById('f_skills').value.trim()
     };
 
     const editId = document.getElementById('editProductId').value;
@@ -194,17 +299,20 @@
       });
 
       if (res.ok) {
-        showToast(editMode ? '✅ Product updated!' : '✅ Product added!', 'success');
+        showToast(editMode ? '✅ Product updated successfully!' : '✅ Product created successfully!', 'success');
         formSection.style.display = 'none';
         resetForm();
-        loadProducts();
+        await loadProducts();
       } else {
-        const err = await res.json();
-        showToast(err.error || 'Failed to save product', 'error');
+        const errData = await res.json().catch(() => ({}));
+        const errMsg = errData.error || `Failed to save product (HTTP ${res.status})`;
+        console.error('Product save backend error:', errData);
+        showToast(`❌ ${errMsg}`, 'error');
       }
     } catch (err) {
       if (err.message !== 'Session expired') {
-        showToast('Network error. Check your connection.', 'error');
+        console.error('Product save network error:', err);
+        showToast(`❌ Error: ${err.message}`, 'error');
       }
     } finally {
       submitBtn.disabled = false;
@@ -220,14 +328,18 @@
 
   function openDeleteModal(id) {
     _pendingDeleteId = id;
-    deleteModal.classList.add('open');
-    deleteModal.style.display = '';
+    if (deleteModal) {
+      deleteModal.classList.add('open');
+      deleteModal.style.display = '';
+    }
   }
 
   function closeDeleteModal() {
     _pendingDeleteId = null;
-    deleteModal.classList.remove('open');
-    deleteModal.style.display = 'none';
+    if (deleteModal) {
+      deleteModal.classList.remove('open');
+      deleteModal.style.display = 'none';
+    }
   }
 
   deleteCancelBtn?.addEventListener('click', closeDeleteModal);
@@ -243,14 +355,17 @@
     try {
       const res = await adminFetch(`/admin/products/${id}`, { method: 'DELETE' });
       if (res.ok) {
-        showToast('🗑 Product deleted', 'success');
-        loadProducts();
+        showToast('🗑 Product deleted successfully', 'success');
+        await loadProducts();
       } else {
-        const err = await res.json();
-        showToast(err.error || 'Failed to delete', 'error');
+        const errData = await res.json().catch(() => ({}));
+        showToast(errData.error || 'Failed to delete product', 'error');
       }
     } catch (err) {
-      if (err.message !== 'Session expired') showToast('Network error', 'error');
+      if (err.message !== 'Session expired') {
+        console.error('Product delete error:', err);
+        showToast('Network error during deletion', 'error');
+      }
     }
   });
 

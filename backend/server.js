@@ -13,34 +13,10 @@ const shiprocket = require('./shiprocketService');
 const shiprocketRouter = require('./routes/shiprocket');
 const affiliateRouter  = require('./routes/affiliate');
 const authRouter       = require('./routes/auth');
+const { authenticateToken } = require('./middleware/auth');
 
-// â”€â”€ Rate Limiting â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Guard OTP endpoint: max 5 requests per IP per 15 minutes
-let rateLimit;
-try {
-  rateLimit = require('express-rate-limit');
-} catch {
-  // express-rate-limit not installed â€” skip rate limiting (run: npm install express-rate-limit)
-  console.warn('âš ï¸  express-rate-limit not found. OTP endpoint is unprotected. Run: npm install express-rate-limit');
-  rateLimit = null;
-}
-const otpLimiter = rateLimit
-  ? rateLimit({ 
-      windowMs: 15 * 60 * 1000, 
-      max: 20, 
-      standardHeaders: true, 
-      legacyHeaders: false,
-      skip: (req) => {
-        const ip = req.ip || req.socket?.remoteAddress || '';
-        return process.env.NODE_ENV !== 'production' || 
-               ip === '127.0.0.1' || 
-               ip === '::1' || 
-               ip === '::ffff:127.0.0.1' || 
-               ip.includes('127.0.0.1');
-      },
-      message: { error: 'Too many OTP requests from this IP. Please wait 15 minutes.' } 
-    })
-  : (req, res, next) => next(); // no-op fallback
+const { otpLimiter } = require('./middleware/rateLimiters');
+
 
 // Razorpay instance
 const razorpay = new Razorpay({
@@ -363,18 +339,9 @@ function normalizePhone(raw) {
   await initRedis();
 })();
 
-// â”€â”€ Auth Middleware â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-  if (!token) return res.status(401).json({ error: "Access Denied" });
+// ── Auth Middleware ───────────────────────────────────────────────────────────
+// authenticateToken imported from ./middleware/auth
 
-  jwt.verify(token, SECRET_KEY, (err, user) => {
-    if (err) return res.status(403).json({ error: "Invalid Token" });
-    req.user = user;
-    next();
-  });
-}
 
 // â”€â”€ Affiliate Auth Middleware â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function authenticateAffiliate(req, res, next) {
@@ -945,8 +912,17 @@ app.post('/api/admin/products', authenticateAdmin, async (req, res) => {
     sales, reviews, offer
   } = req.body;
 
-  if (!name || !group_name || !price || !image) {
+  if (!name || !group_name || price === undefined || price === null || !image) {
     return res.status(400).json({ error: 'name, group_name, price, and image are required' });
+  }
+
+  const parsedPrice = parseInt(price);
+  if (isNaN(parsedPrice) || parsedPrice <= 0) {
+    return res.status(400).json({ error: 'Price must be a valid positive number' });
+  }
+
+  if (typeof image === 'string' && (image.includes('photos.google.com') || image.includes('photos.app.goo.gl'))) {
+    return res.status(400).json({ error: 'Google Photos web sharing links are not direct image files. Please enter a direct image URL.' });
   }
 
   try {
@@ -958,13 +934,13 @@ app.post('/api/admin/products', authenticateAdmin, async (req, res) => {
       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
       RETURNING *
     `, [
-      name, group_name, parseInt(price),
-      parseInt(original_price || price),
+      name, group_name, parsedPrice,
+      parseInt(original_price || price) || parsedPrice,
       save || '0%', age || null, age_group || null,
       badge || null, image, category || null,
       parseSkills(skills), theme || null, type || 'Single Products',
       launch_date || new Date().toISOString().split('T')[0],
-      parseInt(sales || 0), parseInt(reviews || 0),
+      parseInt(sales || 0) || 0, parseInt(reviews || 0) || 0,
       offer || 'Buy any 2 | Get FLAT 10% OFF'
     ]);
 
@@ -973,7 +949,7 @@ app.post('/api/admin/products', authenticateAdmin, async (req, res) => {
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error('Admin add product error:', err);
-    res.status(500).json({ error: 'Failed to add product' });
+    res.status(500).json({ error: err.message || 'Failed to add product' });
   }
 });
 
@@ -986,6 +962,15 @@ app.put('/api/admin/products/:id', authenticateAdmin, async (req, res) => {
     sales, reviews, offer
   } = req.body;
 
+  const parsedPrice = parseInt(price);
+  if (isNaN(parsedPrice) || parsedPrice <= 0) {
+    return res.status(400).json({ error: 'Price must be a valid positive number' });
+  }
+
+  if (typeof image === 'string' && (image.includes('photos.google.com') || image.includes('photos.app.goo.gl'))) {
+    return res.status(400).json({ error: 'Google Photos web sharing links are not direct image files. Please enter a direct image URL.' });
+  }
+
   try {
     const result = await pool.query(`
       UPDATE products SET
@@ -996,13 +981,13 @@ app.put('/api/admin/products/:id', authenticateAdmin, async (req, res) => {
       WHERE id=$18
       RETURNING *
     `, [
-      name, group_name, parseInt(price),
-      parseInt(original_price || price),
+      name, group_name, parsedPrice,
+      parseInt(original_price || price) || parsedPrice,
       save || '0%', age || null, age_group || null,
       badge || null, image, category || null,
       parseSkills(skills), theme || null, type || 'Single Products',
       launch_date || null,
-      parseInt(sales || 0), parseInt(reviews || 0),
+      parseInt(sales || 0) || 0, parseInt(reviews || 0) || 0,
       offer || 'Buy any 2 | Get FLAT 10% OFF',
       parseInt(id)
     ]);
@@ -1012,7 +997,7 @@ app.put('/api/admin/products/:id', authenticateAdmin, async (req, res) => {
     res.json(result.rows[0]);
   } catch (err) {
     console.error('Admin update product error:', err);
-    res.status(500).json({ error: 'Failed to update product' });
+    res.status(500).json({ error: err.message || 'Failed to update product' });
   }
 });
 
