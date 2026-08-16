@@ -116,19 +116,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 3. Price Filter
-    if (currentFilters.minPrice !== null) {
-      filtered = filtered.filter(p => p.price >= currentFilters.minPrice);
+    if (currentFilters.minPrice !== null && !isNaN(currentFilters.minPrice)) {
+      filtered = filtered.filter(p => Number(p.price) >= currentFilters.minPrice);
     }
-    if (currentFilters.maxPrice !== null) {
-      filtered = filtered.filter(p => p.price <= currentFilters.maxPrice);
+    if (currentFilters.maxPrice !== null && !isNaN(currentFilters.maxPrice) && currentFilters.maxPrice > 0) {
+      filtered = filtered.filter(p => Number(p.price) <= currentFilters.maxPrice);
     }
 
     // 4. Sort
-    if (currentSort === 'price-low') filtered.sort((a, b) => a.price - b.price);
-    else if (currentSort === 'price-high') filtered.sort((a, b) => b.price - a.price);
-    else if (currentSort === 'newest') filtered.sort((a, b) => new Date(b.launchDate) - new Date(a.launchDate));
-    else if (currentSort === 'oldest') filtered.sort((a, b) => new Date(a.launchDate) - new Date(b.launchDate));
-    else if (currentSort === 'bestsellers') filtered.sort((a, b) => (b.sales || 0) - (a.sales || 0));
+    if (currentSort === 'price-low') filtered.sort((a, b) => Number(a.price) - Number(b.price));
+    else if (currentSort === 'price-high') filtered.sort((a, b) => Number(b.price) - Number(a.price));
+    else if (currentSort === 'newest') filtered.sort((a, b) => new Date(b.launchDate || b.launch_date) - new Date(a.launchDate || a.launch_date));
+    else if (currentSort === 'oldest') filtered.sort((a, b) => new Date(a.launchDate || a.launch_date) - new Date(b.launchDate || b.launch_date));
+    else if (currentSort === 'bestsellers') filtered.sort((a, b) => (Number(b.sales) || 0) - (Number(a.sales) || 0));
 
     renderColProducts(filtered);
   }
@@ -175,10 +175,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const priceApplyBtn = document.getElementById('colPriceApply');
   if (priceApplyBtn) {
     priceApplyBtn.addEventListener('click', () => {
-      const min = document.getElementById('colPriceMin').value;
-      const max = document.getElementById('colPriceMax').value;
-      currentFilters.minPrice = min ? parseInt(min) : null;
-      currentFilters.maxPrice = max ? parseInt(max) : null;
+      const minInput = document.getElementById('colPriceMin');
+      const maxInput = document.getElementById('colPriceMax');
+      const minVal = minInput ? minInput.value.trim() : '';
+      const maxVal = maxInput ? maxInput.value.trim() : '';
+      currentFilters.minPrice = minVal !== '' && !isNaN(parseInt(minVal)) ? parseInt(minVal) : null;
+      currentFilters.maxPrice = maxVal !== '' && !isNaN(parseInt(maxVal)) && parseInt(maxVal) > 0 ? parseInt(maxVal) : null;
       applyFiltersAndSort();
     });
   }
@@ -201,6 +203,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Initial Render
-  renderColProducts(currentProducts);
+  // Initial Render — go through the full sort/filter pipeline
+  applyFiltersAndSort();
 });

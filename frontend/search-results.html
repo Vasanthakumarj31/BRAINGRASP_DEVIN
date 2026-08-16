@@ -398,7 +398,7 @@
                     <div class="filter-label">Availability</div>
                     <div class="filter-options">
                         <div class="filter-option">
-                            <input type="checkbox" id="in-stock" value="in-stock" checked>
+                            <input type="checkbox" id="in-stock" value="in-stock">
                             <label for="in-stock">In Stock</label>
                         </div>
                         <div class="filter-option">
@@ -439,7 +439,7 @@
             categories: [],
             priceRanges: [],
             ageGroups: [],
-            availability: ['in-stock']
+            availability: []
         };
         
         // Initialize page
@@ -557,12 +557,10 @@
                     if (!ageMatch) return false;
                 }
                 
-                // Availability filter
-                if (filters.availability.includes('in-stock') && !product.in_stock) {
-                    return false;
-                }
-                if (filters.availability.includes('out-of-stock') && product.in_stock) {
-                    return false;
+                // Availability filter — only apply if in_stock field exists on product
+                if (product.in_stock !== undefined) {
+                    if (filters.availability.includes('in-stock') && !product.in_stock) return false;
+                    if (filters.availability.includes('out-of-stock') && product.in_stock) return false;
                 }
                 
                 return true;

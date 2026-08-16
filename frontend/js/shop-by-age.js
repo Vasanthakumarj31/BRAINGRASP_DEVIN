@@ -36,7 +36,8 @@ function initShopByAge() {
     categories: [],
     skills: [],
     themes: [],
-    types: []
+    types: [],
+    price: []
   };
   let currentSort = 'default';
 
@@ -50,7 +51,7 @@ function initShopByAge() {
     let filtered = uniqueProducts;
 
     if (currentFilters.ageGroup) {
-      filtered = filtered.filter(p => p.ageGroup === currentFilters.ageGroup);
+      filtered = filtered.filter(p => (p.ageGroup || p.age_group) === currentFilters.ageGroup);
     }
     if (currentFilters.categories.length > 0) {
       filtered = filtered.filter(p => currentFilters.categories.includes(p.category));
@@ -64,18 +65,29 @@ function initShopByAge() {
     if (currentFilters.types.length > 0) {
       filtered = filtered.filter(p => currentFilters.types.includes(p.type));
     }
+    if (currentFilters.price && currentFilters.price.length > 0) {
+      filtered = filtered.filter(p => {
+        const price = Number(p.price);
+        return currentFilters.price.some(range => {
+          if (range === 'under500') return price < 500;
+          if (range === '500-1000') return price >= 500 && price <= 1000;
+          if (range === 'above1000') return price > 1000;
+          return true;
+        });
+      });
+    }
 
     // Sort
     if (currentSort === 'price-low') {
-      filtered.sort((a, b) => a.price - b.price);
+      filtered.sort((a, b) => Number(a.price) - Number(b.price));
     } else if (currentSort === 'price-high') {
-      filtered.sort((a, b) => b.price - a.price);
+      filtered.sort((a, b) => Number(b.price) - Number(a.price));
     } else if (currentSort === 'newest') {
-      filtered.sort((a, b) => new Date(b.launchDate) - new Date(a.launchDate));
+      filtered.sort((a, b) => new Date(b.launchDate || b.launch_date) - new Date(a.launchDate || a.launch_date));
     } else if (currentSort === 'oldest') {
-      filtered.sort((a, b) => new Date(a.launchDate) - new Date(b.launchDate));
+      filtered.sort((a, b) => new Date(a.launchDate || a.launch_date) - new Date(b.launchDate || b.launch_date));
     } else if (currentSort === 'bestsellers') {
-      filtered.sort((a, b) => (b.sales || 0) - (a.sales || 0));
+      filtered.sort((a, b) => (Number(b.sales) || 0) - (Number(a.sales) || 0));
     }
 
     currentProducts = filtered;

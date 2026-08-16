@@ -114,15 +114,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── Live API Search ─────────────────────────────────────────────────────
     async function performSearch(query) {
-        if (!resultsArea || !suggestionsArea) return;
+        if (!resultsArea) return;
 
         if (query.length < 2) {
             resultsArea.innerHTML = '';
-            suggestionsArea.style.display = 'block';
+            if (suggestionsArea) suggestionsArea.style.display = 'block';
             return;
         }
 
-        suggestionsArea.style.display = 'none';
+        if (suggestionsArea) suggestionsArea.style.display = 'none';
         showLoading();
 
         // Cancel previous in-flight request
@@ -179,17 +179,34 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // Handle Input
+    // Handle Input — live inline preview while typing
     searchInput.addEventListener('input', debounce((e) => {
         performSearch(e.target.value.trim());
     }, 300));
 
-    // Handle tags click
-    document.querySelectorAll('.search-tag').forEach(tag => {
-        tag.addEventListener('click', (e) => {
-            const term = e.target.textContent;
-            searchInput.value = term;
-            performSearch(term);
-        });
+    // Navigate to search-results page (used by tags + Enter key)
+    function navigateToSearch(term) {
+        const q = (term || '').trim();
+        if (!q) return;
+        window.location.href = `search-results.html?q=${encodeURIComponent(q)}`;
+    }
+
+    // Enter key → navigate to full search results page
+    searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            navigateToSearch(searchInput.value);
+        }
+    });
+
+    // Popular-search tag click → navigate to full search results page
+    // Use event delegation so this works even if tags are injected dynamically
+    document.addEventListener('click', (e) => {
+        const tag = e.target.closest('.search-tag');
+        if (!tag) return;
+        e.preventDefault();
+        e.stopPropagation();
+        const term = tag.textContent.trim();
+        navigateToSearch(term);
     });
 });

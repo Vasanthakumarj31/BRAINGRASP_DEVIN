@@ -133,6 +133,25 @@ function renderAllGridsError(msg) {
   });
 }
 
+// === Normalize DB row (snake_case) → frontend object (camelCase) ===
+// PostgreSQL returns column names in snake_case; the sort/filter logic
+// throughout the frontend expects camelCase. This single mapping is the
+// source of truth — fix field names HERE, not scattered across every page.
+function normalizeProduct(p) {
+  return {
+    ...p,
+    // price/originalPrice — DB stores as INTEGER, ensure numeric
+    price:         Number(p.price)          || 0,
+    originalPrice: Number(p.original_price !== undefined ? p.original_price : (p.originalPrice || p.price)) || Number(p.price) || 0,
+    // snake_case → camelCase mappings that sort/filter functions depend on
+    ageGroup:      p.age_group   || p.ageGroup   || null,
+    launchDate:    p.launch_date || p.launchDate  || null,
+    groupName:     p.group_name  || p.groupName   || null,
+    sales:         Number(p.sales)   || 0,
+    reviews:       Number(p.reviews) || 0,
+  };
+}
+
 // === Fetch from DB Backend ONLY ===
 async function fetchProductsFromDB() {
   try {
@@ -153,23 +172,27 @@ async function fetchProductsFromDB() {
       throw new Error(`API returned status ${res ? res.status : 'failed'}`);
     }
     
-    const data = await res.json();
+    const rawData = await res.json();
+
+    // Normalize every product row to camelCase immediately after fetch
+    const data = Array.isArray(rawData) ? rawData.map(normalizeProduct) : rawData;
 
     if (Array.isArray(data)) {
-      const trending = data.filter(p => p.group_name === 'trending');
-      const bestsellers = data.filter(p => p.group_name === 'bestsellers');
-      const newlaunches = data.filter(p => p.group_name === 'newlaunches' || p.badge === 'new');
-      const bundles = data.filter(p => p.group_name === 'bundles' || p.type === 'Bundles');
+      const trending = data.filter(p => p.group_name === 'trending'  || p.groupName === 'trending');
+      const bestsellers = data.filter(p => p.group_name === 'bestsellers' || p.groupName === 'bestsellers');
+      const newlaunches = data.filter(p => p.group_name === 'newlaunches' || p.groupName === 'newlaunches' || p.badge === 'new');
+      const bundles = data.filter(p => p.group_name === 'bundles' || p.groupName === 'bundles' || p.type === 'Bundles');
 
       products.trending = trending.length > 0 ? trending : data;
       products.bestsellers = bestsellers.length > 0 ? bestsellers : data;
       products.newlaunches = newlaunches.length > 0 ? newlaunches : data;
       products.bundles = bundles.length > 0 ? bundles : data;
     } else if (data && typeof data === 'object') {
-      products.trending = Array.isArray(data.trending) && data.trending.length > 0 ? data.trending : (Object.values(data).flat() || []);
-      products.bestsellers = Array.isArray(data.bestsellers) && data.bestsellers.length > 0 ? data.bestsellers : products.trending;
-      products.newlaunches = Array.isArray(data.newlaunches) && data.newlaunches.length > 0 ? data.newlaunches : products.trending;
-      products.bundles = Array.isArray(data.bundles) && data.bundles.length > 0 ? data.bundles : products.trending;
+      const norm = (arr) => Array.isArray(arr) ? arr.map(normalizeProduct) : [];
+      products.trending = norm(data.trending).length > 0 ? norm(data.trending) : (Object.values(data).flat().map(normalizeProduct) || []);
+      products.bestsellers = norm(data.bestsellers).length > 0 ? norm(data.bestsellers) : products.trending;
+      products.newlaunches = norm(data.newlaunches).length > 0 ? norm(data.newlaunches) : products.trending;
+      products.bundles = norm(data.bundles).length > 0 ? norm(data.bundles) : products.trending;
     } else {
       products.trending = [];
       products.bestsellers = [];
