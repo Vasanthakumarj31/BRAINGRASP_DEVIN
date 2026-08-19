@@ -7,6 +7,9 @@ const _cartPageAPIBase = (window.BG_CONFIG && window.BG_CONFIG.API_BASE) || 'htt
 
 // ── Refresh cart from DB if logged in, then render ──
 async function loadAndRenderCartPage() {
+  // First render immediately from local storage to prevent any empty flash
+  renderCartPage();
+
   const token = localStorage.getItem('bg_token');
   if (token) {
     try {
@@ -15,15 +18,16 @@ async function loadAndRenderCartPage() {
       });
       if (res.ok) {
         const dbCart = await res.json();
-        if (dbCart && dbCart.length > 0) {
+        if (Array.isArray(dbCart)) {
           localStorage.setItem('bg_cart', JSON.stringify(dbCart));
+          // Re-render once fresh DB state is fetched
+          renderCartPage();
         }
       }
     } catch (err) {
       console.warn('Cart page: could not fetch DB cart, using localStorage:', err);
     }
   }
-  renderCartPage();
 }
 
 // ── Cart Page Rendering ──
@@ -50,18 +54,22 @@ function renderCartPage() {
   empty.style.display = 'none';
   itemsWrap.innerHTML = cart.map(item => `
     <div class="cart-item" data-id="${item.id}">
-      <div class="cart-item-info">
-        <div class="cart-item-name">${esc(item.name)}</div>
-        <div class="cart-item-meta">&#8377;${item.price} each</div>
-      </div>
-      <div class="cart-item-controls">
-        <button type="button" class="quantity-btn page-minus" data-id="${item.id}" aria-label="Decrease quantity">-</button>
-        <span class="cart-item-qty">${item.quantity || 1}</span>
-        <button type="button" class="quantity-btn page-plus"  data-id="${item.id}" aria-label="Increase quantity">+</button>
-        <span class="cart-item-subtotal">&#8377;${item.price * (item.quantity || 1)}</span>
+      <div class="cart-item-row-top">
+        <div class="cart-item-info">
+          <div class="cart-item-name">${esc(item.name)}</div>
+          <div class="cart-item-meta">&#8377;${item.price} each</div>
+        </div>
         <button type="button" class="cart-item-remove" data-id="${item.id}" aria-label="Remove item">
           <i class="fas fa-trash"></i>
         </button>
+      </div>
+      <div class="cart-item-row-bottom">
+        <div class="cart-item-controls">
+          <button type="button" class="quantity-btn page-minus" data-id="${item.id}" aria-label="Decrease quantity">-</button>
+          <span class="cart-item-qty">${item.quantity || 1}</span>
+          <button type="button" class="quantity-btn page-plus"  data-id="${item.id}" aria-label="Increase quantity">+</button>
+        </div>
+        <div class="cart-item-subtotal">&#8377;${item.price * (item.quantity || 1)}</div>
       </div>
     </div>
   `).join('');

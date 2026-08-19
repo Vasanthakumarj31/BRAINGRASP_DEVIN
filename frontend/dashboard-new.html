@@ -453,6 +453,157 @@
             gap: 8px;
             padding-top: 8px;
             border-top: 1px dashed #eee;
+        }
+
+        /* ── Mobile Responsive Overrides ────────────────────────────────────── */
+        @media (max-width: 768px) {
+            /*
+             * FIX 4a: policy-mobile.css adds body { padding-top: 56px } for
+             * pages with a FIXED header. This dashboard uses a STICKY navbar
+             * (in normal flow) — padding-top creates a blank gap. Override it.
+             */
+            body { padding-top: 0 !important; }
+
+            /*
+             * FIX 1: Ensure welcome banner gradient renders correctly and text
+             * stays visible on all mobile widths. Explicit background forces
+             * the gradient even if an external stylesheet tries to override it.
+             */
+            .dashboard-header {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+                color: #ffffff !important;
+            }
+            .dashboard-header h1,
+            .dashboard-header p {
+                color: #ffffff !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+            }
+        }
+
+        @media (max-width: 600px) {
+            body { overflow-x: hidden; }
+
+            /*
+             * FIX 4b & 5: Navbar — single-row layout with logo left, links+button
+             * right. Remove flex-wrap so items never stack to a second line.
+             * Logout button gets auto width (not 100%) so it stays compact.
+             */
+            .navbar {
+                padding: 10px 12px;
+                flex-wrap: nowrap;
+                gap: 8px;
+                justify-content: space-between;
+                align-items: center;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            .nav-brand .brand-logo { height: 32px !important; }
+            .nav-menu {
+                display: flex;
+                flex-wrap: nowrap;
+                align-items: center;
+                gap: 8px;
+                flex-shrink: 1;
+                min-width: 0;
+            }
+            .nav-link {
+                font-size: 0.78rem;
+                white-space: nowrap;
+                flex-shrink: 1;
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            /*
+             * FIX 5: Logout button — stop mobile-responsive.css { width: 100% }
+             * from stretching it to full navbar width. Use auto width + compact
+             * padding to keep it as a pill beside the nav links.
+             */
+            #logoutBtn {
+                width: auto !important;
+                min-width: unset !important;
+                padding: 7px 12px !important;
+                font-size: 0.78rem !important;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+
+            .dashboard-container { padding: 12px; width: 100%; box-sizing: border-box; }
+            .dashboard-header { padding: 20px 16px; border-radius: 14px; margin-bottom: 16px; }
+            .dashboard-header h1 { font-size: 1.4rem; }
+            .dashboard-header p  { font-size: 0.88rem; }
+
+            .card { padding: 16px 14px; border-radius: 14px; width: 100%; box-sizing: border-box; }
+
+            /*
+             * FIX 2: Profile card — force the profile-header to stack vertically
+             * (avatar → name → email each on its own line, centered).
+             * Reset any flex that an external stylesheet might apply.
+             */
+            .profile-header {
+                display: block !important;
+                text-align: center;
+            }
+            .profile-avatar {
+                display: flex !important;
+                margin: 0 auto 12px !important;
+                width: 80px !important;
+                height: 80px !important;
+                font-size: 1.8rem !important;
+            }
+            .profile-name {
+                display: block;
+                width: 100%;
+                font-size: 1.15rem;
+                word-break: normal;       /* prevent mid-word break */
+                overflow-wrap: break-word;
+                white-space: normal;
+                margin-bottom: 4px;
+            }
+            #profileEmail {
+                display: block;
+                width: 100%;
+                overflow-wrap: anywhere;
+                word-break: break-all;
+                font-size: 0.82rem;
+            }
+
+            /*
+             * FIX 3: detail-value (Phone Number / Location) — the stray "("
+             * is caused by border-left: 4px solid #667eea with border-radius:10px
+             * and no other border sides, making the rounded left edge look like
+             * a parenthesis. Replace with a full subtle border + left-only
+             * accent via box-shadow so the shape stays rectangular.
+             */
+            .detail-value {
+                border-left: none !important;
+                border: 1.5px solid #e0e6f0 !important;
+                box-shadow: inset 3px 0 0 #667eea !important;
+                border-radius: 10px !important;
+                word-break: break-word;
+                overflow-wrap: anywhere;
+                font-size: 0.88rem;
+                padding: 8px 10px 8px 12px !important;
+            }
+
+            .order-card { padding: 12px; width: 100%; box-sizing: border-box; }
+            .order-item-line { word-break: break-word; font-size: 0.85rem; }
+
+            .modal-content { padding: 20px 16px; width: 94%; border-radius: 14px; }
+        }
+
+        @media (max-width: 480px) {
+            .tracking-steps { margin: 12px 0 8px; }
+            .tracking-steps::before, .tracking-progress-line { top: 12px; left: 10px; right: 10px; }
+            .step-icon { width: 26px; height: 26px; font-size: 0.7rem; }
+            .step-label { font-size: 0.62rem; word-break: break-word; line-height: 1.1; }
+
+            /* Ensure main inside dashboard-grid does NOT get the global
+               'main { margin-top: 56px }' that mobile-responsive.css applies
+               (targets page-level <main> for fixed-header pages). */
+            main.dashboard-main { margin-top: 0 !important; }
+        }
     </style>
     <link rel="stylesheet" href="css/mobile-responsive.css">
     <link rel="stylesheet" href="css/policy-mobile.css">

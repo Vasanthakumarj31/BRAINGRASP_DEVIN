@@ -235,11 +235,62 @@
       font-weight:700;cursor:pointer;text-align:center;transition:all 0.2s ease}
     .btn-confirm-cancel:hover{background:#edf2f7;color:var(--text)}
 
-    /* -- RESPONSIVE -- */
+    /* -- RESPONSIVE OVERRIDES FOR MOBILE -- */
+    @media(max-width:860px){
+      .co-layout{grid-template-columns:1fr; gap:16px; padding:0 12px; margin:16px auto; width:100%; box-sizing:border-box;}
+      .sticky-panel{position:static; top:auto;}
+    }
+
     @media(max-width:600px){
-      .card{padding:18px}
-      .success-box,.confirm-box{padding:26px 18px}
-      .payment-grid{grid-template-columns:1fr 1fr}
+      body{overflow-x:hidden;}
+      .co-header{padding:10px 12px; gap:8px; justify-content:space-between; width:100%; box-sizing:border-box;}
+      .co-header a{font-size:.82rem; white-space:nowrap;}
+      .co-header .brand-logo{height:32px !important;}
+      
+      .stepper{padding:14px 10px 0; width:100%; box-sizing:border-box;}
+      .step-line{width:20px; margin:0 4px;}
+      .step span{font-size:.75rem;}
+
+      .card{padding:18px 14px; margin-bottom:16px; width:100%; box-sizing:border-box; border-radius:14px;}
+      .card-title{font-size:1.1rem; margin-bottom:14px;}
+
+      .profile-banner{flex-wrap:wrap; gap:10px; padding:12px; width:100%; box-sizing:border-box;}
+      .profile-info{min-width:0; flex:1 1 140px;}
+      .profile-name,.profile-tag{word-break:break-word; overflow-wrap:anywhere;}
+
+      .addr-tabs{flex-direction:column; width:100%; gap:8px;}
+      .addr-tab{width:100%; text-align:center; justify-content:center; box-sizing:border-box;}
+
+      /* PAYMENT GRID — Stack vertically on mobile to fit all content cleanly */
+      .payment-grid{grid-template-columns:1fr !important; gap:12px; margin-bottom:16px; width:100%; box-sizing:border-box;}
+      .pay-card{padding:14px; text-align:left; display:flex; flex-direction:column; align-items:flex-start; box-sizing:border-box; width:100%;}
+      .pay-badge{position:static; display:inline-block; margin-bottom:6px;}
+      .rzp-logos{justify-content:flex-start;}
+
+      .cod-info{padding:10px 12px; font-size:.8rem; width:100%; box-sizing:border-box; word-break:break-word;}
+
+      .btn-place{padding:14px; font-size:.95rem; white-space:normal; text-align:center; width:100%; box-sizing:border-box;}
+
+      .order-item-row{gap:8px; width:100%; box-sizing:border-box;}
+      .oi-name{flex:1; min-width:0; word-break:break-word;}
+      .oi-price{flex-shrink:0; text-align:right;}
+
+      .tot-row{width:100%; box-sizing:border-box;}
+      .tot-row span:last-child{text-align:right;}
+
+      .promo-row{flex-direction:column; gap:8px; width:100%; box-sizing:border-box;}
+      .promo-row input, .btn-promo{width:100%; box-sizing:border-box;}
+
+      .trust-row{display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%; box-sizing:border-box;}
+      .trust-item{font-size:.72rem;}
+
+      .success-box,.confirm-box{padding:20px 16px; width:94%;}
+    }
+
+    @media(max-width:380px){
+      .step span{display:none;}
+      .step-line{width:16px;}
+      .trust-row{grid-template-columns:1fr;}
     }
   </style>
   <link rel="stylesheet" href="css/mobile-responsive.css">

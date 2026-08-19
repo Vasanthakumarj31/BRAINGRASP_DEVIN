@@ -14,38 +14,24 @@
 'use strict';
 
 const express = require('express');
-const router = express.Router();
-const jwt = require('jsonwebtoken');
-const cors = require('cors');
-const { Pool } = require('pg');
+const router  = express.Router();
+const jwt     = require('jsonwebtoken');
+const pool    = require('../db'); // shared pool — no duplicate connections
 
 const { sendOTP } = require('../otpService');
 const { getCached, setCache, deleteCache, CACHE_KEYS, TTL } = require('../redisClient');
+const { authenticateToken } = require('../middleware/auth');
 
 const SECRET_KEY = process.env.JWT_SECRET;
-
-const pool = process.env.DATABASE_URL
-  ? new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } })
-  : new Pool({
-      user:     process.env.DB_USER     || 'postgres',
-      host:     process.env.DB_HOST     || 'localhost',
-      database: process.env.DB_NAME     || 'brainygras',
-      password: process.env.DB_PASSWORD,
-      port:     parseInt(process.env.DB_PORT) || 5432,
-    });
-
-const { authenticateToken } = require('../middleware/auth');
 
 
 const { otpLimiter } = require('../middleware/rateLimiters');
 
 
-// Preflight CORS
-router.options('/api/auth/request-otp', cors());
-router.options('/api/auth/verify-otp', cors());
+// Preflight OPTIONS handled by the global CORS middleware in server.js
 
 // 1. Request OTP (Email Only)
-router.post('/api/auth/request-otp', otpLimiter, cors(), async (req, res) => {
+router.post('/api/auth/request-otp', otpLimiter, async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: 'Email is required' });
 
@@ -75,7 +61,7 @@ router.post('/api/auth/request-otp', otpLimiter, cors(), async (req, res) => {
 });
 
 // 2. Verify OTP
-router.post('/api/auth/verify-otp', cors(), async (req, res) => {
+router.post('/api/auth/verify-otp', async (req, res) => {
   const { email, otp } = req.body;
   if (!email || !otp) return res.status(400).json({ error: 'Email and OTP required' });
 

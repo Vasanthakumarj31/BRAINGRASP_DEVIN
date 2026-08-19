@@ -195,7 +195,9 @@
             font-weight: 700;
             cursor: pointer;
             width: 100%;
-            margin-top: 10px;
+            max-width: 280px;
+            display: block;
+            margin: 16px auto 0 auto !important;
             transition: transform 0.2s, box-shadow 0.2s;
             box-shadow: 0 10px 20px rgba(118, 75, 162, 0.2);
         }
@@ -249,8 +251,11 @@
         }
 
         @media (max-width: 600px) {
+            body { padding: 12px; }
             .form-grid { grid-template-columns: 1fr; }
-            .profile-setup-container { padding: 25px; }
+            .profile-setup-container { padding: 20px 14px; }
+            .gender-options { gap: 8px; }
+            .gender-label { padding: 10px 6px; font-size: 0.88rem; }
         }
     </style>
   <link rel="stylesheet" href="css/mobile-responsive.css">

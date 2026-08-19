@@ -242,10 +242,11 @@
 
     /* Cart Sidebar */
     .cart-sidebar {
-        width: 100vw;
-        height: 100vh;
-        max-width: 100%;
-        border-radius: 0;
+        width: 100vw !important;
+        height: 100vh !important;
+        max-width: 100% !important;
+        border-radius: 0 !important;
+        top: 0 !important;
     }
 
     .cart-header h3 {

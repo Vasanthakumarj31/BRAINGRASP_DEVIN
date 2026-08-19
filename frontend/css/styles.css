@@ -362,6 +362,21 @@ input {
   min-width: 320px;
 }
 
+@media (max-width: 992px) {
+  .mega-menu,
+  .mega-menu-wide,
+  .mega-menu-small {
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    box-sizing: border-box;
+  }
+  .mega-grid,
+  .mega-grid-6 {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
 .mega-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

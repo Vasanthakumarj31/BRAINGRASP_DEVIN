@@ -18,10 +18,24 @@ window.BG_CONFIG = {
     // 1. Allow a page-level override (most flexible, set via meta script)
     if (window.BG_API_BASE) return window.BG_API_BASE;
 
-    // 2. Auto-detect local development
+    // 2. Auto-detect local development & local network / IP access
     const host = window.location.hostname;
-    if (host === 'localhost' || host === '127.0.0.1' || host === '') {
-      return 'http://localhost:3000';
+    const isLocal = !host || 
+                    host === 'localhost' || 
+                    host === '127.0.0.1' || 
+                    host === '0.0.0.0' || 
+                    host.startsWith('192.168.') || 
+                    host.startsWith('10.') || 
+                    host.startsWith('172.') || 
+                    host.startsWith('100.') || 
+                    host.endsWith('.local');
+
+    if (isLocal) {
+      const port = window.location.port ? `:${window.location.port}` : ':3000';
+      const protocol = window.location.protocol && window.location.protocol.startsWith('http') 
+        ? window.location.protocol 
+        : 'http:';
+      return `${protocol}//${host || 'localhost'}${port}`;
     }
 
     // 3. Production: use the configured backend URL

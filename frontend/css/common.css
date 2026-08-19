@@ -3933,8 +3933,8 @@ input {
   }
 
   .hero-slide {
-    padding: 30px 0 60px;
-    min-height: auto;
+    padding: 0; /* overridden by index.css fixed-height mobile rules */
+    min-height: 0; /* overridden by index.css fixed-height mobile rules */
   }
 
 
@@ -5371,11 +5371,23 @@ input {
 /* === Parents Choice Mega Menu === */
 
 .parents-choice-mega {
-
   min-width: 800px;
-
   padding: 30px;
+}
 
+@media (max-width: 992px) {
+  .parents-choice-mega {
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 16px !important;
+    box-sizing: border-box;
+  }
+  .parents-mega-flex,
+  .parents-mega-lines {
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
 }
 
 .parents-mega-flex {
@@ -6131,9 +6143,9 @@ input {
 
   .cart-count {
 
-    top: -2px;
+    top: 2px !important;
 
-    right: -2px;
+    right: -2px !important;
 
     width: 14px;
 
@@ -6526,9 +6538,9 @@ input {
 
   .cart-count {
 
-    top: -2px;
+    top: 2px !important;
 
-    right: -2px;
+    right: -2px !important;
 
     width: 14px;
 

@@ -356,4 +356,13 @@ body {
   .mobile-toggle { display: block; }
   .ref-input-group { flex-direction: column; }
   .ref-actions { flex-direction: column; }
+  .table-card { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .custom-table { min-width: 520px; }
 }
+
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .ref-box-card { padding: 1.25rem 1rem; }
+  .aff-main { padding: 0.85rem; }
+}
+

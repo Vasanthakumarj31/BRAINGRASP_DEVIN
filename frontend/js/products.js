@@ -164,7 +164,7 @@ async function fetchProductsFromDB() {
       try {
         res = await fetch('/api/products');
       } catch (e2) {
-        res = await fetch('http://localhost:3000/api/products');
+        res = await fetch(`${apiBase}/api/products`);
       }
     }
     

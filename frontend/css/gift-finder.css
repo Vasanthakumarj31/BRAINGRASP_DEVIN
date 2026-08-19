@@ -116,4 +116,40 @@
   color: var(--text-muted);
   font-weight: 600;
 }
+
+/* === Mobile Responsiveness === */
+@media (max-width: 600px) {
+  .gift-finder-wizard {
+    padding: 20px 14px;
+    border-radius: var(--radius-lg);
+  }
+
+  .gift-step-title {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+
+  .gift-options {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .gift-option {
+    padding: 14px 8px;
+  }
+
+  .gift-result-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
+  }
+
+  .gift-finder-actions {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .gift-finder-actions .btn {
+    width: 100%;
+  }
+}
+
  

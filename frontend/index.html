@@ -5,17 +5,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BrainyGrasp - Where Learning Meets Play!</title>
-  <link rel="stylesheet" href="css/common.css">
-  <link rel="stylesheet" href="css/index.css">
-  <link rel="stylesheet" href="css/search.css">
-  <link rel="stylesheet" href="css/mobile-responsive.css">
+  <link rel="stylesheet" href="css/common.css?v=4">
+  <link rel="stylesheet" href="css/index.css?v=4">
+  <link rel="stylesheet" href="css/search.css?v=4">
+  <link rel="stylesheet" href="css/mobile-responsive.css?v=4">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=Chewy&family=Fredoka:wght@300;400;500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link rel="stylesheet" href="css/policy-mobile.css">
+  <link rel="stylesheet" href="css/policy-mobile.css?v=4">
 </head>
 
 <body>
@@ -204,7 +204,7 @@
               <i class="fas fa-shopping-bag"></i>
             </button>
             <span class="cart-count"
-              style="position:absolute;top:-6px;right:-6px;z-index:1;pointer-events:none;">0</span>
+              style="position:absolute;top:2px;right:-2px;z-index:1;pointer-events:none;">0</span>
           </div>
           <!-- Login and Sign Up icons removed -->
           <div id="profileWrapper"><a id="userBtn" href="login.html" class="header-action-btn user-btn" title="Sign In">
@@ -373,7 +373,8 @@
 
       <!-- Slide 3: Yellow Creative Play -->
       <div class="hero-slide banner-yellow">
-        <div class="banner-bg sunburst">
+        <div class="banner-bg">
+          <div class="sunburst"></div>
           <div class="age-badge">Ages<br><strong>0-3</strong></div>
           <div class="stars-layer-white"></div>
         </div>
@@ -418,16 +419,16 @@
         </div>
       </div>
 
+      <div class="hero-dots">
+        <button class="hero-dot active" data-slide="0" aria-label="Go to slide 1"></button>
+        <button class="hero-dot" data-slide="1" aria-label="Go to slide 2"></button>
+        <button class="hero-dot" data-slide="2" aria-label="Go to slide 3"></button>
+        <button class="hero-dot" data-slide="3" aria-label="Go to slide 4"></button>
+        <button class="hero-dot" data-slide="4" aria-label="Go to slide 5"></button>
+      </div>
+      <button class="hero-arrow hero-prev" aria-label="Previous slide"><i class="fas fa-chevron-left"></i></button>
+      <button class="hero-arrow hero-next" aria-label="Next slide"><i class="fas fa-chevron-right"></i></button>
     </div>
-    <div class="hero-dots">
-      <button class="hero-dot active" data-slide="0"></button>
-      <button class="hero-dot" data-slide="1"></button>
-      <button class="hero-dot" data-slide="2"></button>
-      <button class="hero-dot" data-slide="3"></button>
-      <button class="hero-dot" data-slide="4"></button>
-    </div>
-    <button class="hero-arrow hero-prev" aria-label="Previous slide"><i class="fas fa-chevron-left"></i></button>
-    <button class="hero-arrow hero-next" aria-label="Next slide"><i class="fas fa-chevron-right"></i></button>
   </section>
 
 
