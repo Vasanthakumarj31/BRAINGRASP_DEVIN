@@ -162,9 +162,17 @@ async function fetchProductsFromDB() {
       res = await fetch(`${apiBase}/api/products`);
     } catch (e1) {
       try {
-        res = await fetch('/api/products');
+        res = await fetch('http://localhost:3000/api/products');
       } catch (e2) {
-        res = await fetch(`${apiBase}/api/products`);
+        res = await fetch('/api/products');
+      }
+    }
+
+    if (!res || !res.ok) {
+      const fallbackUrl = (apiBase.includes(':3000') || apiBase.endsWith('/')) ? '/api/products' : 'http://localhost:3000/api/products';
+      const fallbackRes = await fetch(fallbackUrl).catch(() => null);
+      if (fallbackRes && fallbackRes.ok) {
+        res = fallbackRes;
       }
     }
     

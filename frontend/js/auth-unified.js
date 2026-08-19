@@ -282,14 +282,18 @@ async function handleVerifyOTP() {
                     // after completing their profile (checkout or dashboard)
                     localStorage.setItem('postProfileRedirect', redirectPath || 'dashboard-new.html');
                     localStorage.removeItem('redirectAfterLogin');
-                    window.location.href = 'profile-setup.html';
+                    // Use replace() — removes login.html from browser history so
+                    // pressing Back from profile-setup skips over login entirely.
+                    window.location.replace('profile-setup.html');
                 } else if (redirectPath) {
                     // Returning user: go to their saved intent (checkout, etc.)
                     localStorage.removeItem('redirectAfterLogin');
-                    window.location.href = redirectPath;
+                    // Use replace() — same reason: login page should not sit in
+                    // the history stack once the user is authenticated.
+                    window.location.replace(redirectPath);
                 } else {
                     // Returning user: default → dashboard
-                    window.location.href = 'dashboard-new.html';
+                    window.location.replace('dashboard-new.html');
                 }
             } catch (error) {
                 console.error('Profile status check failed:', error);
@@ -301,12 +305,12 @@ async function handleVerifyOTP() {
                 if (!data.user.profile_completed) {
                     localStorage.setItem('postProfileRedirect', redirectPath || 'dashboard-new.html');
                     localStorage.removeItem('redirectAfterLogin');
-                    window.location.href = 'profile-setup.html';
+                    window.location.replace('profile-setup.html');
                 } else if (redirectPath) {
                     localStorage.removeItem('redirectAfterLogin');
-                    window.location.href = redirectPath;
+                    window.location.replace(redirectPath);
                 } else {
-                    window.location.href = 'dashboard-new.html';
+                    window.location.replace('dashboard-new.html');
                 }
             }
         } else {
@@ -412,6 +416,13 @@ function syncGlobalUI() {
 
     // Update cart counts
     updateCartCount();
+
+    // Update header auth button (syncAuthHeader in common.js)
+    if (typeof syncAuthHeader === 'function') {
+        syncAuthHeader();
+    } else if (typeof window.syncAuthHeader === 'function') {
+        window.syncAuthHeader();
+    }
 }
 
 // ── OTP Request Handler ───────────────────────────────────────────────────
@@ -440,7 +451,57 @@ async function requestOTP(method, value) {
 }
 
 // ── Initialization ────────────────────────────────────────────────────────
+
+/**
+ * resetLoginUI() — Restore the login form to a clean, idle state.
+ * Called on bfcache restore (pageshow) and on page load when the user is
+ * already authenticated, to ensure no stale "Verifying..." / "Sending..."
+ * state is ever visible.
+ */
+function resetLoginUI() {
+    // Reset Verify button
+    const verifyBtn = document.getElementById('verifyOTPBtn');
+    if (verifyBtn) {
+        verifyBtn.disabled    = false;
+        verifyBtn.textContent = 'Verify & Continue';
+    }
+    // Reset Send OTP button
+    const requestBtn = document.getElementById('requestOTPBtn');
+    if (requestBtn) {
+        requestBtn.disabled    = false;
+        requestBtn.textContent = 'Send OTP';
+    }
+    // Reset Resend button
+    const resendBtn = document.getElementById('resendOTP');
+    if (resendBtn) {
+        resendBtn.disabled    = false;
+        resendBtn.textContent = 'Resend OTP';
+    }
+    // Reset form back to Step 1 (email entry) so the OTP digit boxes
+    // with stale values are hidden and the user sees a fresh email field.
+    const step1 = document.getElementById('authStep1');
+    const step2 = document.getElementById('authStep2');
+    if (step1) step1.style.display = '';
+    if (step2) step2.style.display = 'none';
+    // Clear any stale OTP digits
+    document.querySelectorAll('.otp-box').forEach(b => { b.value = ''; });
+    // Hide any lingering error messages
+    ['authError', 'otpError', 'otpRequestError'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    // ── Early auth guard (login.html only) ───────────────────────────────
+    // If the user is already authenticated when login.html loads (e.g. they
+    // typed the URL directly, or the page was pre-fetched), redirect them to
+    // the dashboard immediately — they should never see the sign-in form.
+    if (document.getElementById('requestOTPBtn') && isAuthenticated()) {
+        window.location.replace('dashboard-new.html');
+        return; // stop all further DOMContentLoaded setup
+    }
+
     // Initialize checkout protection
     initCheckoutProtection();
 
@@ -545,6 +606,33 @@ document.addEventListener('DOMContentLoaded', () => {
             const firstBox = document.querySelector('.otp-box');
             if (firstBox) firstBox.focus();
         });
+    }
+});
+
+// ── bfcache / Back-Forward Navigation Guard (login.html only) ────────────
+// The browser's back-forward cache (bfcache) can restore a page from memory
+// without re-running DOMContentLoaded. The 'pageshow' event fires in BOTH
+// cases; when event.persisted is true the page was restored from bfcache.
+//
+// Without this handler, pressing Back from the dashboard would restore the
+// login page with the button frozen in "Verifying..." state (the DOM
+// snapshot was taken mid-request). This handler:
+//   1. Always resets all loading states so the form is never frozen.
+//   2. If the user is already authenticated (token still in localStorage),
+//      replaces the login history entry with dashboard — they never see the
+//      form at all.
+window.addEventListener('pageshow', (event) => {
+    // Only act on login.html (guard by presence of the OTP request button)
+    if (!document.getElementById('requestOTPBtn')) return;
+
+    if (event.persisted) {
+        // Page was restored from bfcache — always reset UI first
+        resetLoginUI();
+
+        // If the user completed login before pressing Back, send them forward
+        if (isAuthenticated()) {
+            window.location.replace('dashboard-new.html');
+        }
     }
 });
 

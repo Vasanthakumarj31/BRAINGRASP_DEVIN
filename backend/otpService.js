@@ -99,6 +99,13 @@ async function sendViaNodemailer(email, otp) {
 
 // ── Send OTP via Email (Multi-tier Fallback) ──────────────────────────────
 async function sendOTPEmail(email, otp) {
+  const isDev = process.env.NODE_ENV !== 'production';
+  if (isDev) {
+    console.log(`\n==================================================`);
+    console.log(`🔑 [DEV OTP LOG] Generated OTP for ${email}: ${otp}`);
+    console.log(`==================================================\n`);
+  }
+
   // Tier 1: Try Resend if configured
   if (process.env.RESEND_API_KEY) {
     console.log('📨 Trying Resend API for OTP delivery...');
@@ -116,11 +123,7 @@ async function sendOTPEmail(email, otp) {
   }
 
   // Tier 3: Local Dev / Non-Production Fallback
-  const isDev = process.env.NODE_ENV !== 'production';
   if (isDev) {
-    console.log(`\n==================================================`);
-    console.log(`🔑 [DEV OTP FALLBACK] OTP for ${email}: ${otp}`);
-    console.log(`==================================================\n`);
     return true;
   }
 

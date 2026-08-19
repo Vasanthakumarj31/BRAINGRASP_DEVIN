@@ -20,7 +20,8 @@
  *   shiprocket.js — POST /api/webhooks/shiprocket
  */
 
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 // ── Startup validation ────────────────────────────────────────────────────────
 const REQUIRED_ENV = ['JWT_SECRET', 'DB_PASSWORD', 'ADMIN_USERNAME', 'ADMIN_PASSWORD'];
@@ -31,7 +32,6 @@ for (const key of REQUIRED_ENV) {
 }
 
 const express = require('express');
-const path    = require('path');
 const { initRedis } = require('./redisClient');
 const pool    = require('./db'); // shared pool — imported here so DB is ready before routers load
 

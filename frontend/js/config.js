@@ -31,11 +31,11 @@ window.BG_CONFIG = {
                     host.endsWith('.local');
 
     if (isLocal) {
-      const port = window.location.port ? `:${window.location.port}` : ':3000';
+      const port = window.BG_API_PORT || '3000';
       const protocol = window.location.protocol && window.location.protocol.startsWith('http') 
         ? window.location.protocol 
         : 'http:';
-      return `${protocol}//${host || 'localhost'}${port}`;
+      return `${protocol}//${host || 'localhost'}:${port}`;
     }
 
     // 3. Production: use the configured backend URL

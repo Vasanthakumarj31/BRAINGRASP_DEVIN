@@ -1184,11 +1184,11 @@ function syncAuthHeader() {
 
   try { user = JSON.parse(localStorage.getItem('bg_user')); } catch { }
 
-  if (token && user) {
+  if (token) {
 
-    // Logged in: show first name + dashboard link
+    // Logged in: show first name or 'Account' + dashboard link
 
-    const firstName = (user.name || 'Account').split(' ')[0];
+    const firstName = (user && user.name ? user.name : 'Account').split(' ')[0];
 
     userBtn.href = 'dashboard-new.html';
 
@@ -1219,6 +1219,16 @@ function syncAuthHeader() {
   }
 
 }
+
+window.syncAuthHeader = syncAuthHeader;
+
+// Re-sync header auth state and cart count when restoring from browser bfcache
+window.addEventListener('pageshow', () => {
+  syncAuthHeader();
+  if (typeof updateCartCount === 'function') {
+    updateCartCount();
+  }
+});
 
 function initMegaNavigation() {
 
