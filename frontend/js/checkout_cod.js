@@ -4,7 +4,7 @@
    ============================================================ */
 
 (() => {
-const API_BASE = (window.BG_CONFIG && window.BG_CONFIG.API_BASE) || 'http://localhost:3000';
+const API_BASE = (window.BG_CONFIG && window.BG_CONFIG.API_BASE) || '';
 
 // ── State ─────────────────────────────────────────────────────
 let activeCart  = [];

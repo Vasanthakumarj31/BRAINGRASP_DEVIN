@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!searchBtn || !searchOverlay || !searchClose || !searchInput) return;
 
-    const API_BASE = (window.BG_CONFIG && window.BG_CONFIG.API_BASE) || 'http://localhost:3000';
+    const API_BASE = (window.BG_CONFIG && window.BG_CONFIG.API_BASE) || '';
 
     // Search state
     const searchState = {

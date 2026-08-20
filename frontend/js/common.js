@@ -253,7 +253,7 @@ function getCart() {
 function syncCartToDB() {
   const token = localStorage.getItem('bg_token');
   if (!token) return;
-  const apiBase = (window.BG_CONFIG && window.BG_CONFIG.API_BASE) || 'http://localhost:3000';
+  const apiBase = (window.BG_CONFIG && window.BG_CONFIG.API_BASE) || '';
   const cart = getCart();
   fetch(`${apiBase}/api/cart/sync`, {
     method: 'POST',
@@ -343,7 +343,7 @@ function clearCart() {
   // Also sync empty cart to DB if user is logged in
   const token = localStorage.getItem('bg_token');
   if (token) {
-    const apiBase = (window.BG_CONFIG && window.BG_CONFIG.API_BASE) || 'http://localhost:3000';
+    const apiBase = (window.BG_CONFIG && window.BG_CONFIG.API_BASE) || '';
     fetch(`${apiBase}/api/cart/sync`, {
       method: 'POST',
       headers: {
@@ -1307,7 +1307,7 @@ function initAffiliateTracking() {
       const cleanRef = ref.trim().toUpperCase();
       localStorage.setItem('bg_ref', cleanRef);
       document.cookie = `bg_ref=${cleanRef}; path=/; max-age=2592000`; // 30 days
-      const apiBase = (window.BG_CONFIG && window.BG_CONFIG.API_BASE) || 'http://localhost:3000';
+      const apiBase = (window.BG_CONFIG && window.BG_CONFIG.API_BASE) || '';
       fetch(`${apiBase}/api/affiliate/track?ref=${encodeURIComponent(cleanRef)}`).catch(() => {});
     }
   } catch (e) {}

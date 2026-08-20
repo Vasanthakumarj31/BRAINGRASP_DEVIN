@@ -155,22 +155,17 @@ function normalizeProduct(p) {
 // === Fetch from DB Backend ONLY ===
 async function fetchProductsFromDB() {
   try {
-    const apiBase = (window.BG_CONFIG && window.BG_CONFIG.API_BASE) || 'http://localhost:3000';
+    const apiBase = (window.BG_CONFIG && window.BG_CONFIG.API_BASE) || '';
     let res;
 
     try {
       res = await fetch(`${apiBase}/api/products`);
     } catch (e1) {
-      try {
-        res = await fetch('http://localhost:3000/api/products');
-      } catch (e2) {
-        res = await fetch('/api/products');
-      }
+      res = await fetch('/api/products');
     }
 
     if (!res || !res.ok) {
-      const fallbackUrl = (apiBase.includes(':3000') || apiBase.endsWith('/')) ? '/api/products' : 'http://localhost:3000/api/products';
-      const fallbackRes = await fetch(fallbackUrl).catch(() => null);
+      const fallbackRes = await fetch('/api/products').catch(() => null);
       if (fallbackRes && fallbackRes.ok) {
         res = fallbackRes;
       }

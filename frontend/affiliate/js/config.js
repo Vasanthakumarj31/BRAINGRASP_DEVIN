@@ -1,7 +1,7 @@
 /**
  * Shared API Configuration for Affiliate Portal
  */
-const PRODUCTION_API_URL = 'https://braingrasp-devin-1.onrender.com';
+const PRODUCTION_API_URL = window.BG_PRODUCTION_API_URL || 'https://braingrasp-devin-1.onrender.com';
 
 window.AFF_CONFIG = {
   API_BASE: (() => {
@@ -18,6 +18,6 @@ window.AFF_CONFIG = {
     if (isLocal) {
       return `http://${host || 'localhost'}:3000`;
     }
-    return PRODUCTION_API_URL;
+    return PRODUCTION_API_URL || window.location.origin;
   })()
 };

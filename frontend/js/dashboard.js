@@ -3,7 +3,7 @@
    Handles: User profile display, order history, quick actions
    ============================================================ */
 
-const API_BASE = (window.BG_CONFIG && window.BG_CONFIG.API_BASE) || 'http://localhost:3000';
+const API_BASE = (window.BG_CONFIG && window.BG_CONFIG.API_BASE) || '';
 
 // ── User/Auth Helpers ──────────────────────────────────────────────────────────
 // Note: Changed to match standard localStorage keys used in your auth.js

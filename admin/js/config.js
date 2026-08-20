@@ -7,7 +7,7 @@
  * Local dev auto-detects localhost and uses http://localhost:3000
  */
 
-const PRODUCTION_API_URL = 'https://braingrasp-devin-1.onrender.com';
+const PRODUCTION_API_URL = window.BG_PRODUCTION_API_URL || 'https://braingrasp-devin-1.onrender.com';
 
 window.BG_ADMIN_CONFIG = {
   API_BASE: (() => {
@@ -18,6 +18,6 @@ window.BG_ADMIN_CONFIG = {
       return 'http://localhost:3000';
     }
 
-    return PRODUCTION_API_URL;
+    return PRODUCTION_API_URL || window.location.origin;
   })()
 };

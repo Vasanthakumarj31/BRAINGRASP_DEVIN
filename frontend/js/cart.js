@@ -3,7 +3,7 @@
    Uses unified auth system for checkout protection
    ============================================================ */
 
-const _cartPageAPIBase = (window.BG_CONFIG && window.BG_CONFIG.API_BASE) || 'http://localhost:3000';
+const _cartPageAPIBase = (window.BG_CONFIG && window.BG_CONFIG.API_BASE) || '';
 
 // ── Refresh cart from DB if logged in, then render ──
 async function loadAndRenderCartPage() {

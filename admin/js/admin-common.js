@@ -5,7 +5,7 @@
   const TOKEN_KEY = 'adminToken';
 
   function apiBase() {
-    return (window.BG_ADMIN_CONFIG && window.BG_ADMIN_CONFIG.API_BASE) || 'http://localhost:3000';
+    return (window.BG_ADMIN_CONFIG && window.BG_ADMIN_CONFIG.API_BASE) || '';
   }
 
   function getToken() {

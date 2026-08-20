@@ -1,5 +1,5 @@
 /* Affiliate Portal Authentication & Guard Module */
-const API_BASE = (window.AFF_CONFIG && window.AFF_CONFIG.API_BASE) || 'http://localhost:3000';
+const API_BASE = (window.AFF_CONFIG && window.AFF_CONFIG.API_BASE) || '';
 
 function getAffToken() {
   return localStorage.getItem('bg_aff_token');

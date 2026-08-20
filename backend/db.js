@@ -15,10 +15,12 @@
 
 const { Pool } = require('pg');
 
+const useSsl = process.env.DB_SSL === 'true' || process.env.NODE_ENV === 'production';
+
 const pool = process.env.DATABASE_URL
   ? new Pool({
       connectionString: process.env.DATABASE_URL,
-      ssl: { rejectUnauthorized: false },
+      ssl: useSsl ? { rejectUnauthorized: false } : false,
     })
   : new Pool({
       user:     process.env.DB_USER     || 'postgres',
@@ -26,6 +28,7 @@ const pool = process.env.DATABASE_URL
       database: process.env.DB_NAME     || 'brainygras',
       password: process.env.DB_PASSWORD,
       port:     parseInt(process.env.DB_PORT) || 5432,
+      ssl:      useSsl ? { rejectUnauthorized: false } : false,
     });
 
 module.exports = pool;

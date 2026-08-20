@@ -65,6 +65,7 @@ app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
   } else if (origin && ALLOWED_ORIGINS.includes(origin)) {
     res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Credentials', 'true');
     res.header('Vary', 'Origin');
   } else if (origin) {
     if (req.method === 'OPTIONS') {
@@ -76,7 +77,6 @@ app.use((req, res, next) => {
 
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Max-Age', '86400');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -97,18 +97,18 @@ app.use('/', adminRouter);
 
 // ── Root & Health ─────────────────────────────────────────────────────────────
 // Port 3000 is dedicated to the backend API.
-// Frontend HTML is served separately on port 5500 (frontend-server.js).
-// Hitting http://localhost:3000 in a browser shows this JSON — no redirect.
+// Hitting backend root in a browser shows this JSON status message.
 app.get('/', (req, res) => {
   res.json({
-    status : 'ok',
-    server : 'BrainyGrasp API',
-    port   : port,
-    message: 'Backend API is running. All endpoints are under /api/*',
-    frontend: 'http://localhost:5500',
+    status   : 'ok',
+    server   : 'BrainyGrasp API',
+    port     : port,
+    message  : 'Backend API is running. All endpoints are under /api/*',
+    frontend : process.env.FRONTEND_URL || 'http://localhost:5500',
   });
 });
 
+app.get('/health', (req, res) => res.json({ status: 'ok', server: 'BrainyGrasp API', port: port }));
 app.get('/api/health', (req, res) => res.json({ status: 'ok', server: 'BrainyGrasp API', port: port }));
 
 

@@ -14,8 +14,8 @@
  * Do NOT change the localhost detection logic — it ensures local dev works without config.
  */
 
-// ── CHANGE THIS to your Render/Railway backend URL before deploying ──
-const PRODUCTION_API_URL = 'https://braingrasp-devin-1.onrender.com';
+// ── Configurable production backend API URL (override via window.BG_API_BASE) ──
+const PRODUCTION_API_URL = window.BG_PRODUCTION_API_URL || 'https://braingrasp-devin-1.onrender.com';
 
 // Backend API port for local development (port 3000 is dedicated to backend)
 const LOCAL_API_PORT = '3000';
@@ -39,13 +39,13 @@ window.BG_CONFIG = {
       host.endsWith('.local');
 
     if (isLocal) {
-      // Frontend runs on 5500, backend API always runs on 3000
+      // Frontend runs on 5500, backend API runs on 3000 in local dev
       const protocol = window.location.protocol || 'http:';
       const apiHost  = host || 'localhost';
       return `${protocol}//${apiHost}:${LOCAL_API_PORT}`;
     }
 
-    // 3. Production: use the configured backend URL
-    return PRODUCTION_API_URL;
+    // 3. Production: use configured backend URL or current window origin
+    return PRODUCTION_API_URL || window.location.origin;
   })()
 };

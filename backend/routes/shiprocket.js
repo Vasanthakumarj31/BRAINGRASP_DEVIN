@@ -20,20 +20,9 @@
 
 const express = require('express');
 const router  = express.Router();
-const { Pool } = require('pg');
+const pool    = require('../db');
 const { deleteCache, CACHE_KEYS } = require('../redisClient');
 const { mapShiprocketStatus } = require('../shiprocketService');
-
-// ── DB pool (re-uses the same env vars as server.js) ────────────────────────
-const pool = process.env.DATABASE_URL
-  ? new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } })
-  : new Pool({
-      user:     process.env.DB_USER     || 'postgres',
-      host:     process.env.DB_HOST     || 'localhost',
-      database: process.env.DB_NAME     || 'brainygras',
-      password: process.env.DB_PASSWORD,
-      port:     parseInt(process.env.DB_PORT) || 5432,
-    });
 
 // ── Webhook secret validation middleware ─────────────────────────────────────
 function validateWebhookSecret(req, res, next) {
