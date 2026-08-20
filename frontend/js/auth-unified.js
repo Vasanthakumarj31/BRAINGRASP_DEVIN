@@ -220,17 +220,18 @@ async function syncCartOnLogin() {
 
 // ── Enhanced OTP Verification ────────────────────────────────────────────
 async function handleVerifyOTP() {
+    const verifyBtn = document.getElementById('verifyOTPBtn');
+    if (verifyBtn && verifyBtn.disabled) return;
+
     const otpBoxes = document.querySelectorAll('.otp-box');
     const otp = Array.from(otpBoxes).map(b => b.value).join('');
     const email = document.getElementById('emailInput').value;
 
     if (otp.length < 6) {
-        const verifyBtn = document.getElementById('verifyOTPBtn');
         showAuthError('otpError', 'Please enter the full 6-digit OTP.');
         return;
     }
 
-    const verifyBtn = document.getElementById('verifyOTPBtn');
     if (verifyBtn) {
         verifyBtn.disabled = true;
         verifyBtn.textContent = 'Verifying...';
@@ -508,6 +509,49 @@ document.addEventListener('DOMContentLoaded', () => {
     // Sync global UI
     syncGlobalUI();
 
+    // Helper for requesting OTP
+    async function handleRequestOTP() {
+        const requestBtn = document.getElementById('requestOTPBtn');
+        if (requestBtn && requestBtn.disabled) return;
+
+        const method = 'email';
+        const emailInput = document.getElementById('emailInput');
+        const value = emailInput ? emailInput.value.trim() : '';
+
+        if (!value) {
+            showAuthError('otpRequestError', 'Please enter your email address');
+            return;
+        }
+
+        if (requestBtn) {
+            requestBtn.disabled = true;
+            requestBtn.textContent = 'Sending...';
+        }
+
+        const success = await requestOTP(method, value);
+
+        if (requestBtn) {
+            requestBtn.disabled = false;
+            requestBtn.textContent = 'Send OTP';
+        }
+
+        if (success) {
+            // Show OTP input section
+            const authStep1 = document.getElementById('authStep1');
+            const authStep2 = document.getElementById('authStep2');
+            if (authStep1 && authStep2) {
+                authStep1.style.display = 'none';
+                authStep2.style.display = 'block';
+                // Populate the email confirmation label
+                const emailDisplay = document.getElementById('otpEmailDisplay');
+                if (emailDisplay) emailDisplay.textContent = value;
+                // Focus first OTP box
+                const firstBox = document.querySelector('.otp-box');
+                if (firstBox) firstBox.focus();
+            }
+        }
+    }
+
     // Attach OTP verification handler
     const verifyBtn = document.getElementById('verifyOTPBtn');
     if (verifyBtn) {
@@ -517,42 +561,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Attach OTP request handlers
+    // Attach OTP request handler (button click)
     const requestBtn = document.getElementById('requestOTPBtn');
     if (requestBtn) {
-        requestBtn.addEventListener('click', async (e) => {
+        requestBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            const method = 'email';
-            const value = document.getElementById('emailInput').value;
-
-            if (!value) {
-                showAuthError('otpRequestError', 'Please enter your email address');
-                return;
-            }
-
-            requestBtn.disabled = true;
-            requestBtn.textContent = 'Sending...';
-
-            const success = await requestOTP(method, value);
-
-            requestBtn.disabled = false;
-            requestBtn.textContent = 'Send OTP';
-
-            if (success) {
-                // Show OTP input section
-                const authStep1 = document.getElementById('authStep1');
-                const authStep2 = document.getElementById('authStep2');
-                if (authStep1 && authStep2) {
-                    authStep1.style.display = 'none';
-                    authStep2.style.display = 'block';
-                    // Populate the email confirmation label
-                    const emailDisplay = document.getElementById('otpEmailDisplay');
-                    if (emailDisplay) emailDisplay.textContent = value;
-                    // Focus first OTP box
-                    const firstBox = document.querySelector('.otp-box');
-                    if (firstBox) firstBox.focus();
-                }
-            }
+            handleRequestOTP();
         });
     }
 
@@ -565,15 +579,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Email-only authentication - no tab switching needed
-
     // Auto-focus first OTP box
     const firstOTPBox = document.querySelector('.otp-box');
     if (firstOTPBox) {
         firstOTPBox.focus();
     }
 
-    // OTP box auto-advance
+    // OTP box auto-advance & Enter key submit handler
     const otpBoxes = document.querySelectorAll('.otp-box');
     otpBoxes.forEach((box, index) => {
         box.addEventListener('input', (e) => {
@@ -585,9 +597,38 @@ document.addEventListener('DOMContentLoaded', () => {
         box.addEventListener('keydown', (e) => {
             if (e.key === 'Backspace' && !e.target.value && index > 0) {
                 otpBoxes[index - 1].focus();
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                handleVerifyOTP();
             }
         });
     });
+
+    // Form submit listener & Enter key handler for email step
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const step1 = document.getElementById('authStep1');
+            const step2 = document.getElementById('authStep2');
+
+            if (step1 && step1.style.display !== 'none') {
+                handleRequestOTP();
+            } else if (step2 && step2.style.display !== 'none') {
+                handleVerifyOTP();
+            }
+        });
+    }
+
+    const emailInput = document.getElementById('emailInput');
+    if (emailInput) {
+        emailInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleRequestOTP();
+            }
+        });
+    }
 
     // Resend OTP handler
     const resendBtn = document.getElementById('resendOTP');

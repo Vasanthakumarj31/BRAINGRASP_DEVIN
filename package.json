@@ -5,6 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node backend/server.js",
+    "backend:start": "node backend/server.js",
+    "frontend:start": "node frontend-server.js",
+    "dev": "start \"Backend :3000\" node backend/server.js && start \"Frontend :5500\" node frontend-server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

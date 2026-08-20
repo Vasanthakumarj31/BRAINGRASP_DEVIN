@@ -95,52 +95,22 @@ app.use('/', productsRouter);
 app.use('/', paymentRouter);
 app.use('/', adminRouter);
 
-// ── Static files ──────────────────────────────────────────────────────────────
-const frontendPath = path.join(__dirname, '..', 'frontend');
-const adminPath    = path.join(__dirname, '..', 'admin');
-
-// Protected pages — no-store cache headers so logout clears browser cache
-const PROTECTED_PAGES   = ['dashboard-new.html', 'profile-setup.html', 'checkout_cod.html'];
-const noCacheHeaders    = (req, res, next) => {
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-  res.setHeader('Pragma',  'no-cache');
-  res.setHeader('Expires', '0');
-  next();
-};
-PROTECTED_PAGES.forEach(page => {
-  app.get(`/${page}`, noCacheHeaders, (req, res) =>
-    res.sendFile(path.join(frontendPath, page))
-  );
-});
-
-// Server-side checkout auth guard
-const jwt        = require('jsonwebtoken');
-const SECRET_KEY = process.env.JWT_SECRET;
-app.get(['/checkout', '/checkout_cod.html', '/checkout.html'], (req, res) => {
-  const authHeader = req.headers['authorization'];
-  const token = (authHeader && authHeader.split(' ')[1]) || req.query.token;
-
-  if (!token) {
-    if (req.accepts('html')) return res.redirect('/login.html?redirect=checkout_cod.html');
-    return res.status(401).json({ error: 'Access Denied: Unauthenticated user cannot access checkout.' });
-  }
-
-  jwt.verify(token, SECRET_KEY, (err) => {
-    if (err) {
-      if (req.accepts('html')) return res.redirect('/login.html?redirect=checkout_cod.html');
-      return res.status(401).json({ error: 'Invalid or expired session token.' });
-    }
-    res.sendFile(path.join(frontendPath, 'checkout_cod.html'));
+// ── Root & Health ─────────────────────────────────────────────────────────────
+// Port 3000 is dedicated to the backend API.
+// Frontend HTML is served separately on port 5500 (frontend-server.js).
+// Hitting http://localhost:3000 in a browser shows this JSON — no redirect.
+app.get('/', (req, res) => {
+  res.json({
+    status : 'ok',
+    server : 'BrainyGrasp API',
+    port   : port,
+    message: 'Backend API is running. All endpoints are under /api/*',
+    frontend: 'http://localhost:5500',
   });
 });
 
-// Static directories (frontend mounted once — duplicate removed)
-app.use(express.static(frontendPath));
-app.use('/admin',     express.static(adminPath));
-app.use('/affiliate', express.static(path.join(frontendPath, 'affiliate')));
+app.get('/api/health', (req, res) => res.json({ status: 'ok', server: 'BrainyGrasp API', port: port }));
 
-// Root → index.html
-app.get('/', (req, res) => res.sendFile(path.join(frontendPath, 'index.html')));
 
 // ── Database initialization ───────────────────────────────────────────────────
 async function initDB() {

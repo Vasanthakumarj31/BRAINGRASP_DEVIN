@@ -1,81 +1,133 @@
+/**
+ * frontend-server.js — BrainyGrasp Dedicated Frontend Server
+ * ─────────────────────────────────────────────────────────────
+ * Port : 5500 (frontend only)
+ * Serves:
+ *   /           → frontend/index.html
+ *   /admin/*    → admin/
+ *   /affiliate/ → frontend/affiliate/
+ *
+ * Backend API is served SEPARATELY on port 3000 (backend/server.js).
+ * All /api/* calls from the browser go to http://localhost:3000.
+ */
+
 const http = require('http');
-const fs = require('fs');
+const fs   = require('fs');
 const path = require('path');
 
+const FRONTEND_DIR  = path.join(__dirname, 'frontend');
+const ADMIN_DIR     = path.join(__dirname, 'admin');
+
 const MIME_TYPES = {
-  '.html': 'text/html',
-  '.css': 'text/css',
-  '.js': 'application/javascript',
-  '.json': 'application/json',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.gif': 'image/gif',
-  '.svg': 'image/svg+xml',
-  '.ico': 'image/x-icon'
+  '.html' : 'text/html',
+  '.css'  : 'text/css',
+  '.js'   : 'application/javascript',
+  '.json' : 'application/json',
+  '.png'  : 'image/png',
+  '.jpg'  : 'image/jpeg',
+  '.jpeg' : 'image/jpeg',
+  '.gif'  : 'image/gif',
+  '.svg'  : 'image/svg+xml',
+  '.ico'  : 'image/x-icon',
+  '.woff' : 'font/woff',
+  '.woff2': 'font/woff2',
+  '.ttf'  : 'font/ttf',
+  '.webp' : 'image/webp',
 };
 
+// Pages that must not be cached by the browser (auth-protected pages)
+const NO_CACHE_PAGES = new Set([
+  '/dashboard-new.html',
+  '/profile-setup.html',
+  '/checkout_cod.html',
+  '/checkout.html',
+]);
+
+function resolveFilePath(cleanPath) {
+  // /admin/* → serve from admin/
+  if (cleanPath === '/admin' || cleanPath === '/admin/') {
+    return path.join(ADMIN_DIR, 'index.html');
+  }
+  if (cleanPath.startsWith('/admin/')) {
+    return path.join(ADMIN_DIR, cleanPath.slice('/admin/'.length));
+  }
+
+  // /frontend/* legacy prefix → strip and serve from frontend/
+  if (cleanPath.startsWith('/frontend/')) {
+    return path.join(FRONTEND_DIR, cleanPath.slice('/frontend/'.length));
+  }
+  if (cleanPath === '/frontend') {
+    return path.join(FRONTEND_DIR, 'index.html');
+  }
+
+  // Root → frontend/index.html
+  if (cleanPath === '/' || cleanPath === '') {
+    return path.join(FRONTEND_DIR, 'index.html');
+  }
+
+  // Everything else → frontend/
+  return path.join(FRONTEND_DIR, cleanPath);
+}
+
 const server = http.createServer((req, res) => {
-  // Enable CORS
+  // CORS headers (development convenience)
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  
+
   if (req.method === 'OPTIONS') {
     res.writeHead(200);
     res.end();
     return;
   }
-  
-  // Extract clean path without query parameters
-  const rawUrl = req.url || '/';
+
+  const rawUrl    = req.url || '/';
   const cleanPath = rawUrl.split('?')[0];
 
-  // Direct checkout protection check
-  if (cleanPath === '/checkout' || cleanPath === '/checkout_cod.html' || cleanPath === '/checkout.html') {
-    const hasToken = req.url.includes('token=') || (req.headers.authorization && req.headers.authorization.startsWith('Bearer '));
+  // Decode URL-encoded characters (e.g. %20 → space) so filenames with
+  // spaces or special characters resolve correctly on disk.
+  let decodedPath;
+  try {
+    decodedPath = decodeURIComponent(cleanPath);
+  } catch {
+    decodedPath = cleanPath; // malformed URI — use raw path as fallback
+  }
+
+  // Checkout guard — redirect to login if no token present
+  if (
+    decodedPath === '/checkout' ||
+    decodedPath === '/checkout_cod.html' ||
+    decodedPath === '/checkout.html'
+  ) {
+    const hasToken =
+      req.url.includes('token=') ||
+      (req.headers.authorization && req.headers.authorization.startsWith('Bearer '));
     if (!hasToken) {
-      res.writeHead(302, { 'Location': '/login.html?redirect=checkout_cod.html' });
+      res.writeHead(302, { Location: '/login.html?redirect=checkout_cod.html' });
       res.end();
       return;
     }
   }
 
-  // Resolve disk path
-  let relativePath = cleanPath;
-  if (relativePath.startsWith('/frontend/')) {
-    relativePath = relativePath.substring('/frontend/'.length);
-  } else if (relativePath === '/frontend') {
-    relativePath = 'index.html';
-  }
+  let filePath = resolveFilePath(decodedPath);
 
-  if (relativePath === '/' || relativePath === '') {
-    relativePath = 'index.html';
-  }
-
-  let filePath = path.join(__dirname, 'frontend', relativePath);
-
-  // If path is a directory, append index.html
+  // If the resolved path is a directory, look for index.html inside it
   if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
     filePath = path.join(filePath, 'index.html');
   }
 
-  const ext = path.extname(filePath);
+  const ext         = path.extname(filePath).toLowerCase();
   const contentType = MIME_TYPES[ext] || 'text/html';
+
+  // No-cache for protected pages
+  if (NO_CACHE_PAGES.has(decodedPath)) {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+  }
 
   fs.readFile(filePath, (err, data) => {
     if (err) {
-      // Fallback: check if root index.html exists
-      const rootIndex = path.join(__dirname, 'index.html');
-      if (fs.existsSync(rootIndex)) {
-        return fs.readFile(rootIndex, (rErr, rData) => {
-          if (!rErr) {
-            res.writeHead(200, { 'Content-Type': 'text/html' });
-            return res.end(rData);
-          }
-          send404(res, req.url);
-        });
-      }
       send404(res, req.url);
     } else {
       res.writeHead(200, { 'Content-Type': contentType });
@@ -99,9 +151,11 @@ function send404(res, url) {
   `);
 }
 
-const PORT = 5501;
+const PORT = 5500;
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Frontend server running on http://localhost:${PORT}`);
-  console.log(`🌐 Accessible from network devices at http://0.0.0.0:${PORT}`);
-  console.log(`📁 Serving files from: ${path.join(__dirname, 'frontend')}`);
+  console.log(`🌐 Frontend server  →  http://localhost:${PORT}`);
+  console.log(`🛠️  Admin panel      →  http://localhost:${PORT}/admin`);
+  console.log(`📁 Serving frontend from: ${FRONTEND_DIR}`);
+  console.log(`📁 Serving admin    from: ${ADMIN_DIR}`);
+  console.log(`⚡ Backend API       →  http://localhost:3000  (run separately)`);
 });
