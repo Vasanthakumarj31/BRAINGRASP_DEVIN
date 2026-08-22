@@ -1,13 +1,9 @@
 /* Admin Monthly Affiliate Payouts Module */
 (function () {
-  const { apiBase, getToken, requireAuth, bindLogout, showToast, esc } = window.AdminApp;
+  const { requireAuth, bindLogout, adminFetch, showToast, esc } = window.AdminApp;
 
   if (!requireAuth()) return;
   bindLogout();
-
-  function getAuthHeaders() {
-    return { 'Authorization': `Bearer ${getToken()}` };
-  }
 
   function escapeHTML(str) {
     return esc(str);
@@ -25,9 +21,8 @@
       btnSave.addEventListener('click', async () => {
         const day = document.getElementById('payoutDayInput').value;
         try {
-          const res = await fetch(`${apiBase()}/api/admin/affiliate-settings`, {
+          const res = await adminFetch('/admin/affiliate-settings', {
             method: 'PUT',
-            headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
             body: JSON.stringify({ payout_day: day })
           });
           const data = await res.json();
@@ -35,7 +30,7 @@
           showToast('✅ ' + data.message, 'ok');
           await loadWallets();
         } catch (e) {
-          showToast('❌ ' + e.message, 'err');
+          if (e.message !== 'Session expired') showToast('❌ ' + e.message, 'err');
         }
       });
     }
@@ -66,21 +61,27 @@
     const infoEl = document.getElementById('scheduleInfo');
 
     try {
-      const res = await fetch(`${apiBase()}/api/admin/affiliate-wallets`, { headers: getAuthHeaders() });
-      if (!res.ok) throw new Error('Failed to fetch affiliate wallets');
+      const res = await adminFetch('/admin/affiliate-wallets');
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `Server returned ${res.status}`);
+      }
 
       const data = await res.json();
       const { payoutConfig, affiliates } = data;
 
-      if (infoEl) {
+      if (infoEl && payoutConfig) {
         infoEl.textContent = `Payouts occur monthly on day ${payoutConfig.payoutDay}. Next scheduled payout: ${payoutConfig.nextPayoutDate} (${payoutConfig.daysRemaining} days remaining)`;
       }
       const inputDay = document.getElementById('payoutDayInput');
-      if (inputDay) inputDay.value = payoutConfig.payoutDay;
+      if (inputDay && payoutConfig) inputDay.value = payoutConfig.payoutDay;
 
-      renderWalletsTable(affiliates);
+      renderWalletsTable(affiliates || []);
     } catch (err) {
-      if (tbody) tbody.innerHTML = `<tr><td colspan="7" class="no-data">❌ ${err.message}</td></tr>`;
+      if (err.message !== 'Session expired') {
+        if (infoEl) infoEl.textContent = 'Could not load payout schedule configuration.';
+        if (tbody) tbody.innerHTML = `<tr><td colspan="7" class="no-data">❌ Couldn't connect to server — check that the API is running and try again.</td></tr>`;
+      }
     }
   }
 
@@ -133,9 +134,8 @@
     btn.disabled = true;
 
     try {
-      const res = await fetch(`${apiBase()}/api/admin/affiliate-payouts/${affiliateId}`, {
+      const res = await adminFetch(`/admin/affiliate-payouts/${affiliateId}`, {
         method: 'POST',
-        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
         body: JSON.stringify({ payment_reference, admin_note })
       });
 
@@ -149,7 +149,7 @@
       await loadWallets();
       await loadPayoutHistory();
     } catch (err) {
-      showToast('❌ ' + err.message, 'err');
+      if (err.message !== 'Session expired') showToast('❌ ' + err.message, 'err');
     } finally {
       btn.disabled = false;
     }
@@ -160,8 +160,11 @@
     if (!tbody) return;
 
     try {
-      const res = await fetch(`${apiBase()}/api/admin/affiliate-payouts`, { headers: getAuthHeaders() });
-      if (!res.ok) return;
+      const res = await adminFetch('/admin/affiliate-payouts');
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `Server returned ${res.status}`);
+      }
 
       const payouts = await res.json();
       if (!payouts.length) {
@@ -180,7 +183,9 @@
         </tr>
       `).join('');
     } catch (err) {
-      console.error('Failed to load payout history:', err);
+      if (err.message !== 'Session expired') {
+        if (tbody) tbody.innerHTML = `<tr><td colspan="6" class="no-data">❌ Couldn't connect to server — check that the API is running and try again.</td></tr>`;
+      }
     }
   }
 

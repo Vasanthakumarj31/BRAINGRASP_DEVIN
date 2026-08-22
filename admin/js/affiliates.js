@@ -1,13 +1,9 @@
 /* Admin Affiliates JS Module */
 (function () {
-  const { apiBase, getToken, requireAuth, bindLogout, showToast, esc } = window.AdminApp;
+  const { requireAuth, bindLogout, adminFetch, showToast, esc } = window.AdminApp;
 
   if (!requireAuth()) return;
   bindLogout();
-
-  function getAuthHeaders() {
-    return { 'Authorization': `Bearer ${getToken()}` };
-  }
 
   function escapeHTML(str) {
     return esc(str);
@@ -72,15 +68,21 @@
     const countEl = document.getElementById('affiliateCount');
 
     try {
-      const res = await fetch(`${apiBase()}/api/admin/affiliates`, { headers: getAuthHeaders() });
-      if (!res.ok) throw new Error('Failed to load affiliates');
+      const res = await adminFetch('/admin/affiliates');
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `Server returned ${res.status}`);
+      }
 
       allAffiliates = await res.json();
       if (countEl) countEl.textContent = `${allAffiliates.length} Total Registered Affiliates`;
 
       renderAffiliatesTable(allAffiliates);
     } catch (err) {
-      if (tbody) tbody.innerHTML = `<tr><td colspan="10" class="no-data">❌ ${err.message}</td></tr>`;
+      if (err.message !== 'Session expired') {
+        if (countEl) countEl.textContent = 'Could not load affiliates';
+        if (tbody) tbody.innerHTML = `<tr><td colspan="10" class="no-data">❌ Couldn't connect to server — check that the API is running and try again.</td></tr>`;
+      }
     }
   }
 
@@ -147,24 +149,19 @@
     btn.disabled = true;
 
     try {
-      let url, method, body;
+      let path, method, body;
 
       if (editId) {
-        url = `${apiBase()}/api/admin/affiliates/${editId}`;
+        path = `/admin/affiliates/${editId}`;
         method = 'PUT';
         body = JSON.stringify({ name, phone, commission_pct, status });
       } else {
-        url = `${apiBase()}/api/admin/affiliates`;
+        path = '/admin/affiliates';
         method = 'POST';
         body = JSON.stringify({ name, email, password, phone, commission_pct });
       }
 
-      const res = await fetch(url, {
-        method,
-        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
-        body
-      });
-
+      const res = await adminFetch(path, { method, body });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to save affiliate');
 

@@ -365,8 +365,8 @@ router.get('/api/admin/affiliates', authenticateAdmin, async (req, res) => {
     `);
     res.json(result.rows);
   } catch (err) {
-    console.error('Admin list affiliates error:', err);
-    res.status(500).json({ error: 'Failed to fetch affiliates' });
+    console.error('Admin list affiliates error DETAILED:', err);
+    res.status(500).json({ error: err.message || 'Failed to fetch affiliates' });
   }
 });
 

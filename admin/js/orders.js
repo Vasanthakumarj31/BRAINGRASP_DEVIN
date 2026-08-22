@@ -34,6 +34,14 @@
       if (currentSearch) params.set('search', currentSearch);
 
       const res = await adminFetch(`/admin/orders?${params}`);
+
+      // Guard: treat non-2xx responses as errors so we don't destructure
+      // `undefined` out of an error JSON like {"error":"Failed to fetch orders"}
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `Server returned ${res.status}`);
+      }
+
       const { orders, total } = await res.json();
       totalOrders = total;
       renderTable(orders);
@@ -47,7 +55,13 @@
       document.getElementById('nextBtn').disabled = currentPage * PAGE_SIZE >= total;
     } catch (err) {
       if (err.message !== 'Session expired') {
-        tbody.innerHTML = '<tr><td colspan="9" class="no-data">Failed to load orders. Check that the API is running.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" class="no-data">❌ Couldn\'t connect to server — check that the API is running and try again.</td></tr>';
+
+        const countEl = document.getElementById('orderCount');
+        if (countEl) countEl.textContent = 'Could not load orders';
+        document.getElementById('pageInfo').textContent = '—';
+        document.getElementById('prevBtn').disabled = true;
+        document.getElementById('nextBtn').disabled = true;
       }
     }
   }

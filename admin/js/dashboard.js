@@ -34,7 +34,7 @@
       const lbl = sales === 0 ? 'No sales' : `${Number(sales).toLocaleString('en-IN')} sold`;
       return `<div class="pi-item">
         <div class="pi-rank ${isLow ? 'warn' : rankClass(i)}">${isLow ? '!' : '#' + (i + 1)}</div>
-        <img class="pi-img" src="${esc(p.image || '')}" alt="${esc(p.name)}" onerror="this.src='https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=80&h=80&fit=crop'">
+        <img class="pi-img" src="${esc(p.image || '')}" alt="${esc(p.name)}" onerror="this.onerror=null;this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22 viewBox=%220 0 80 80%22><rect width=%22100%25%22 height=%22100%25%22 fill=%22%231c2333%22/><text x=%2250%25%22 y=%2250%25%22 fill=%22%2364748b%22 font-size=%2211%22 text-anchor=%22middle%22 dy=%22.3em%22>No Image</text></svg>'">
         <div class="pi-info">
           <div class="pi-name" title="${esc(p.name)}">${esc(p.name)}</div>
           <div class="pi-cat">${esc(p.category || '—')} · ₹${Number(p.price).toLocaleString('en-IN')}</div>
@@ -117,7 +117,21 @@
     } catch (err) {
       if (err.message !== 'Session expired') {
         console.error(err);
-        showToast('Failed to load dashboard: ' + err.message, 'err');
+        showToast('❌ Couldn\'t connect to server — check that the API is running and try again.', 'err');
+
+        const tbody = document.getElementById('ordersTbody');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="5" class="no-data">❌ Couldn\'t connect to server — check that the API is running and try again.</td></tr>';
+
+        const topL = document.getElementById('topList');
+        if (topL) topL.innerHTML = '<p style="color:var(--muted);font-size:13px;padding:10px 0">Could not load products.</p>';
+
+        const lowL = document.getElementById('lowList');
+        if (lowL) lowL.innerHTML = '<p style="color:var(--muted);font-size:13px;padding:10px 0">Could not load products.</p>';
+
+        ['kUsers', 'kTotal', 'kCart', 'kConfirmed', 'kPending', 'kDelivered', 'kRevenue'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.textContent = '—';
+        });
       }
     } finally {
       setTimeout(() => { if (btn) btn.style.transform = ''; }, 600);

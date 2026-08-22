@@ -32,7 +32,7 @@ for (const key of REQUIRED_ENV) {
 }
 
 const express = require('express');
-const { initRedis } = require('./redisClient');
+const { initRedis, getClient } = require('./redisClient');
 const pool    = require('./db'); // shared pool — imported here so DB is ready before routers load
 
 // ── Route modules ─────────────────────────────────────────────────────────────
@@ -86,6 +86,7 @@ app.use((req, res, next) => {
 app.use(express.json());
 
 // ── Route mounting ────────────────────────────────────────────────────────────
+app.use('/', adminRouter);
 app.use('/', shiprocketRouter);
 app.use('/', affiliateRouter);
 app.use('/', authRouter);
@@ -93,7 +94,6 @@ app.use('/', cartRouter);
 app.use('/', ordersRouter);
 app.use('/', productsRouter);
 app.use('/', paymentRouter);
-app.use('/', adminRouter);
 
 // ── Root & Health ─────────────────────────────────────────────────────────────
 // Port 3000 is dedicated to the backend API.
@@ -108,8 +108,44 @@ app.get('/', (req, res) => {
   });
 });
 
-app.get('/health', (req, res) => res.json({ status: 'ok', server: 'BrainyGrasp API', port: port }));
-app.get('/api/health', (req, res) => res.json({ status: 'ok', server: 'BrainyGrasp API', port: port }));
+async function handleHealthCheck(req, res) {
+  let dbStatus = 'down';
+  let redisStatus = 'down';
+
+  try {
+    const dbRes = await pool.query('SELECT 1 AS alive');
+    if (dbRes && dbRes.rows && dbRes.rows.length > 0) {
+      dbStatus = 'healthy';
+    }
+  } catch (err) {
+    dbStatus = `unhealthy: ${err.message}`;
+  }
+
+  try {
+    const rClient = getClient();
+    if (rClient) {
+      const pingRes = await rClient.ping();
+      if (pingRes === 'PONG' || pingRes) redisStatus = 'healthy';
+    } else {
+      redisStatus = 'disabled';
+    }
+  } catch (err) {
+    redisStatus = `unhealthy: ${err.message}`;
+  }
+
+  const isHealthy = dbStatus === 'healthy';
+  res.status(isHealthy ? 200 : 500).json({
+    status: isHealthy ? 'ok' : 'degraded',
+    services: {
+      database: dbStatus,
+      redis: redisStatus,
+    },
+    timestamp: new Date().toISOString(),
+  });
+}
+
+app.get('/health', handleHealthCheck);
+app.get('/api/health', handleHealthCheck);
 
 
 // ── Database initialization ───────────────────────────────────────────────────
@@ -281,26 +317,29 @@ async function initDB() {
     ).catch(() => {});
 
   } catch (err) {
-    console.error('DB init error:', err);
+    console.error('❌ DB init error:', err.message);
     throw err;
   } finally {
     if (client) client.release();
   }
 }
 
-// Retry with exponential back-off (2 s, 4 s, 8 s, 16 s, 32 s)
-async function initDBWithRetry(retries = 5) {
+// Retry with exponential back-off (2 s, 4 s, 8 s)
+async function initDBWithRetry(retries = 3) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
       await initDB();
       return;
     } catch (err) {
       const wait = Math.pow(2, attempt) * 1000;
-      console.error(`DB init attempt ${attempt} failed. Retrying in ${wait / 1000}s…`, err.message);
-      if (attempt < retries) await new Promise(r => setTimeout(r, wait));
+      console.error(`DB init attempt ${attempt} failed. Retrying in ${wait / 1000}s… (${err.message})`);
+      if (attempt < retries) {
+        await new Promise(r => setTimeout(r, wait));
+      } else {
+        throw err;
+      }
     }
   }
-  console.error('⌛ DB init failed after all retries. Tables may not be ready.');
 }
 
 // ── Phone normalisation helper (used by auth route) ───────────────────────────
@@ -315,11 +354,15 @@ function normalizePhone(raw) {
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 (async () => {
-  await initDBWithRetry();
-  await initRedis();
+  try {
+    await initDBWithRetry();
+    await initRedis();
+    app.listen(port, '0.0.0.0', () => {
+      console.log(`🚀 BrainyGrasp API running on http://localhost:${port}`);
+      console.log(`🌐 Accessible from network devices at http://0.0.0.0:${port}`);
+    });
+  } catch (err) {
+    console.error('❌ FATAL: Server startup aborted — Database connection failed:', err.message);
+    process.exit(1);
+  }
 })();
-
-app.listen(port, '0.0.0.0', () => {
-  console.log(`🚀 BrainyGrasp API running on http://localhost:${port}`);
-  console.log(`🌐 Accessible from network devices at http://0.0.0.0:${port}`);
-});

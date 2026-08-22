@@ -218,6 +218,7 @@ router.delete('/api/admin/products/:id', authenticateAdmin, async (req, res) => 
 
 // ── GET /api/admin/dashboard ──────────────────────────────────────────────────
 router.get('/api/admin/dashboard', authenticateAdmin, async (req, res) => {
+  console.log('DASHBOARD ROUTE HIT');
   try {
     const [
       productsRes, ordersCountRes, revenueRes,
@@ -256,23 +257,23 @@ router.get('/api/admin/dashboard', authenticateAdmin, async (req, res) => {
 
     res.json({
       kpis: {
-        totalProducts:   parseInt(productsRes.rows[0].count),
-        totalOrders:     parseInt(ordersCountRes.rows[0].count),
-        totalRevenue:    parseInt(revenueRes.rows[0].total),
-        confirmed:       parseInt(confirmedRes.rows[0].count),
-        deliveryPending: parseInt(pendingRes.rows[0].count),
-        delivered:       parseInt(deliveredRes.rows[0].count),
-        usersWithCart:   parseInt(usersWithCartRes.rows[0].count),
-        cartItems:       parseInt(cartItemsRes.rows[0].total_items || 0),
-        totalUsers:      parseInt(totalUsersRes.rows[0].count),
+        totalProducts:   parseInt(productsRes.rows[0]?.count || 0) || 0,
+        totalOrders:     parseInt(ordersCountRes.rows[0]?.count || 0) || 0,
+        totalRevenue:    parseInt(revenueRes.rows[0]?.total || 0) || 0,
+        confirmed:       parseInt(confirmedRes.rows[0]?.count || 0) || 0,
+        deliveryPending: parseInt(pendingRes.rows[0]?.count || 0) || 0,
+        delivered:       parseInt(deliveredRes.rows[0]?.count || 0) || 0,
+        usersWithCart:   parseInt(usersWithCartRes.rows[0]?.count || 0) || 0,
+        cartItems:       parseInt(cartItemsRes.rows[0]?.total_items || 0) || 0,
+        totalUsers:      parseInt(totalUsersRes.rows[0]?.count || 0) || 0,
       },
-      recentOrders: recentOrdersRes.rows,
-      topSelling:   topSellingRes.rows,
-      lowSelling:   lowSellingRes.rows,
+      recentOrders: recentOrdersRes.rows || [],
+      topSelling:   topSellingRes.rows || [],
+      lowSelling:   lowSellingRes.rows || [],
     });
   } catch (err) {
-    console.error('Admin dashboard error:', err);
-    res.status(500).json({ error: 'Failed to load dashboard data' });
+    console.error('Admin dashboard error details:', err.message, err.stack);
+    res.status(500).json({ error: err.message || String(err) });
   }
 });
 
@@ -324,7 +325,7 @@ router.get('/api/admin/orders', authenticateAdmin, async (req, res) => {
       ),
     ]);
 
-    res.json({ orders: ordersRes.rows, total: parseInt(countRes.rows[0].count) });
+    res.json({ orders: ordersRes.rows || [], total: parseInt(countRes.rows[0]?.count || 0) });
   } catch (err) {
     console.error('Admin orders list error:', err);
     res.status(500).json({ error: 'Failed to fetch orders' });
