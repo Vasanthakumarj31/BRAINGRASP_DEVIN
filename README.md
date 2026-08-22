@@ -39,8 +39,7 @@ You can open the static files directly (open `frontend/index.html` in a browser)
 Option: using `serve` (requires `npm`):
 ```bash
 npx serve frontend -l 5500
-# or
-npx serve frontend -l 3000
+
 ```
 
 The command will print the local URL (e.g. `http://localhost:5500`) — open that in your browser.
