@@ -93,21 +93,6 @@ const server = http.createServer((req, res) => {
     decodedPath = cleanPath; // malformed URI — use raw path as fallback
   }
 
-  // Checkout guard — redirect to login if no token present
-  if (
-    decodedPath === '/checkout' ||
-    decodedPath === '/checkout_cod.html' ||
-    decodedPath === '/checkout.html'
-  ) {
-    const hasToken =
-      req.url.includes('token=') ||
-      (req.headers.authorization && req.headers.authorization.startsWith('Bearer '));
-    if (!hasToken) {
-      res.writeHead(302, { Location: '/login.html?redirect=checkout_cod.html' });
-      res.end();
-      return;
-    }
-  }
 
   let filePath = resolveFilePath(decodedPath);
 

@@ -390,15 +390,46 @@ function initQuickView() {
   if (!modal) return;
 
   function openQuickView(productInfo) {
-    document.getElementById('quickviewImg').src = productInfo.image;
-    document.getElementById('quickviewName').textContent = productInfo.name;
-    document.getElementById('quickviewPrice').innerHTML = `&#8377;${productInfo.price}`;
-    document.getElementById('quickviewOriginal').innerHTML = `&#8377;${productInfo.originalPrice}`;
-    document.getElementById('quickviewSave').textContent = `Save ${productInfo.save}`;
-    document.getElementById('quickviewBadge').textContent = productInfo.badgeText;
-    document.getElementById('quickviewBadge').className = `quickview-badge ${productInfo.badgeClass}`;
+    const imgEl = document.getElementById('quickviewImg');
+    if (imgEl) imgEl.src = productInfo.image;
 
-    document.getElementById('quickviewQty').value = 1;
+    const nameEl = document.getElementById('quickviewName');
+    if (nameEl) nameEl.textContent = productInfo.name;
+
+    const priceEl = document.getElementById('quickviewPrice');
+    if (priceEl) priceEl.innerHTML = `&#8377;${productInfo.price}`;
+
+    const originalEl = document.getElementById('quickviewOriginal');
+    if (originalEl) {
+      if (productInfo.originalPrice && productInfo.originalPrice !== productInfo.price) {
+        originalEl.innerHTML = `&#8377;${productInfo.originalPrice}`;
+        originalEl.style.display = '';
+      } else {
+        originalEl.innerHTML = '';
+        originalEl.style.display = 'none';
+      }
+    }
+
+    const saveEl = document.getElementById('quickviewSave');
+    if (saveEl) {
+      if (productInfo.save && productInfo.save !== '0%') {
+        saveEl.textContent = `Save ${productInfo.save}`;
+        saveEl.style.display = '';
+      } else {
+        saveEl.textContent = '';
+        saveEl.style.display = 'none';
+      }
+    }
+
+    const badgeEl = document.getElementById('quickviewBadge');
+    if (badgeEl) {
+      badgeEl.textContent = productInfo.badgeText;
+      badgeEl.className = `quickview-badge ${productInfo.badgeClass}`;
+    }
+
+    const qtyEl = document.getElementById('quickviewQty');
+    if (qtyEl) qtyEl.value = 1;
+
     modal.classList.add('active');
     overlay.classList.add('active');
     document.body.style.overflow = 'hidden';
@@ -415,21 +446,37 @@ function initQuickView() {
 
   document.addEventListener('click', (e) => {
     const card = e.target.closest('.product-card');
-    if (e.target.closest('.product-image') && card) {
-      const name = card.querySelector('.product-name').textContent;
-      const image = card.querySelector('img').src;
-      const priceText = card.querySelector('.price-current').textContent.replace('₹', '');
-      const originalPriceText = card.querySelector('.price-original').textContent.replace('₹', '');
-      const saveText = card.querySelector('.price-save').textContent.replace('Save ', '');
-      const badge = card.querySelector('.product-badge');
+    if (card && !e.target.closest('.add-to-cart-btn') && !e.target.closest('.share-btn') && !e.target.closest('.share-dropdown')) {
+      const nameEl = card.querySelector('.product-name');
+      const name = nameEl ? nameEl.textContent.trim() : 'Product';
+
+      const imgEl = card.querySelector('img');
+      const image = imgEl ? imgEl.src : '';
+
+      const priceEl = card.querySelector('.price-current');
+      const priceText = priceEl ? priceEl.textContent.replace('₹', '').trim() : '0';
+
+      const originalPriceEl = card.querySelector('.price-original');
+      const originalPriceText = originalPriceEl ? originalPriceEl.textContent.replace('₹', '').trim() : priceText;
+
+      const saveEl = card.querySelector('.price-save');
+      const saveText = saveEl ? saveEl.textContent.replace('Save ', '').trim() : '0%';
+
+      const badge = card.querySelector('.adv-badge') || card.querySelector('.product-badge');
+
+      const age = card.querySelector('.product-age-pill')?.textContent.replace('Ages: ', '').trim() || card.dataset.age || '3+ Years';
+
+      const id = parseInt(card.dataset.id, 10) || Date.now();
 
       openQuickView({
+        id,
         name: name,
         image: image,
         price: priceText,
         originalPrice: originalPriceText,
         save: saveText,
-        badgeText: badge ? badge.textContent : 'Bestseller',
+        age,
+        badgeText: badge ? badge.textContent.trim() : 'Bestseller',
         badgeClass: badge ? badge.classList[1] : 'badge-bestseller'
       });
     }
